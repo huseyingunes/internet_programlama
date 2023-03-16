@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table{
+            width: 100%;
+            height: 200px;
+        }
+        table, th, td{
+            border: 2px solid black;
+            border-collapse: collapse;
+            text-align: center;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-size: 14pt;
+        }
+        td{
+            vertical-align: bottom;
+        }
+        
+        tfoot{
+            font-weight: bold;
+        }
+        tr:nth-child(even){
+            background-color: bisque;
+        }
+        tr:nth-child(odd){
+            background-color: chocolate;
+        }
+        thead th{
+            background-color: cadetblue;
+        }
+        tfoot td{
+            background-color: cadetblue;
+        }
+        tbody tr:hover{
+            background-color: cornflowerblue;
+            
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Ad</th>
+                <th>Soyad</th>
+                <th>Ara Sınav</th>
+                <th>Final</th>
+                <th>Ortalama</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>0</td>
+                <td>Ali</td>
+                <td>AYŞE</td>
+                <td>30</td>
+                <td>80</td>
+                <td>60</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Ali</td>
+                <td>AYŞE</td>
+                <td>30</td>
+                <td>80</td>
+                <td>60</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Ali</td>
+                <td>AYŞE</td>
+                <td>30</td>
+                <td>80</td>
+                <td>60</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Ali</td>
+                <td>AYŞE</td>
+                <td>30</td>
+                <td>80</td>
+                <td>60</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <td></td>
+            <td></td>
+            <td>Ortalama</td>
+            <td>30</td>
+            <td>80</td>
+            <td>60</td>
+        </tfoot>
+    </table>
+</body>
+</html>
