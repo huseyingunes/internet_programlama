@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+        <fieldset>
+            <legend>HTML Formları Öğrenme Örneği</legend>
+            Adınız <input type="text" name="ad"> <br>
+            Tc Kimlik No <input type="text" name="tc_no" maxlength="11" value="12345678911"> <hr>
+            <input type="checkbox"> Okudum, onaylıyorum
+            <input type="checkbox" checked> Zaten okumuştum <hr>
+            Cinsiyet seçiniz : Kadın<input type="radio" name="cins" checked> | Erkek<input type="radio" name="cins">
+            <hr>
+            Şehir Seçiniz <select>
+                <option value="34">İstanbul</option>
+                <option value="10" selected>Balıkesir</option>
+                <option value="16">Bursa</option>
+            </select>
+            <hr>
+            Adres <textarea>asdasdsad</textarea>
+            <hr>
+            <button>Tıkla Bana</button>
+            <hr>
+            Tarayıcılar:
+            <input list="tarayicilar">
+            <datalist id="tarayicilar">
+                <option value="Edge">
+                <option value="Firefox">
+                <option value="Chrome">
+                <option value="Opera">
+                <option value="Safari">
+            </datalist>
+            <hr>
+               0 <input type="range" min="0" max="100" value="25" id="aralik">100 <br>
+               <span id="aralik_deger"></span>
+            <hr>
+                Yaşınızı Giriniz <input type="number" min="15" max="45">
+            <hr>
+                Rengini Seç : <input type="color">
+            <hr>
+                Tarih Seçiniz : <input type="date">
+            <hr>
+                Eposta Adresiniz : <input type="email">
+            <hr>
+            <input type="submit" value="Gönder">
+            <input type="reset" value="Temizle">
+        </fieldset>
+    </form>
+    <script>
+        let aralik = document.getElementById("aralik")
+        let aralik_deger = document.getElementById("aralik_deger")
+        aralik.addEventListener("input", function(){
+            aralik_deger.innerHTML = aralik.value;
+        })
+    </script>
+</body>
+</html>
