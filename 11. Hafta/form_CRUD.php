@@ -15,6 +15,15 @@
 				echo "silinirken hata oluştu: " . $baglanti->error;
 			}
 		}
+		else if (isset($_POST['duzenlenecek_id'])){
+$sorgu = "UPDATE `musteri` SET `ad` ='".$_POST['ad']."', `soyad`='".$_POST['soyad']."' WHERE `musteri`.`id`=".$_POST['duzenlenecek_id'].";";
+
+			if ($baglanti->query($sorgu) === TRUE) {
+				echo "Kayıt başaryıla düzenlendi";
+			} else {
+				echo "silinirken hata oluştu: " . $baglanti->error;
+			}
+		}
 		else
 		{
 			$ad = $_POST['ad'];
@@ -147,11 +156,12 @@
 						else
 							echo "<td></td>";
 						echo "<td>";
-							echo "<form method='post' action='$_SERVER[PHP_SELF]'>";
-								echo "<input type='hidden' name='silinecek_id' value='$musteri[id]'>";
-								echo "<button type='submit' class='btn btn-danger'>Sil</button></td>";
-							echo "</form>";
-						echo "</td>";
+							//echo "<form method='post' action='$_SERVER[PHP_SELF]'>";
+								//echo "<input type='hidden' name='silinecek_id' value='$musteri[id]'>";
+echo "<button type='submit' class='btn btn-danger silDugmesi' data-kayitno='".$musteri["id"]."'>Sil</button>&nbsp;";
+echo "<button type='submit' class='btn btn-info duzenleDugmesi' data-kayitno='".$musteri["id"]."'>Düzenle</button></td>";
+							//echo "</form>";
+						echo "</td>"; 
 					echo "</tr>";
 				}
 			} else {
@@ -279,7 +289,78 @@
 			</div>
 			
 		</form>
-	
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+	$(".silDugmesi").on("click", function() {
+		$("#silinecekKayitGizliNesnesi").val($(this).data("kayitno"));
+		$("#silPenceresi").modal('show');
+} );
+
+$(".duzenleDugmesi").on("click", function() {
+	$.getJSON("kayitDuzenlemekIcinVeriGetir.php?did="+$(this).data("kayitno"), function(result){
+		$("#duzenle_ad").val(result.ad);
+		$("#duzenle_soyad").val(result.soyad);
+	});
+		$("#duzenlenecek_id_nesnesi").val($(this).data("kayitno"));
+		$("#duzenlePenceresi").modal('show');
+} );
+
+</script>
+
+<div class="modal fade" id="duzenlePenceresi" tabindex="-1" 
+			aria-labelledby="exampleModalLabel" 
+			aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog">
+  <form method='post' action='<?=$_SERVER['PHP_SELF']?>'>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Düzenleme</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+		<div class="col-sm-12">
+			<label class="form-label">Adınız</label>
+			<input type="text" class="form-control" name="ad" id="duzenle_ad" value="">
+		</div>
+     
+		<div class="col-sm-12">
+			<label class="form-label">Soyadınız</label>
+			<input type="text" class="form-control" name="soyad" id="duzenle_soyad" value="">
+		</div>
+	  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Hayır</button>
+		<input type='hidden' name='duzenlenecek_id' value='' id="duzenlenecek_id_nesnesi">
+        <button type="submit" class="btn btn-danger">Evet</button>
+      </div>
+    </div>
+</form>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="silPenceresi" tabindex="-1" 
+			aria-labelledby="exampleModalLabel" 
+			aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog">
+  <form method='post' action='<?=$_SERVER['PHP_SELF']?>'>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Uyarı</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">İlgili kaydı silmek istediğinizden emin misiniz?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Hayır</button>
+		<input type='hidden' name='silinecek_id' value='' id="silinecekKayitGizliNesnesi">
+        <button type="submit" class="btn btn-danger">Evet</button>
+      </div>
+    </div>
+</form>
+  </div>
+</div>
+
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
 	</body>
 </html>
