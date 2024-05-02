@@ -7,7 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    <form>
+    <form id="formId" onsubmit="prepareForm()">
         <fieldset>
             <legend>HTML Formları Öğrenme Örneği</legend>
             Adınız <input type="text" name="ad"> <br>
@@ -57,6 +57,13 @@
         aralik.addEventListener("input", function(){
             aralik_deger.innerHTML = aralik.value;
         })
+
+        function prepareForm(event) {
+            alert("merahaba");
+            event.preventDefault();
+            // Do something you need
+            document.getElementById("formId").requestSubmit();
+        }
     </script>
 </body>
 </html>
