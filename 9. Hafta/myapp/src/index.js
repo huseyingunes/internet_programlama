@@ -7,10 +7,12 @@ import OrnekJson from './OrnekJson';
 import reportWebVitals from './reportWebVitals';
 import Sayac from './Sayac';
 import Yapilacaklar from './Yapilacaklar';
+import Yorumlar from './Yorumlar';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <Yorumlar />
     <Yapilacaklar />
     <Sayac />
     <Garaj />
