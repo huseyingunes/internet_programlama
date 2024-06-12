@@ -1,0 +1,13 @@
+$myColor: purple;
+
+h1 {
+  background-color: $myColor;
+}
+
+
+@function some-func($param) {
+    @return (100/$param);
+}
+
+/* How to use a function: */
+.paragraf { border: some-func(15)px;}
