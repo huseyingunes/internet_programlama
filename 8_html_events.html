@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+  // Tüm Olaylar: https://www.w3schools.com/jsref/dom_obj_event.asp
+  function myFunction()
+  {
+    let metin = document.getElementById("myInput").value;
+    if (metin.length> 11)
+    {
+
+      document.getElementById("myInput").style.borderColor = "red";
+    }
+
+  }
+</script>
+TC Kimlik Numaranız : <input type="text" id="myInput" oninput="myFunction()">
+</body>
+</html>

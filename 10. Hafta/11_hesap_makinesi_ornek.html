@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+Sayı 1:<input type="text" id="sayi1"><br>
+Sayı 2:<input type="text" id="sayi2"><br>
+<button onclick="topla()">Topla</button>
+<button onclick="carp()">Çarp</button>
+<button onclick="cikart()">Çıkart</button>
+<button onclick="bol()">Böl</button>
+<script>
+  let sayi1 = document.getElementById("sayi1");
+    let sayi2 = document.getElementById("sayi2");
+    function topla() {
+        let sonuc = parseInt(sayi1.value) + parseInt(sayi2.value);
+        alert("Sonuç: " + sonuc);
+    }
+  function carp() {
+    let sonuc = parseInt(sayi1.value) * parseInt(sayi2.value);
+    alert("Sonuç: " + sonuc);
+  }
+
+  function cikart() {
+    let sonuc = parseInt(sayi1.value) - parseInt(sayi2.value);
+    alert("Sonuç: " + sonuc);
+  }
+
+  function bol() {
+    let sonuc = parseInt(sayi1.value) / parseInt(sayi2.value);
+    alert("Sonuç: " + sonuc);
+  }
+</script>
+</body>
+</html>
