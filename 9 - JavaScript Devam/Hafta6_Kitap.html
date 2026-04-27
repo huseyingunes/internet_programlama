@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript'in Kendine Özgü Yapıları I — BAÜ İnternet Programlama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0c0e14;
+  --surface:   #131720;
+  --surface2:  #1a2030;
+  --border:    #212840;
+  --border2:   #2d3a55;
+  --text:      #d8dff0;
+  --text-muted:#6b7a9e;
+  --text-dim:  #8494bc;
+  --accent:    #4f9eff;
+  --accent2:   #7ec8ff;
+  --accent-bg: rgba(79,158,255,.08);
+  --green:     #4ade80;
+  --green-bg:  rgba(74,222,128,.08);
+  --amber:     #f59e0b;
+  --amber-bg:  rgba(245,158,11,.08);
+  --red:       #f87171;
+  --red-bg:    rgba(248,113,113,.08);
+  --purple:    #c084fc;
+  --radius:    10px;
+  --sidebar-w: 270px;
+  --content-w: 780px;
+  --font-body: 'Literata', Georgia, serif;
+  --font-ui:   'Sora', system-ui, sans-serif;
+  --font-code: 'Fira Code', 'Cascadia Code', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.85;
+  min-height: 100vh;
+}
+
+/* ── PROGRESS BAR ─────────────────────────────────── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; z-index: 1000;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  width: 0%;
+  transition: width .1s linear;
+  box-shadow: 0 0 12px var(--accent);
+}
+
+/* ── HEADER ───────────────────────────────────────── */
+header {
+  position: fixed; top: 3px; left: 0; right: 0; z-index: 900;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  height: 54px;
+  background: rgba(12,14,20,.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.header-brand {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font-ui); font-size: 13px; color: var(--text-muted);
+}
+.header-brand .badge {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid rgba(79,158,255,.25);
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: .04em;
+}
+.header-actions { display: flex; gap: 8px; }
+.btn-icon {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-muted); border-radius: 8px;
+  width: 34px; height: 34px;
+  display: grid; place-items: center; cursor: pointer;
+  font-size: 15px; transition: all .2s;
+}
+.btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── LAYOUT ───────────────────────────────────────── */
+.layout {
+  display: flex;
+  padding-top: 57px;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ──────────────────────────────────────── */
+aside {
+  position: fixed; top: 57px; left: 0;
+  width: var(--sidebar-w);
+  height: calc(100vh - 57px);
+  overflow-y: auto;
+  padding: 24px 0 40px;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+aside::-webkit-scrollbar { width: 4px; }
+aside::-webkit-scrollbar-track { background: transparent; }
+aside::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.sidebar-title {
+  font-family: var(--font-ui); font-size: 10px;
+  color: var(--text-muted); font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 0 20px 10px;
+}
+
+nav ul { list-style: none; }
+nav ul li a {
+  display: block;
+  padding: 6px 20px;
+  font-family: var(--font-ui); font-size: 12.5px;
+  color: var(--text-muted); text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: all .15s;
+  line-height: 1.4;
+}
+nav ul li a:hover { color: var(--accent); background: var(--accent-bg); }
+nav ul li a.active {
+  color: var(--accent2); border-left-color: var(--accent);
+  background: var(--accent-bg);
+}
+nav ul li.h1-item > a {
+  font-weight: 600; font-size: 13px; color: var(--text-dim);
+  padding-top: 10px;
+}
+nav ul li.h2-item > a { padding-left: 32px; }
+nav ul li.h3-item > a { padding-left: 44px; font-size: 12px; }
+
+/* ── MAIN CONTENT ─────────────────────────────────── */
+main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 48px 60px 96px;
+  max-width: calc(var(--sidebar-w) + var(--content-w) + 120px);
+}
+
+.content-inner { max-width: var(--content-w); }
+
+/* ── COVER ────────────────────────────────────────── */
+.cover {
+  padding: 64px 0 80px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 72px;
+}
+.cover-meta {
+  font-family: var(--font-ui); font-size: 12px;
+  color: var(--text-muted); letter-spacing: .06em;
+  text-transform: uppercase; margin-bottom: 28px;
+  display: flex; align-items: center; gap: 12px;
+}
+.cover-meta::before {
+  content: '';
+  display: inline-block; width: 28px; height: 2px;
+  background: var(--accent);
+}
+.cover h1 {
+  font-family: var(--font-ui); font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700; line-height: 1.15;
+  color: #fff;
+  margin-bottom: 16px;
+  letter-spacing: -.02em;
+}
+.cover h1 span { color: var(--accent); }
+.cover-sub {
+  font-size: 16px; color: var(--text-muted); font-style: italic;
+  margin-bottom: 32px; line-height: 1.6;
+}
+.cover-tags {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.tag {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+  padding: 5px 14px; border-radius: 20px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text-dim);
+}
+.tag.accent { background: var(--accent-bg); border-color: rgba(79,158,255,.3); color: var(--accent); }
+
+/* ── TYPOGRAPHY ───────────────────────────────────── */
+.chapter-section { margin-bottom: 80px; }
+
+h2 {
+  font-family: var(--font-ui); font-size: 22px;
+  font-weight: 700; color: #fff;
+  margin: 52px 0 18px;
+  letter-spacing: -.01em;
+  padding-top: 8px;
+}
+h2::before {
+  content: attr(data-num);
+  font-size: 11px; font-weight: 600;
+  color: var(--accent); letter-spacing: .08em;
+  display: block; margin-bottom: 6px;
+  font-family: var(--font-ui);
+}
+
+h3 {
+  font-family: var(--font-ui); font-size: 16px;
+  font-weight: 600; color: var(--text);
+  margin: 36px 0 12px;
+}
+h3::before { content: '↳ '; color: var(--accent); font-size: 14px; }
+
+.chapter-title {
+  font-family: var(--font-ui); font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700; color: #fff;
+  margin: 0 0 10px;
+  line-height: 1.2; letter-spacing: -.02em;
+  padding-top: 0;
+}
+.chapter-title::before { display: none; }
+.chapter-num {
+  font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+  color: var(--accent); letter-spacing: .1em; text-transform: uppercase;
+  display: block; margin-bottom: 8px;
+}
+.chapter-lead {
+  font-size: 15.5px; color: var(--text-muted);
+  font-style: italic; margin-bottom: 8px; line-height: 1.8;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+p {
+  font-size: 15.5px; line-height: 1.9;
+  color: var(--text); margin-bottom: 18px;
+}
+
+code {
+  font-family: var(--font-code); font-size: 13.5px;
+  background: var(--surface2); color: var(--amber);
+  padding: 1px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+/* ── CODE BLOCKS ──────────────────────────────────── */
+.code-block {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 20px 0 28px;
+  font-family: var(--font-code);
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.code-dots { display: flex; gap: 6px; }
+.code-dots span {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.code-dots span:nth-child(1) { background: #ff5f57; }
+.code-dots span:nth-child(2) { background: #febc2e; }
+.code-dots span:nth-child(3) { background: #28c840; }
+.code-lang {
+  font-family: var(--font-ui); font-size: 11px;
+  color: var(--text-muted); letter-spacing: .05em;
+}
+.copy-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--text-muted); font-family: var(--font-ui);
+  font-size: 11px; padding: 3px 10px; border-radius: 5px;
+  cursor: pointer; transition: all .2s;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+pre {
+  margin: 0;
+  padding: 20px 20px;
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.7;
+  tab-size: 2;
+}
+pre code {
+  background: none; border: none; padding: 0;
+  color: var(--text); font-size: inherit;
+}
+
+/* Syntax tokens */
+.kw  { color: #c084fc; font-weight: 500; }   /* keyword */
+.str { color: #86efac; }                       /* string */
+.num { color: #fbbf24; }                       /* number */
+.cmt { color: #4b5a7a; font-style: italic; }  /* comment */
+.fn  { color: #60a5fa; }                       /* function */
+.op  { color: #94a3b8; }                       /* operator */
+.ok  { color: #4ade80; }                       /* output ok */
+.err { color: #f87171; }                       /* output err */
+
+/* ── CALLOUT BOXES ────────────────────────────────── */
+.callout {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 20px 0 28px;
+  display: flex; gap: 14px; align-items: flex-start;
+  border: 1px solid;
+  font-size: 14.5px; line-height: 1.75;
+}
+.callout .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.callout strong { font-family: var(--font-ui); font-size: 13px;
+  font-weight: 700; display: block; margin-bottom: 4px; }
+.callout p { margin: 0; font-size: 14px; }
+
+.callout.info  { background: var(--accent-bg); border-color: rgba(79,158,255,.3); }
+.callout.info strong { color: var(--accent); }
+.callout.warn  { background: var(--amber-bg);  border-color: rgba(245,158,11,.3); }
+.callout.warn strong { color: var(--amber); }
+.callout.danger{ background: var(--red-bg);    border-color: rgba(248,113,113,.3); }
+.callout.danger strong { color: var(--red); }
+.callout.tip   { background: var(--green-bg);  border-color: rgba(74,222,128,.3); }
+.callout.tip strong { color: var(--green); }
+
+/* ── TABLES ───────────────────────────────────────── */
+.table-wrap {
+  overflow-x: auto; margin: 20px 0 28px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+thead tr { background: var(--surface2); }
+thead th {
+  padding: 12px 16px; text-align: left;
+  font-family: var(--font-ui); font-size: 12px;
+  font-weight: 600; color: var(--accent2);
+  letter-spacing: .04em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
+tbody tr:hover { background: var(--accent-bg); }
+tbody td {
+  padding: 10px 16px; color: var(--text-dim);
+  font-family: var(--font-code); font-size: 13px;
+  vertical-align: top;
+}
+tbody td:first-child { color: var(--accent); font-weight: 500; }
+tbody td:last-child { font-family: var(--font-ui); font-size: 13px; color: var(--text-muted); }
+
+/* ── LISTS ────────────────────────────────────────── */
+ul.content-list, ol.content-list {
+  margin: 12px 0 20px 0;
+  padding-left: 0;
+  list-style: none;
+}
+ul.content-list li, ol.content-list li {
+  padding: 6px 0 6px 28px;
+  position: relative;
+  font-size: 15px; line-height: 1.8;
+  color: var(--text);
+}
+ul.content-list li::before {
+  content: '▸';
+  position: absolute; left: 6px;
+  color: var(--accent); font-size: 11px; top: 9px;
+}
+ol.content-list { counter-reset: ol-counter; }
+ol.content-list li { counter-increment: ol-counter; }
+ol.content-list li::before {
+  content: counter(ol-counter) '.';
+  position: absolute; left: 0;
+  color: var(--accent); font-family: var(--font-ui);
+  font-size: 12px; font-weight: 700; top: 8px;
+}
+
+/* ── SECTION DIVIDER ──────────────────────────────── */
+.section-end {
+  text-align: center; padding: 60px 0 20px;
+  color: var(--text-muted); font-style: italic;
+  font-size: 14px;
+}
+.section-end::before {
+  content: '';
+  display: block; width: 40px; height: 1px;
+  background: var(--border2); margin: 0 auto 20px;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────── */
+@media (max-width: 900px) {
+  aside { display: none; }
+  main { margin-left: 0; padding: 32px 24px 80px; }
+}
+@media print {
+  aside, header, #progress-bar { display: none !important; }
+  main { margin: 0; padding: 20px; }
+  body { background: white; color: black; }
+}
+
+/* ── SMOOTH REVEAL ────────────────────────────────── */
+.chapter-section {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.chapter-section.visible { opacity: 1; transform: none; }
+.cover { opacity: 1; transform: none; }
+
+/* ── SEARCH ───────────────────────────────────────── */
+.search-wrap {
+  padding: 0 16px 16px;
+}
+.search-input {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 12px; color: var(--text);
+  font-family: var(--font-ui); font-size: 12.5px;
+  outline: none; transition: border-color .2s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header>
+  <div class="header-brand">
+    <span class="badge">Hafta 6</span>
+    <span>BAÜ · Bilgisayar Mühendisliği · İnternet Programlama</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn-icon" onclick="toggleFont()" title="Yazı tipi">Aa</button>
+    <button class="btn-icon" onclick="window.print()" title="Yazdır">⎙</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside id="sidebar">
+    <div class="search-wrap">
+      <input type="text" class="search-input" placeholder="Ara…" oninput="filterNav(this.value)" />
+    </div>
+    <p class="sidebar-title">İçindekiler</p>
+    <nav>
+      <ul id="toc">
+        <li class="h1-item"><a href="#bolum1">Bölüm 1 — var, let, const</a></li>
+        <li class="h2-item"><a href="#b1-1">1.1 var — Fonksiyon Kapsamı</a></li>
+        <li class="h2-item"><a href="#b1-2">1.2 let — Blok Kapsamı</a></li>
+        <li class="h2-item"><a href="#b1-3">1.3 const — Sabit Referans</a></li>
+        <li class="h2-item"><a href="#b1-4">1.4 Gerçek Dünya Örnekleri</a></li>
+        <li class="h2-item"><a href="#b1-5">1.5 Asenkron Döngü Tuzağı</a></li>
+        <li class="h2-item"><a href="#b1-6">1.6 Hangisi Ne Zaman?</a></li>
+        <li class="h2-item"><a href="#b1-7">1.7 Strict Mode</a></li>
+        <li class="h2-item"><a href="#b1-8">1.8 Destructuring</a></li>
+        <li class="h2-item"><a href="#b1-9">1.9 Template Literals</a></li>
+        <li class="h1-item"><a href="#bolum2">Bölüm 2 — Hoisting</a></li>
+        <li class="h2-item"><a href="#b2-1">2.1 var Hoisting</a></li>
+        <li class="h2-item"><a href="#b2-2">2.2 Fonksiyon Hoisting</a></li>
+        <li class="h2-item"><a href="#b2-3">2.3 TDZ</a></li>
+        <li class="h2-item"><a href="#b2-4">2.4 İyi Pratikler</a></li>
+        <li class="h2-item"><a href="#b2-5">2.5 Motor İki Aşaması + Tablo</a></li>
+        <li class="h1-item"><a href="#bolum3">Bölüm 3 — Tip Coercion</a></li>
+        <li class="h2-item"><a href="#b3-1">3.1 typeof</a></li>
+        <li class="h2-item"><a href="#b3-2">3.2 NaN</a></li>
+        <li class="h2-item"><a href="#b3-3">3.3 + Operatörü</a></li>
+        <li class="h2-item"><a href="#b3-4">3.4 == vs ===</a></li>
+        <li class="h2-item"><a href="#b3-6">3.6 == Algoritması</a></li>
+        <li class="h2-item"><a href="#b3-7">3.7 Pratik Senaryolar</a></li>
+        <li class="h2-item"><a href="#b3-8">3.8 Object.is()</a></li>
+        <li class="h2-item"><a href="#b3-9">3.9 Özet + Referans Tablo</a></li>
+        <li class="h1-item"><a href="#bolum4">Bölüm 4 — &&, ||, ??</a></li>
+        <li class="h2-item"><a href="#b4-1">4.1 && AND</a></li>
+        <li class="h2-item"><a href="#b4-2">4.2 || OR</a></li>
+        <li class="h2-item"><a href="#b4-3">4.3 ?? Nullish</a></li>
+        <li class="h2-item"><a href="#b4-4">4.4 Optional Chaining</a></li>
+        <li class="h2-item"><a href="#b4-5">4.5 Atama Op.</a></li>
+        <li class="h2-item"><a href="#b4-6">4.6 Gerçek Dünya</a></li>
+        <li class="h2-item"><a href="#b4-9">4.9 Async + Öncelik</a></li>
+        <li class="h1-item"><a href="#bolum5">Bölüm 5 — Egzersizler</a></li>
+        <li class="h2-item"><a href="#b5-1">5.1–5.3 Egzersiz Setleri</a></li>
+        <li class="h2-item"><a href="#b5-4">5.4 Sık Hatalar</a></li>
+        <li class="h2-item"><a href="#b5-5">5.5 Kod İncelemesi</a></li>
+        <li class="h2-item"><a href="#b5-8">5.8–5.9 İleri Düzey</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="content-inner">
+
+      <!-- COVER -->
+      <div class="cover">
+        <p class="cover-meta">Balıkesir Üniversitesi · Bilgisayar Mühendisliği · Bölüm 6</p>
+        <h1>JavaScript'in Kendine<br><span>Özgü Yapıları I</span></h1>
+        <p class="cover-sub">var · let · const · Hoisting · Tip Coercion · Truthy/Falsy · &&, ||, ??<br>
+        135 dakikalık (3 × 45 dk) Hafta 6 dersi için hazırlanmış detaylı referans metni.</p>
+        <div class="cover-tags">
+          <span class="tag accent">ES6+</span>
+          <span class="tag">Değişkenler</span>
+          <span class="tag">Hoisting</span>
+          <span class="tag">Type Coercion</span>
+          <span class="tag">Truthy/Falsy</span>
+          <span class="tag">Operatörler</span>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════
+           BÖLÜM 1
+      ════════════════════════════════════════════ -->
+      <section class="chapter-section" id="bolum1">
+        <span class="chapter-num">Bölüm 01</span>
+        <h2 class="chapter-title">var, let ve const: Üç Anahtar Kelimenin Farkı</h2>
+        <p class="chapter-lead">JavaScript'te değişken tanımlamanın üç yolu birbirinin alternatifi değildir — her birinin farklı kapsam kuralları, hoisting davranışı ve yeniden atama politikası vardır.</p>
+
+        <h2 id="b1-1" data-num="1.1">var — Fonksiyon Kapsamlı, Hoisted, Eski Usul</h2>
+        <p><code>var</code> JavaScript'in 1995'ten beri var olan orijinal anahtar kelimesidir. İki belirgin özelliği vardır: <strong>fonksiyon kapsamı</strong> ve <strong>hoisting</strong>.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">function</span> <span class="fn">ornek</span>() {
+  <span class="kw">if</span> (<span class="kw">true</span>) {
+    <span class="kw">var</span> mesaj = <span class="str">"Merhaba"</span>;
+  }
+  console.<span class="fn">log</span>(mesaj); <span class="cmt">// "Merhaba" — if bloğu dışında!</span>
+}
+
+<span class="kw">for</span> (<span class="kw">var</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) { }
+console.<span class="fn">log</span>(i); <span class="cmt">// 3 — döngü dışında bile erişilebilir!</span></code></pre>
+        </div>
+
+        <div class="callout danger">
+          <span class="icon">⚠</span>
+          <div>
+            <strong>Yaygın Hata</strong>
+            <p>for döngüsünde <code>var</code> kullanmak, döngü değişkeninin döngü bittikten sonra da var olmaya devam etmesi anlamına gelir. Asenkron callback'ler (setTimeout, event listener) döngü bittikten sonra çalıştıklarında, hepsi döngünün son değerini okur — JavaScript'te en sık karşılaşılan hata kaynaklarından biridir.</p>
+          </div>
+        </div>
+
+        <h2 id="b1-2" data-num="1.2">let — Blok Kapsamlı Modern Standart</h2>
+        <p><code>let</code> ES6 (2015) ile eklendi ve <code>var</code>'ın fonksiyon kapsamı sorununu çözdü. Tanımlandığı <strong>blok</strong> içinde yaşar; blok dışına çıkmaz:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">function</span> <span class="fn">ornek</span>() {
+  <span class="kw">if</span> (<span class="kw">true</span>) {
+    <span class="kw">let</span> mesaj = <span class="str">"Merhaba"</span>;
+    console.<span class="fn">log</span>(mesaj); <span class="ok">// "Merhaba" ✓</span>
+  }
+  console.<span class="fn">log</span>(mesaj); <span class="err">// ReferenceError: mesaj is not defined</span>
+}
+
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) { }
+console.<span class="fn">log</span>(i); <span class="err">// ReferenceError ✓ — döngü dışında yok</span>
+
+<span class="kw">let</span> x = <span class="num">10</span>;
+x = <span class="num">20</span>; <span class="ok">// ✓ geçerli — yeniden atama</span>
+<span class="kw">let</span> x = <span class="num">30</span>; <span class="err">// SyntaxError — yeniden tanım yasak</span></code></pre>
+        </div>
+
+        <h2 id="b1-3" data-num="1.3">const — Sabit Referans</h2>
+        <p><code>const</code> değişkenin <strong>referansını</strong> kilitler, nesnenin <strong>içeriğini</strong> değil. Bu kritik bir ayrımdır:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">const</span> PI = <span class="num">3.14159</span>;
+PI = <span class="num">3</span>; <span class="err">// TypeError: Assignment to constant variable</span>
+
+<span class="kw">const</span> kullanici = { ad: <span class="str">"Ahmet"</span>, yas: <span class="num">25</span> };
+kullanici.yas = <span class="num">26</span>; <span class="ok">// ✓ geçerli — nesne içeriği değişebilir</span>
+kullanici = {};     <span class="err">// TypeError — referans değiştirilemez</span>
+
+<span class="cmt">// Gerçekten dondurulmuş nesne için:</span>
+<span class="kw">const</span> SABIT = Object.<span class="fn">freeze</span>({ PI: <span class="num">3.14159</span>, E: <span class="num">2.71828</span> });</code></pre>
+        </div>
+
+        <div class="callout tip">
+          <span class="icon">✦</span>
+          <div>
+            <strong>Altın Kural</strong>
+            <p>Başlangıç noktası olarak <code>const</code> kullanın. Yeniden atama gerekiyorsa <code>let</code>'e geçin. <code>var</code>'ı hiçbir koşulda kullanmayın — modern JS kod tabanlarında <code>var</code> görmek kötü pratik işaretidir.</p>
+          </div>
+        </div>
+
+        <h2 id="b1-4" data-num="1.4">Gerçek Dünya Örnekleri</h2>
+
+        <h3>DOM Referansları</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">const</span> btn   = document.<span class="fn">getElementById</span>(<span class="str">'gonder'</span>);
+<span class="kw">const</span> input = document.<span class="fn">querySelector</span>(<span class="str">'input'</span>);
+
+input.value = <span class="str">'Yeni değer'</span>; <span class="ok">// ✓ içerik değişebilir</span>
+input = <span class="kw">null</span>;              <span class="err">// TypeError — referans değişemez</span></code></pre>
+        </div>
+
+        <h3>Sabit Yapılandırmalar</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">const</span> CONFIG = {
+  apiUrl:     <span class="str">'https://api.example.com'</span>,
+  timeout:    <span class="num">5000</span>,
+  maxRetries: <span class="num">3</span>,
+};
+
+CONFIG.timeout = <span class="num">8000</span>; <span class="ok">// ✓ izin verilir</span>
+CONFIG = {};            <span class="err">// TypeError — referans değiştirilemez</span></code></pre>
+        </div>
+
+        <h2 id="b1-5" data-num="1.5">var'ın Gerçek Tehlikesi: Asenkron Döngüler</h2>
+        <p><code>var</code>'ın en tehlikeli davranışı asenkron callback'lerle birleştiğinde ortaya çıkar:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="cmt">// var ile HATA — tüm butonlar 5 yazar!</span>
+<span class="kw">for</span> (<span class="kw">var</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) {
+  document.<span class="fn">getElementById</span>(<span class="str">'btn'</span> + i).<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+    console.<span class="fn">log</span>(<span class="str">'Buton '</span> + i + <span class="str">' tıklandı'</span>);
+  });
+}
+<span class="cmt">// Tüm butonlar "Buton 5 tıklandı" yazar</span>
+
+<span class="cmt">// let ile DOĞRU — her iterasyonda yeni kapsam</span>
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) {
+  document.<span class="fn">getElementById</span>(<span class="str">'btn'</span> + i).<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+    console.<span class="fn">log</span>(<span class="str">'Buton '</span> + i + <span class="str">' tıklandı'</span>);
+  });
+}
+<span class="cmt">// Her buton kendi i değerini yazar: 0, 1, 2, 3, 4</span></code></pre>
+        </div>
+
+        <h2 id="b1-6" data-num="1.6">Hangisi Ne Zaman?</h2>
+        <ul class="content-list">
+          <li><strong><code>const</code></strong> — değer ömrü boyunca yeniden atanmayacaksa: konfigürasyon, DOM referansları, fonksiyonlar, sabitler.</li>
+          <li><strong><code>let</code></strong> — sayaç, döngü değişkeni, koşullu olarak değişen değerler.</li>
+          <li><strong><code>var</code></strong> — kullanmayın. Yeni kodda yeri yoktur.</li>
+        </ul>
+
+        <div class="callout info">
+          <span class="icon">ℹ</span>
+          <div>
+            <strong>ESLint</strong>
+            <p>ESLint veya TypeScript kullanan modern projelerde <code>no-var</code> kuralı varsayılan olarak açıktır; <code>var</code> kullanıldığında lint hatası verir.</p>
+          </div>
+        </div>
+
+        <h2 id="b1-7" data-num="1.7">Strict Mode ve Değişken Bildirimi</h2>
+        <p>Strict modda bildirilmemiş değişkene atama yapmak artık hata üretir:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="cmt">// Normal mod — sessiz global yaratır:</span>
+<span class="kw">function</span> <span class="fn">normal</span>() {
+  kazara = <span class="num">42</span>; <span class="err">// Global değişken oluşturur!</span>
+}
+
+<span class="cmt">// Strict mode — hata:</span>
+<span class="str">'use strict'</span>;
+<span class="kw">function</span> <span class="fn">guvenli</span>() {
+  kazara = <span class="num">42</span>; <span class="err">// ReferenceError: kazara is not defined</span>
+}</code></pre>
+        </div>
+
+        <p>ES6 modülleri (<code>import</code>/<code>export</code>) otomatik olarak strict modda çalışır. React, Vue, Angular projelerinde bu zaten varsayılandır.</p>
+
+        <h2 id="b1-8" data-num="1.8">Destructuring Assignment ile let/const</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="cmt">// Dizi destructuring</span>
+<span class="kw">const</span> [ilk, ikinci, ...geri_kalan] = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>];
+
+<span class="cmt">// Nesne destructuring — varsayılan değerle</span>
+<span class="kw">const</span> { ad, yas, sehir = <span class="str">'Bilinmiyor'</span> } = kullanici;
+
+<span class="cmt">// Fonksiyon parametresinde</span>
+<span class="kw">function</span> <span class="fn">selamla</span>({ ad, yas }) {
+  console.<span class="fn">log</span>(<span class="str">`${ad}, ${yas} yaşında`</span>);
+}</code></pre>
+        </div>
+
+        <h2 id="b1-9" data-num="1.9">Template Literals ve Değişken Kullanımı</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">const</span> ad  = <span class="str">'Ahmet'</span>;
+<span class="kw">const</span> yas = <span class="num">25</span>;
+
+<span class="cmt">// Eski yöntem</span>
+<span class="kw">const</span> m1 = <span class="str">'Merhaba, '</span> + ad + <span class="str">'! '</span> + yas + <span class="str">' yaşındasın.'</span>;
+
+<span class="cmt">// Template literal — temiz ve güçlü</span>
+<span class="kw">const</span> m2 = <span class="str">`Merhaba, ${ad}! ${yas} yaşındasın.`</span>;
+
+<span class="cmt">// İfade desteği</span>
+<span class="kw">const</span> fiyat = <span class="num">100</span>;
+<span class="kw">const</span> kdv   = <span class="str">`KDV dahil: ${(fiyat * <span class="num">1.18</span>).<span class="fn">toFixed</span>(<span class="num">2</span>)} TL`</span>;</code></pre>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════
+           BÖLÜM 2
+      ════════════════════════════════════════════ -->
+      <section class="chapter-section" id="bolum2">
+        <span class="chapter-num">Bölüm 02</span>
+        <h2 class="chapter-title">Hoisting: Motor Kodu Önceden Tarar</h2>
+        <p class="chapter-lead"><strong>Hoisting</strong>, JavaScript motorunun kodu çalıştırmadan önce iki geçiş yapmasından kaynaklanır. İlk geçişte tanımlamalar taranır; ikinci geçişte kod satır satır yürütülür.</p>
+
+        <h2 id="b2-1" data-num="2.1">var Hoisting</h2>
+        <p><code>var</code> tanımlamaları hoisted olduğunda, değişkenin adı kapsamın tepesine taşınır ama <strong>değer taşınmaz</strong>:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code>console.<span class="fn">log</span>(x); <span class="ok">// undefined — hata değil!</span>
+<span class="kw">var</span> x = <span class="num">5</span>;
+console.<span class="fn">log</span>(x); <span class="ok">// 5</span>
+
+<span class="cmt">// Motorun gördüğü (kavramsal):</span>
+<span class="kw">var</span> x;            <span class="cmt">// tanım yukarı taşındı</span>
+console.<span class="fn">log</span>(x); <span class="cmt">// undefined</span>
+x = <span class="num">5</span>;            <span class="cmt">// atama yerinde kaldı</span>
+console.<span class="fn">log</span>(x); <span class="cmt">// 5</span></code></pre>
+        </div>
+
+        <h2 id="b2-2" data-num="2.2">Fonksiyon Hoisting</h2>
+        <p>Fonksiyon <strong>bildirimleri</strong> tamamen hoisted olur; tanımdan önce çağrılabilir. Fonksiyon <strong>ifadeleri</strong> için bu geçerli değildir:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="fn">selamla</span>(); <span class="ok">// "Merhaba!" — tamamen hoisted</span>
+<span class="kw">function</span> <span class="fn">selamla</span>() { console.<span class="fn">log</span>(<span class="str">"Merhaba!"</span>); }
+
+<span class="fn">topla</span>(<span class="num">2</span>, <span class="num">3</span>); <span class="err">// TypeError: topla is not a function</span>
+<span class="kw">var</span> topla = <span class="kw">function</span>(a, b) { <span class="kw">return</span> a + b; };
+<span class="cmt">// var topla; yukarı taşındı (undefined), atama taşınmadı</span></code></pre>
+        </div>
+
+        <h2 id="b2-3" data-num="2.3">let ve const — TDZ (Temporal Dead Zone)</h2>
+        <p><code>let</code> ve <code>const</code> de hoisted olur ama başlangıç değeri atanmaz. Tanım satırına kadar bu değişkenlere erişim <strong>ReferenceError</strong> üretir:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code>console.<span class="fn">log</span>(y); <span class="err">// ReferenceError: Cannot access 'y' before initialization</span>
+               <span class="cmt">// (TDZ — y hoisted ama kullanılamıyor)</span>
+<span class="kw">let</span> y = <span class="num">42</span>;     <span class="cmt">// TDZ sona erdi</span>
+console.<span class="fn">log</span>(y); <span class="ok">// 42 ✓</span></code></pre>
+        </div>
+
+        <div class="callout tip">
+          <span class="icon">✦</span>
+          <div>
+            <strong>TDZ'nin Avantajı</strong>
+            <p>TDZ bir kısıtlama gibi görünse de <code>var</code>'ın sessiz <code>undefined</code> davranışından çok daha güvenlidir. <code>var</code> hatayı gizler; <code>let</code>/<code>const</code> anında bildirir. Hatayı erken yakalamak, büyük projelerde çok değerlidir.</p>
+          </div>
+        </div>
+
+        <h2 id="b2-4" data-num="2.4">İyi Pratikler</h2>
+        <ol class="content-list">
+          <li><strong>Değişkenleri kullanmadan önce tanımlayın</strong> — <code>var</code> buna izin verse de, önce tanımlamak okunabilirliği artırır.</li>
+          <li><strong><code>let</code>/<code>const</code> kullanın</strong> — TDZ, hoisting kaynaklı gizli hataları ortadan kaldırır.</li>
+          <li><strong><code>'use strict'</code> etkinleştirin</strong> — Bildirilmemiş değişkene atamayı hata olarak yakalar.</li>
+          <li><strong>Fonksiyon ifadelerini kullanımdan önce tanımlayın</strong> — hoisting'e güvenmek okunabilirliği azaltır.</li>
+        </ol>
+
+        <h2 id="b2-5" data-num="2.5">Motor İki Aşaması + Hoisting Tablosu</h2>
+
+        <div class="callout info">
+          <span class="icon">⚙</span>
+          <div>
+            <strong>JavaScript Motorunun İki Aşaması</strong>
+            <p><strong>Parse aşaması:</strong> <code>var</code> isimler <code>undefined</code> ile kaydedilir; <code>function</code> bildirimleri tamamen yüklenir; <code>let</code>/<code>const</code> isimler kaydedilir ama başlatılmaz (TDZ).<br>
+            <strong>Çalışma aşaması:</strong> Kod satır satır yürütülür; atamalar gerçekleşir; TDZ kapanır.</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Anahtar Kelime</th><th>Hoisting</th><th>TDZ</th><th>Tanımdan Önce Erişim</th>
+            </tr></thead>
+            <tbody>
+              <tr><td>var</td><td>Evet (undefined)</td><td>Hayır</td><td>undefined döner</td></tr>
+              <tr><td>let</td><td>Evet</td><td>Var</td><td>ReferenceError</td></tr>
+              <tr><td>const</td><td>Evet</td><td>Var</td><td>ReferenceError</td></tr>
+              <tr><td>function declaration</td><td>Evet (tam)</td><td>Hayır</td><td>Çalışır ✓</td></tr>
+              <tr><td>function expression</td><td>var ise: evet</td><td>let/const: var</td><td>TypeError veya ReferenceError</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════
+           BÖLÜM 3
+      ════════════════════════════════════════════ -->
+      <section class="chapter-section" id="bolum3">
+        <span class="chapter-num">Bölüm 03</span>
+        <h2 class="chapter-title">Tip Coercion: JavaScript'in Sessiz Dönüşümleri</h2>
+        <p class="chapter-lead"><strong>Tip coercion</strong>, farklı tiplerdeki değerler üzerinde işlem yapılırken JavaScript'in otomatik gerçekleştirdiği tip dönüşümüdür. Hata vermez — sadece beklenmedik sonuçlar üretir.</p>
+
+        <h2 id="b3-1" data-num="3.1">typeof Operatörü</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">typeof</span> <span class="num">42</span>            <span class="ok">// "number"</span>
+<span class="kw">typeof</span> <span class="str">"merhaba"</span>     <span class="ok">// "string"</span>
+<span class="kw">typeof</span> <span class="kw">true</span>           <span class="ok">// "boolean"</span>
+<span class="kw">typeof</span> <span class="kw">undefined</span>      <span class="ok">// "undefined"</span>
+<span class="kw">typeof</span> {}             <span class="ok">// "object"</span>
+<span class="kw">typeof</span> []             <span class="ok">// "object"  </span><span class="cmt">← dizi de object!</span>
+<span class="kw">typeof</span> <span class="kw">function</span>(){}   <span class="ok">// "function"</span>
+<span class="kw">typeof</span> <span class="kw">null</span>           <span class="err">// "object"  ← TARİHİN HATASI</span></code></pre>
+        </div>
+
+        <div class="callout warn">
+          <span class="icon">⚠</span>
+          <div>
+            <strong>null Kontrolü</strong>
+            <p><code>typeof null === "object"</code> olduğu için <code>typeof</code> ile null kontrolü yapılamaz. Bunun yerine <code>x === null</code> kullanın. 1995'te null pointer'ın bit temsili <code>000</code>'dı; nesne etiketi de <code>000</code>'dı. Bu hata 1997'de fark edildi ama web'i kırmamak için hiç düzeltilmedi.</p>
+          </div>
+        </div>
+
+        <h2 id="b3-2" data-num="3.2">NaN — Sayı Olmayan Sayı</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="fn">parseInt</span>(<span class="str">"abc"</span>)    <span class="cmt">// NaN</span>
+<span class="num">0</span> / <span class="num">0</span>              <span class="cmt">// NaN</span>
+Math.<span class="fn">sqrt</span>(-<span class="num">1</span>)      <span class="cmt">// NaN</span>
+
+<span class="kw">typeof</span> NaN         <span class="ok">// "number"  ← sürpriz!</span>
+NaN === NaN        <span class="err">// false    ← kendine bile eşit değil (IEEE 754)</span>
+
+<span class="fn">isNaN</span>(<span class="str">"abc"</span>)       <span class="err">// true  (önce sayıya çevirir — dikkatli olun)</span>
+Number.<span class="fn">isNaN</span>(NaN)  <span class="ok">// true  ← doğru ve güvenli yol</span>
+Number.<span class="fn">isNaN</span>(<span class="str">"abc"</span>) <span class="ok">// false ← string değil NaN</span></code></pre>
+        </div>
+
+        <div class="callout warn">
+          <span class="icon">⚠</span>
+          <div>
+            <strong>isNaN vs Number.isNaN</strong>
+            <p><code>isNaN()</code> argümanı önce sayıya çevirir. Bu yüzden <code>isNaN("abc")</code> → <code>true</code> döner. Her zaman <code>Number.isNaN()</code> kullanın.</p>
+          </div>
+        </div>
+
+        <h2 id="b3-3" data-num="3.3">+ Operatörünün İkili Kişiliği</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="num">1</span> + <span class="num">2</span> + <span class="str">"3"</span>    <span class="ok">// "33"  </span><span class="cmt">(önce 1+2=3, sonra 3+"3"="33")</span>
+<span class="str">"1"</span> + <span class="num">2</span> + <span class="num">3</span>    <span class="ok">// "123" </span><span class="cmt">(önce "1"+2="12", sonra "12"+3="123")</span>
+<span class="str">"5"</span> - <span class="num">2</span>         <span class="ok">// 3    </span><span class="cmt">("5" → 5, sonra 5-2)</span>
+<span class="str">"abc"</span> - <span class="num">2</span>       <span class="cmt">// NaN</span>
+
+<span class="cmt">// Güvenli dönüşümler:</span>
+<span class="fn">Number</span>(<span class="str">"42"</span>)      <span class="ok">// 42  — tercih edilen</span>
+<span class="fn">parseInt</span>(<span class="str">"42px"</span>)  <span class="ok">// 42  — sayısal başlangıçlı string</span>
+<span class="fn">String</span>(<span class="num">42</span>)        <span class="ok">// "42"</span>
+<span class="str">`${<span class="num">42</span>}`</span>           <span class="ok">// "42"  — template literal</span></code></pre>
+        </div>
+
+        <h2 id="b3-4" data-num="3.4">== vs === — Gevşek ve Katı Eşitlik</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="cmt">// == ile sürprizler (tip dönüşümü yapar):</span>
+<span class="num">0</span> == <span class="kw">false</span>         <span class="err">// true  ← !</span>
+<span class="str">""</span> == <span class="kw">false</span>        <span class="err">// true  ← !</span>
+<span class="kw">null</span> == <span class="kw">undefined</span>  <span class="err">// true  (özel kural)</span>
+<span class="str">"1"</span> == <span class="num">1</span>           <span class="err">// true  ← !</span>
+[] == <span class="kw">false</span>        <span class="err">// true  ← !!</span>
+
+<span class="cmt">// === ile her şey açık (tip dönüşümü yok):</span>
+<span class="num">0</span> === <span class="kw">false</span>        <span class="ok">// false — farklı tip</span>
+<span class="str">"1"</span> === <span class="num">1</span>          <span class="ok">// false — farklı tip</span>
+<span class="num">1</span> === <span class="num">1</span>            <span class="ok">// true  ✓</span>
+<span class="kw">null</span> === <span class="kw">null</span>      <span class="ok">// true  ✓</span></code></pre>
+        </div>
+
+        <div class="callout danger">
+          <span class="icon">✕</span>
+          <div>
+            <strong>Altın Kural</strong>
+            <p>Her zaman <code>===</code> kullanın. ESLint <code>eqeqeq</code> kuralı modern projelerde <code>==</code>'yi yasaklar. Tek meşru <code>==</code> kullanımı: <code>x == null</code> (hem null hem undefined'ı tek seferde yakalar).</p>
+          </div>
+        </div>
+
+        <h2 id="b3-6" data-num="3.6">== Algoritması: Adım Adım</h2>
+        <p>ECMA-262 <em>Abstract Equality Comparison</em> algoritması zincirleme 5 kural uygular. <code>[] == false</code> örneği:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">Adım adım</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code>[] == <span class="kw">false</span>
+<span class="cmt">// Adım 1: false boolean → sayıya çevir → 0</span>
+[] == <span class="num">0</span>
+<span class="cmt">// Adım 2: [] nesne → primitive → [].toString() → ""</span>
+<span class="str">""</span> == <span class="num">0</span>
+<span class="cmt">// Adım 3: "" string → sayıya çevir → Number("") → 0</span>
+<span class="num">0</span> == <span class="num">0</span>
+<span class="cmt">// Adım 4: her ikisi number → === ile karşılaştır</span>
+<span class="ok">// true!</span></code></pre>
+        </div>
+
+        <h2 id="b3-7" data-num="3.7">Pratik Senaryolar</h2>
+
+        <h3>Form Değerleri</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">const</span> inputDegeri = document.<span class="fn">querySelector</span>(<span class="str">'#sayi'</span>).value;
+<span class="cmt">// inputDegeri = "42" (her zaman string!)</span>
+
+<span class="kw">const</span> yanlis = inputDegeri + <span class="num">10</span>; <span class="err">// "4210" — string birleşme!</span>
+<span class="kw">const</span> dogru  = <span class="fn">Number</span>(inputDegeri) + <span class="num">10</span>; <span class="ok">// 52 ✓</span></code></pre>
+        </div>
+
+        <h3>Truthy/Falsy ve filter(Boolean)</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="cmt">// 6 falsy değer — sadece bunlar:</span>
+<span class="kw">false</span>, <span class="num">0</span>, <span class="str">""</span>, <span class="kw">null</span>, <span class="kw">undefined</span>, NaN
+
+<span class="cmt">// Sürprizler:</span>
+<span class="kw">if</span> (<span class="str">"0"</span>)  { <span class="cmt">/* çalışır — boş olmayan string */</span> }
+<span class="kw">if</span> ([])   { <span class="cmt">/* çalışır — boş dizi truthy */</span> }
+<span class="kw">if</span> (<span class="num">0</span>)    { <span class="cmt">/* çalışmaz */</span> }
+
+<span class="cmt">// filter(Boolean) — falsy temizler:</span>
+<span class="kw">const</span> liste = [<span class="num">1</span>, <span class="str">"a"</span>, <span class="num">0</span>, <span class="kw">null</span>, <span class="num">2</span>, <span class="kw">undefined</span>, <span class="str">""</span>, <span class="num">3</span>];
+<span class="kw">const</span> temiz = liste.<span class="fn">filter</span>(Boolean); <span class="ok">// [1, "a", 2, 3]</span></code></pre>
+        </div>
+
+        <h2 id="b3-8" data-num="3.8">Object.is() — Kesin Eşitlik</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code>NaN === NaN            <span class="err">// false — IEEE 754</span>
+Object.<span class="fn">is</span>(NaN, NaN)   <span class="ok">// true  ← NaN kontrolü için</span>
+
++<span class="num">0</span> === -<span class="num">0</span>             <span class="ok">// true</span>
+Object.<span class="fn">is</span>(+<span class="num">0</span>, -<span class="num">0</span>)    <span class="err">// false ← matematiksel fark</span></code></pre>
+        </div>
+
+        <h2 id="b3-9" data-num="3.9">Özet + Tip Dönüşüm Referans Tablosu</h2>
+        <ul class="content-list">
+          <li>Her zaman <code>===</code> kullanın. İstisna: <code>x == null</code>.</li>
+          <li>Tip dönüşümlerini açık yapın: <code>Number()</code>, <code>String()</code>, <code>Boolean()</code>.</li>
+          <li>NaN kontrolü için <code>Number.isNaN()</code>.</li>
+          <li>Form değerleri her zaman string — sayısal işlem öncesi dönüştürün.</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Değer</th><th>Number()</th><th>String()</th><th>Boolean()</th><th>typeof</th>
+            </tr></thead>
+            <tbody>
+              <tr><td>false</td><td>0</td><td>"false"</td><td>false</td><td>"boolean"</td></tr>
+              <tr><td>true</td><td>1</td><td>"true"</td><td>true</td><td>"boolean"</td></tr>
+              <tr><td>""</td><td>0</td><td>""</td><td>false</td><td>"string"</td></tr>
+              <tr><td>"0"</td><td>0</td><td>"0"</td><td><span style="color:var(--green)">true !</span></td><td>"string"</td></tr>
+              <tr><td>"42"</td><td>42</td><td>"42"</td><td>true</td><td>"string"</td></tr>
+              <tr><td>0</td><td>0</td><td>"0"</td><td>false</td><td>"number"</td></tr>
+              <tr><td>null</td><td>0</td><td>"null"</td><td>false</td><td><span style="color:var(--red)">"object" !</span></td></tr>
+              <tr><td>undefined</td><td>NaN</td><td>"undefined"</td><td>false</td><td>"undefined"</td></tr>
+              <tr><td>NaN</td><td>NaN</td><td>"NaN"</td><td>false</td><td><span style="color:var(--red)">"number" !</span></td></tr>
+              <tr><td>[]</td><td>0</td><td>""</td><td><span style="color:var(--green)">true !</span></td><td>"object"</td></tr>
+              <tr><td>[42]</td><td>42</td><td>"42"</td><td>true</td><td>"object"</td></tr>
+              <tr><td>{}</td><td>NaN</td><td>"[object Object]"</td><td>true</td><td>"object"</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════
+           BÖLÜM 4
+      ════════════════════════════════════════════ -->
+      <section class="chapter-section" id="bolum4">
+        <span class="chapter-num">Bölüm 04</span>
+        <h2 class="chapter-title">Kısa Devre Operatörleri: &&, ||, ??</h2>
+        <p class="chapter-lead">C#/Java'da mantıksal operatörler true/false döndürür. JavaScript'te ise <strong>operandların kendisini</strong> döndürürler. Bu fark hem güçlü kalıplara hem de tuzaklara yol açar.</p>
+
+        <h2 id="b4-1" data-num="4.1">&& — AND Operatörü</h2>
+        <p><strong>İlk falsy değeri</strong> döndürür; tümü truthy ise son değeri döndürür:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">true</span> && <span class="str">"merhaba"</span>    <span class="ok">// "merhaba"</span>
+<span class="kw">false</span> && <span class="fn">kabul</span>()    <span class="ok">// false — kabul() çağrılmaz!</span>
+<span class="kw">null</span> && <span class="str">"bir şey"</span>   <span class="ok">// null</span>
+<span class="num">1</span> && <span class="num">2</span> && <span class="num">3</span>         <span class="ok">// 3 — hepsi truthy</span>
+
+<span class="cmt">// Pratik: koşullu işlem</span>
+isLoggedIn && <span class="fn">showDashboard</span>();
+user?.<span class="fn">getProfile</span>?.();</code></pre>
+        </div>
+
+        <h2 id="b4-2" data-num="4.2">|| — OR Operatörü</h2>
+        <p><strong>İlk truthy değeri</strong> döndürür; tümü falsy ise son değeri döndürür:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">null</span> || <span class="str">"varsayılan"</span>   <span class="ok">// "varsayılan"</span>
+<span class="str">"değer"</span> || <span class="str">"var."</span>    <span class="ok">// "değer"</span>
+<span class="num">0</span> || <span class="kw">false</span> || <span class="num">42</span>    <span class="ok">// 42 — ilk truthy</span>
+
+<span class="cmt">// Varsayılan değer</span>
+<span class="kw">const</span> ad   = isim || <span class="str">"Misafir"</span>;
+<span class="kw">const</span> port = config.port || <span class="num">3000</span>;</code></pre>
+        </div>
+
+        <div class="callout warn">
+          <span class="icon">⚠</span>
+          <div>
+            <strong>|| ile 0 Tuzağı</strong>
+            <p><code>||</code>, <code>0</code> ve <code>""</code> gibi geçerli ama falsy değerleri de varsayılana düşürür. <code>config.port = 0</code> geçerli bir port numarasıdır ama <code>port || 3000</code> → <code>3000</code> döner. Bu durumda <code>??</code> kullanın.</p>
+          </div>
+        </div>
+
+        <h2 id="b4-3" data-num="4.3">?? — Nullish Coalescing (ES2020)</h2>
+        <p>Yalnızca sol taraf <code>null</code> veya <code>undefined</code> ise sağ tarafı döndürür. <code>0</code>, <code>""</code>, <code>false</code> için tetiklenmez:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">null</span> ?? <span class="str">"varsayılan"</span>       <span class="ok">// "varsayılan"</span>
+<span class="num">0</span>    ?? <span class="str">"varsayılan"</span>       <span class="ok">// 0    ← || ile fark burada!</span>
+<span class="str">""</span>   ?? <span class="str">"varsayılan"</span>       <span class="ok">// ""   ← || ile fark burada!</span>
+<span class="kw">false</span> ?? <span class="str">"varsayılan"</span>      <span class="ok">// false</span>
+
+<span class="cmt">// Sayfa numarası 0 olabilir:</span>
+<span class="kw">const</span> sayfa = response.page ?? <span class="num">1</span>;    <span class="ok">// ✓ 0 korunur</span>
+<span class="kw">const</span> yanlis = response.page || <span class="num">1</span>;   <span class="err">// ✗ 0 → 1'e düşer!</span></code></pre>
+        </div>
+
+        <h2 id="b4-4" data-num="4.4">Optional Chaining (?.) — ES2020</h2>
+        <p>Nesne zincirinde herhangi bir adım <code>null</code>/<code>undefined</code> ise hata vermek yerine <code>undefined</code> döndürür:</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="cmt">// Eski yöntem:</span>
+<span class="kw">const</span> sehir = user && user.adres && user.adres.sehir;
+
+<span class="cmt">// ?. ile temiz:</span>
+<span class="kw">const</span> sehir = user?.adres?.sehir;
+
+<span class="cmt">// ?? ile birlikte:</span>
+<span class="kw">const</span> sehir = user?.adres?.sehir ?? <span class="str">"Bilinmiyor"</span>;
+
+<span class="cmt">// Metot ve dizi erişimi:</span>
+user?.<span class="fn">getAdres</span>?.();
+arr?.[<span class="num">0</span>]?.ad;</code></pre>
+        </div>
+
+        <h2 id="b4-5" data-num="4.5">Atama Operatörleri: ??=, ||=, &&= (ES2021)</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code>x ??= <span class="str">"varsayılan"</span>;   <span class="cmt">// sadece null/undefined ise atar</span>
+x ||= <span class="str">"varsayılan"</span>;   <span class="cmt">// falsy ise atar</span>
+x &&= x.<span class="fn">toUpperCase</span>(); <span class="cmt">// truthy ise atar</span>
+
+<span class="cmt">// Pratik:</span>
+options ??= {};
+options.timeout ??= <span class="num">5000</span>;</code></pre>
+        </div>
+
+        <h2 id="b4-6" data-num="4.6">Gerçek Dünya Kullanımları</h2>
+
+        <h3>React — Koşullu Render</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JSX</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">function</span> <span class="fn">KullaniciBilgisi</span>({ kullanici }) {
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      {kullanici && &lt;<span class="fn">ProfilResim</span> src={kullanici.resim} /&gt;}
+      {kullanici?.ad ?? <span class="str">'Misafir'</span>}
+    &lt;/div&gt;
+  );
+}</code></pre>
+        </div>
+
+        <h3>Guard Clause Kalıbı</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="cmt">// İç içe if — okunması zor:</span>
+<span class="kw">function</span> <span class="fn">siparisIsle</span>(kullanici) {
+  <span class="kw">if</span> (kullanici) { <span class="kw">if</span> (kullanici.sepeti) { <span class="cmt">/* ... */</span> } }
+}
+
+<span class="cmt">// Guard clause — temiz:</span>
+<span class="kw">function</span> <span class="fn">siparisIsle</span>(kullanici) {
+  <span class="kw">if</span> (!kullanici) <span class="kw">return</span>;
+  <span class="kw">if</span> (!kullanici.sepeti) <span class="kw">return</span>;
+  <span class="kw">if</span> (kullanici.sepeti.length === <span class="num">0</span>) <span class="kw">return</span>;
+  <span class="cmt">// buraya geldiysek her şey hazır</span>
+}</code></pre>
+        </div>
+
+        <h2 id="b4-9" data-num="4.9">Async Kod ve Operatör Önceliği</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">async function</span> <span class="fn">kullaniciGetir</span>(id) {
+  <span class="kw">const</span> k = <span class="kw">await</span> api.<span class="fn">getKullanici</span>(id);
+  <span class="kw">return</span> {
+    ad:        k?.ad ?? <span class="str">'Anonim'</span>,
+    tercihler: k?.tercihler ?? {},
+  };
+}
+
+<span class="cmt">// ?? + || birleştirme — PARANTEZ ZORUNLU:</span>
+<span class="kw">const</span> x = a || b ?? c;  <span class="err">// SyntaxError!</span>
+<span class="kw">const</span> x = (a || b) ?? c; <span class="ok">// ✓</span></code></pre>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════
+           BÖLÜM 5
+      ════════════════════════════════════════════ -->
+      <section class="chapter-section" id="bolum5">
+        <span class="chapter-num">Bölüm 05</span>
+        <h2 class="chapter-title">Pratik Egzersizler ve Sık Karşılaşılan Hatalar</h2>
+        <p class="chapter-lead">Teoriyi pekiştirmenin en iyi yolu uygulamalı denemedir. Bu bölüm egzersizler, sık hatalar ve gerçek proje kodu incelemesi içerir.</p>
+
+        <h2 id="b5-1" data-num="5.1">Egzersiz Setleri I–III</h2>
+
+        <h3>1.1 — Kapsam Keşfi</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">Egzersiz</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">var</span> a = <span class="num">1</span>; <span class="kw">let</span> b = <span class="num">2</span>;
+
+<span class="kw">if</span> (<span class="kw">true</span>) {
+  <span class="kw">var</span> a = <span class="num">10</span>; <span class="kw">let</span> b = <span class="num">20</span>;
+  console.<span class="fn">log</span>(a); <span class="cmt">// (1) ?</span>
+  console.<span class="fn">log</span>(b); <span class="cmt">// (2) ?</span>
+}
+console.<span class="fn">log</span>(a); <span class="cmt">// (3) ?</span>
+console.<span class="fn">log</span>(b); <span class="cmt">// (4) ?</span>
+
+<span class="cmt">// Cevaplar: (1) 10  (2) 20  (3) 10  (4) 2</span></code></pre>
+        </div>
+
+        <h3>2.1 — Hoisting Çıktısı</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">Egzersiz</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code>console.<span class="fn">log</span>(<span class="kw">typeof</span> x); <span class="cmt">// (1) ?  → "undefined"</span>
+console.<span class="fn">log</span>(<span class="kw">typeof</span> y); <span class="cmt">// (2) ?  → ReferenceError</span>
+console.<span class="fn">log</span>(<span class="fn">f</span>());      <span class="cmt">// (3) ?  → "Merhaba"</span>
+
+<span class="kw">var</span> x = <span class="num">5</span>;
+<span class="kw">let</span> y = <span class="num">10</span>;
+<span class="kw">function</span> <span class="fn">f</span>() { <span class="kw">return</span> <span class="str">'Merhaba'</span>; }</code></pre>
+        </div>
+
+        <h3>3.1 — Coercion Sonuçları</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">Egzersiz</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="num">1</span> + <span class="str">'2'</span>       <span class="ok">// "12"</span>
+<span class="str">'3'</span> - <span class="num">1</span>       <span class="ok">// 2</span>
+<span class="kw">true</span> + <span class="kw">false</span>  <span class="ok">// 1</span>
+<span class="kw">null</span> + <span class="num">1</span>      <span class="ok">// 1</span>
+<span class="kw">undefined</span>+<span class="num">1</span>  <span class="ok">// NaN</span>
+<span class="str">'5'</span>*<span class="str">'3'</span>       <span class="ok">// 15</span>
+[] + []       <span class="ok">// ""</span>
+[] + {}       <span class="ok">// "[object Object]"</span></code></pre>
+        </div>
+
+        <h2 id="b5-4" data-num="5.4">Sık Yapılan Hatalar</h2>
+
+        <h3>Hata 1: var ile Closure Tuzağı</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="cmt">// HATA — hepsi 3 yazar</span>
+<span class="kw">for</span> (<span class="kw">var</span> i=<span class="num">0</span>; i&lt;<span class="num">3</span>; i++) <span class="fn">setTimeout</span>(() =&gt; console.<span class="fn">log</span>(i), <span class="num">100</span>);
+<span class="cmt">// Çıktı: 3, 3, 3</span>
+
+<span class="cmt">// ÇÖZÜM — let ile her iterasyon kendi kapsamına sahip</span>
+<span class="kw">for</span> (<span class="kw">let</span> i=<span class="num">0</span>; i&lt;<span class="num">3</span>; i++) <span class="fn">setTimeout</span>(() =&gt; console.<span class="fn">log</span>(i), <span class="num">100</span>);
+<span class="cmt">// Çıktı: 0, 1, 2</span></code></pre>
+        </div>
+
+        <h3>Hata 2: == ile Beklenmedik Eşitlik</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">const</span> kullanici = <span class="fn">getir</span>(); <span class="cmt">// null dönebilir</span>
+<span class="kw">if</span> (kullanici == <span class="kw">false</span>) { } <span class="err">// null==false → false! (beklenmedik)</span>
+
+<span class="cmt">// ÇÖZÜM</span>
+<span class="kw">if</span> (kullanici == <span class="kw">null</span>) { } <span class="ok">// ✓ null ve undefined'ı yakalar</span></code></pre>
+        </div>
+
+        <h3>Hata 3: NaN Kontrolü</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">if</span> (sayi === NaN)           <span class="err">// YANLIŞ — NaN hiçbir şeye eşit değil</span>
+<span class="kw">if</span> (<span class="fn">isNaN</span>(sayi))            <span class="err">// YANLIŞ — string'i dönüştürür</span>
+<span class="kw">if</span> (Number.<span class="fn">isNaN</span>(sayi))     <span class="ok">// DOĞRU ✓</span>
+<span class="kw">if</span> (!Number.<span class="fn">isFinite</span>(sayi)) <span class="ok">// DOĞRU ✓ (NaN + Infinity yakalar)</span></code></pre>
+        </div>
+
+        <h3>Hata 4: || ile 0 Kaybı</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">function</span> <span class="fn">stokGuncelle</span>(miktar) {
+  <span class="kw">const</span> m = miktar || <span class="num">1</span>;  <span class="err">// HATALI — 0 gelirse 1 olur!</span>
+  <span class="kw">const</span> m = miktar ?? <span class="num">1</span>;  <span class="ok">// DOĞRU  — 0 korunur ✓</span>
+}</code></pre>
+        </div>
+
+        <h2 id="b5-5" data-num="5.5">Gerçek Proje Kodu İncelemesi</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">HATALI KOD</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">var</span> urunler = [];
+
+<span class="kw">function</span> <span class="fn">urunEkle</span>(ad, fiyat, stok) {
+  <span class="kw">var</span> urun = { ad, fiyat, stok: stok || <span class="num">0</span> }; <span class="err">// stok=0 kaybolur!</span>
+  urunler.<span class="fn">push</span>(urun);
+}
+
+<span class="kw">for</span> (<span class="kw">var</span> i=<span class="num">0</span>; i&lt;urunler.length; i++) {
+  <span class="kw">if</span> (urunler[i].id == urun.id) <span class="err">// == yerine ===</span>
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">DÜZELTİLMİŞ KOD</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">const</span> urunler = [];
+
+<span class="kw">function</span> <span class="fn">urunEkle</span>(ad, fiyat, stok) {
+  <span class="kw">const</span> urun = {
+    ad,
+    fiyat: <span class="fn">Number</span>(fiyat),   <span class="ok">// açık dönüşüm</span>
+    stok:  stok ?? <span class="num">0</span>,       <span class="ok">// 0 korunur ✓</span>
+  };
+  urunler.<span class="fn">push</span>(urun);
+}
+
+<span class="kw">const</span> <span class="fn">urunEkle2</span> = (urun, adet = <span class="num">1</span>) =&gt; {
+  <span class="kw">const</span> idx = urunler.<span class="fn">findIndex</span>(u =&gt; u.id === urun.id); <span class="ok">// ===</span>
+  idx !== -<span class="num">1</span> ? urunler[idx].adet += adet : urunler.<span class="fn">push</span>({ ...urun, adet });
+};</code></pre>
+        </div>
+
+        <h2 id="b5-8" data-num="5.8">İleri Düzey: Karma Egzersizler</h2>
+
+        <h3>6.1 — null/undefined Karşılaştırmaları</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">Egzersiz</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">null</span> == <span class="num">0</span>           <span class="ok">// false — sadece null/undef ile eşit</span>
+<span class="kw">null</span> == <span class="kw">false</span>       <span class="ok">// false — aynı kural</span>
+<span class="kw">null</span> == <span class="kw">undefined</span>   <span class="ok">// true  — özel kural ✓</span>
+<span class="kw">undefined</span> == <span class="kw">false</span>  <span class="ok">// false — (false→0, undef→NaN, NaN≠0)</span></code></pre>
+        </div>
+
+        <h3>6.2 — Hoisting + Shadow</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">Egzersiz</span>
+            <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          </div>
+          <pre><code><span class="kw">let</span> x = <span class="str">'global'</span>;
+
+<span class="kw">function</span> <span class="fn">test</span>() {
+  console.<span class="fn">log</span>(x); <span class="err">// (1) ReferenceError! — iç let TDZ'de</span>
+  <span class="kw">let</span> x = <span class="str">'lokal'</span>;
+  console.<span class="fn">log</span>(x); <span class="ok">// (2) "lokal"</span>
+}
+
+<span class="fn">test</span>();
+console.<span class="fn">log</span>(x); <span class="ok">// (3) "global" — dış kapsam değişmedi</span></code></pre>
+        </div>
+
+        <div class="callout info">
+          <span class="icon">📌</span>
+          <div>
+            <strong>Özet: Bu Haftanın Temel Kuralları</strong>
+            <p>
+              <code>var</code> kullanmayın · Her zaman <code>===</code> · <code>0</code> için varsayılan → <code>??</code> · Zincir erişim → <code>?.</code> · NaN kontrolü → <code>Number.isNaN()</code> · Form değerleri string · <code>null</code> kontrolü → <code>x === null</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="section-end">— Bölüm Sonu —</div>
+      </section>
+
+    </div><!-- /content-inner -->
+  </main>
+</div><!-- /layout -->
+
+<script>
+// ── PROGRESS BAR ─────────────────────────────────
+window.addEventListener('scroll', () => {
+  const doc = document.documentElement;
+  const pct = doc.scrollTop / (doc.scrollHeight - doc.clientHeight) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+});
+
+// ── ACTIVE NAV ────────────────────────────────────
+const sections = document.querySelectorAll('[id]');
+const navLinks  = document.querySelectorAll('nav a');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => obs.observe(s));
+
+// ── SECTION REVEAL ────────────────────────────────
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
+  });
+}, { threshold: 0.05 });
+document.querySelectorAll('.chapter-section').forEach(s => revealObs.observe(s));
+
+// ── COPY CODE ─────────────────────────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Kopyalandı!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Kopyala'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── FONT TOGGLE ───────────────────────────────────
+let fontMode = 0;
+const fonts = [null, 'var(--font-ui)', 'var(--font-code)'];
+const labels = ['Aa', 'Sf', 'Cd'];
+function toggleFont() {
+  fontMode = (fontMode + 1) % 3;
+  document.querySelectorAll('p, li, .chapter-lead').forEach(el => {
+    el.style.fontFamily = fonts[fontMode] || '';
+  });
+  document.querySelector('[onclick="toggleFont()"]').textContent = labels[fontMode];
+}
+
+// ── SEARCH / FILTER NAV ───────────────────────────
+function filterNav(q) {
+  const term = q.toLowerCase();
+  document.querySelectorAll('nav li').forEach(li => {
+    const txt = li.textContent.toLowerCase();
+    li.style.display = (!term || txt.includes(term)) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
