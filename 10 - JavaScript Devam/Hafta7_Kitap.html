@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS'in Kendine Özgü Yapıları II — BAÜ İnternet Programlama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0c0e14;
+  --surface:  #131720;
+  --surface2: #1a2030;
+  --border:   #212840;
+  --border2:  #2d3a55;
+  --text:     #d8dff0;
+  --muted:    #6b7a9e;
+  --dim:      #8494bc;
+  --accent:   #4f9eff;
+  --accent2:  #7ec8ff;
+  --acc-bg:   rgba(79,158,255,.08);
+  --green:    #4ade80;
+  --green-bg: rgba(74,222,128,.08);
+  --amber:    #f59e0b;
+  --amber-bg: rgba(245,158,11,.08);
+  --red:      #f87171;
+  --red-bg:   rgba(248,113,113,.08);
+  --purple:   #c084fc;
+  --pur-bg:   rgba(192,132,252,.08);
+  --r:        10px;
+  --sw:       270px;
+  --cw:       800px;
+  --body:     'Literata', Georgia, serif;
+  --ui:       'Sora', system-ui, sans-serif;
+  --code:     'Fira Code', 'Cascadia Code', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;font-size:16px;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.85;min-height:100vh;}
+
+/* ── PROGRESS ── */
+#pb{position:fixed;top:0;left:0;z-index:1000;height:3px;background:linear-gradient(90deg,var(--accent),var(--purple));width:0%;transition:width .1s;box-shadow:0 0 12px var(--accent);}
+
+/* ── HEADER ── */
+header{position:fixed;top:3px;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:54px;background:rgba(12,14,20,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.hbrand{display:flex;align-items:center;gap:12px;font-family:var(--ui);font-size:13px;color:var(--muted);}
+.badge{background:var(--acc-bg);color:var(--accent);border:1px solid rgba(79,158,255,.25);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.04em;}
+.hact{display:flex;gap:8px;}
+.btn-i{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;width:34px;height:34px;display:grid;place-items:center;cursor:pointer;font-size:15px;transition:all .2s;}
+.btn-i:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LAYOUT ── */
+.layout{display:flex;padding-top:57px;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+aside{position:fixed;top:57px;left:0;width:var(--sw);height:calc(100vh - 57px);overflow-y:auto;padding:20px 0 40px;border-right:1px solid var(--border);background:var(--bg);scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+aside::-webkit-scrollbar{width:4px;}
+aside::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.stitle{font-family:var(--ui);font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:0 20px 8px;}
+.search-wrap{padding:0 16px 14px;}
+.search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--ui);font-size:12.5px;outline:none;transition:border-color .2s;}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--muted);}
+nav ul{list-style:none;}
+nav ul li a{display:block;padding:5px 20px;font-family:var(--ui);font-size:12.5px;color:var(--muted);text-decoration:none;border-left:2px solid transparent;transition:all .15s;line-height:1.4;}
+nav ul li a:hover{color:var(--accent);background:var(--acc-bg);}
+nav ul li a.active{color:var(--accent2);border-left-color:var(--accent);background:var(--acc-bg);}
+nav ul li.h1-item>a{font-weight:600;font-size:13px;color:var(--dim);padding-top:9px;}
+nav ul li.h2-item>a{padding-left:32px;}
+nav ul li.h3-item>a{padding-left:44px;font-size:12px;}
+
+/* ── MAIN ── */
+main{margin-left:var(--sw);flex:1;padding:48px 60px 96px;max-width:calc(var(--sw) + var(--cw) + 120px);}
+.ci{max-width:var(--cw);}
+
+/* ── COVER ── */
+.cover{padding:64px 0 80px;border-bottom:1px solid var(--border);margin-bottom:72px;}
+.cover-meta{font-family:var(--ui);font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+.cover-meta::before{content:'';display:inline-block;width:28px;height:2px;background:var(--accent);}
+.cover h1{font-family:var(--ui);font-size:clamp(28px,4vw,42px);font-weight:700;line-height:1.15;color:#fff;margin-bottom:16px;letter-spacing:-.02em;}
+.cover h1 span{color:var(--accent);}
+.cover-sub{font-size:16px;color:var(--muted);font-style:italic;margin-bottom:32px;line-height:1.6;}
+.cover-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{font-family:var(--ui);font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;background:var(--surface2);border:1px solid var(--border2);color:var(--dim);}
+.tag.a{background:var(--acc-bg);border-color:rgba(79,158,255,.3);color:var(--accent);}
+.tag.p{background:var(--pur-bg);border-color:rgba(192,132,252,.3);color:var(--purple);}
+.tag.g{background:var(--green-bg);border-color:rgba(74,222,128,.3);color:var(--green);}
+
+/* ── TYPOGRAPHY ── */
+.cs{margin-bottom:80px;opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s;}
+.cs.visible{opacity:1;transform:none;}
+.cover{opacity:1;transform:none;}
+.cnum{font-family:var(--ui);font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:8px;}
+.ctitle{font-family:var(--ui);font-size:clamp(22px,3vw,30px);font-weight:700;color:#fff;margin:0 0 10px;line-height:1.2;letter-spacing:-.02em;}
+.clead{font-size:15.5px;color:var(--muted);font-style:italic;margin-bottom:8px;line-height:1.8;padding-bottom:24px;border-bottom:1px solid var(--border);}
+h2{font-family:var(--ui);font-size:22px;font-weight:700;color:#fff;margin:52px 0 18px;letter-spacing:-.01em;}
+h2::before{content:attr(data-n);font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.08em;display:block;margin-bottom:6px;font-family:var(--ui);}
+h3{font-family:var(--ui);font-size:16px;font-weight:600;color:var(--text);margin:36px 0 12px;}
+h3::before{content:'↳ ';color:var(--accent);font-size:14px;}
+p{font-size:15.5px;line-height:1.9;color:var(--text);margin-bottom:18px;}
+code{font-family:var(--code);font-size:13.5px;background:var(--surface2);color:var(--amber);padding:1px 6px;border-radius:4px;border:1px solid var(--border);}
+
+/* ── CODE BLOCKS ── */
+.cb{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:20px 0 28px;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);}
+.dots{display:flex;gap:6px;}
+.dots span{width:10px;height:10px;border-radius:50%;}
+.dots span:nth-child(1){background:#ff5f57;}
+.dots span:nth-child(2){background:#febc2e;}
+.dots span:nth-child(3){background:#28c840;}
+.clang{font-family:var(--ui);font-size:11px;color:var(--muted);letter-spacing:.05em;}
+.cbtn{background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--ui);font-size:11px;padding:3px 10px;border-radius:5px;cursor:pointer;transition:all .2s;}
+.cbtn:hover{border-color:var(--accent);color:var(--accent);}
+.cbtn.ok{border-color:var(--green);color:var(--green);}
+pre{margin:0;padding:20px;overflow-x:auto;font-size:13.5px;line-height:1.7;tab-size:2;}
+pre code{background:none;border:none;padding:0;color:var(--text);font-size:inherit;}
+.kw{color:#c084fc;font-weight:500;}.str{color:#86efac;}.num{color:#fbbf24;}
+.cm{color:#4b5a7a;font-style:italic;}.fn{color:#60a5fa;}.ok-t{color:#4ade80;}.er{color:#f87171;}
+
+/* ── CALLOUTS ── */
+.call{border-radius:var(--r);padding:16px 20px;margin:20px 0 28px;display:flex;gap:14px;align-items:flex-start;border:1px solid;font-size:14.5px;line-height:1.75;}
+.call .icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.call strong{font-family:var(--ui);font-size:13px;font-weight:700;display:block;margin-bottom:4px;}
+.call p{margin:0;font-size:14px;}
+.call.info{background:var(--acc-bg);border-color:rgba(79,158,255,.3);}
+.call.info strong{color:var(--accent);}
+.call.warn{background:var(--amber-bg);border-color:rgba(245,158,11,.3);}
+.call.warn strong{color:var(--amber);}
+.call.danger{background:var(--red-bg);border-color:rgba(248,113,113,.3);}
+.call.danger strong{color:var(--red);}
+.call.tip{background:var(--green-bg);border-color:rgba(74,222,128,.3);}
+.call.tip strong{color:var(--green);}
+.call.hist{background:var(--pur-bg);border-color:rgba(192,132,252,.3);}
+.call.hist strong{color:var(--purple);}
+
+/* ── TABLES ── */
+.tw{overflow-x:auto;margin:20px 0 28px;border:1px solid var(--border);border-radius:var(--r);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+thead tr{background:var(--surface2);}
+thead th{padding:12px 16px;text-align:left;font-family:var(--ui);font-size:12px;font-weight:600;color:var(--accent2);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:nth-child(even){background:rgba(255,255,255,.02);}
+tbody tr:hover{background:var(--acc-bg);}
+tbody td{padding:10px 16px;color:var(--dim);font-size:13px;vertical-align:top;}
+tbody td:first-child{color:var(--accent2);font-weight:500;font-family:var(--code);}
+
+/* ── LISTS ── */
+ul.cl,ol.cl{margin:12px 0 20px;padding-left:0;list-style:none;}
+ul.cl li,ol.cl li{padding:5px 0 5px 28px;position:relative;font-size:15px;line-height:1.8;}
+ul.cl li::before{content:'▸';position:absolute;left:6px;color:var(--accent);font-size:11px;top:9px;}
+ol.cl{counter-reset:oc;}
+ol.cl li{counter-increment:oc;}
+ol.cl li::before{content:counter(oc) '.';position:absolute;left:0;color:var(--accent);font-family:var(--ui);font-size:12px;font-weight:700;top:8px;}
+
+/* ── COMPARE GRID ── */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0 28px;}
+.cmp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.cmp-head{padding:10px 16px;font-family:var(--ui);font-size:12px;font-weight:700;letter-spacing:.05em;}
+.cmp-body{padding:4px 0 8px;}
+
+/* ── SECTION END ── */
+.send{text-align:center;padding:60px 0 20px;color:var(--muted);font-style:italic;font-size:14px;}
+.send::before{content:'';display:block;width:40px;height:1px;background:var(--border2);margin:0 auto 20px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){aside{display:none;}main{margin-left:0;padding:32px 24px 80px;}}
+@media print{aside,header,#pb{display:none!important;}main{margin:0;padding:20px;}body{background:white;color:black;}}
+</style>
+</head>
+<body>
+<div id="pb"></div>
+<header>
+  <div class="hbrand">
+    <span class="badge">Hafta 7</span>
+    <span>BAÜ · Bilgisayar Mühendisliği · İnternet Programlama</span>
+  </div>
+  <div class="hact">
+    <button class="btn-i" onclick="toggleFont()" title="Yazı tipi">Aa</button>
+    <button class="btn-i" onclick="window.print()" title="Yazdır">⎙</button>
+  </div>
+</header>
+
+<div class="layout">
+<aside>
+  <div class="search-wrap">
+    <input type="text" class="search-input" placeholder="Ara…" oninput="filterNav(this.value)">
+  </div>
+  <p class="stitle">İçindekiler</p>
+  <nav><ul id="toc">
+    <li class="h1-item"><a href="#b1">Bölüm 1 — this</a></li>
+    <li class="h2-item"><a href="#b1-1">1.1 Global Bağlam</a></li>
+    <li class="h2-item"><a href="#b1-2">1.2 Method Bağlamı</a></li>
+    <li class="h2-item"><a href="#b1-3">1.3 Constructor Bağlamı</a></li>
+    <li class="h2-item"><a href="#b1-4">1.4 Event Handler</a></li>
+    <li class="h2-item"><a href="#b1-5">1.5 call / apply / bind</a></li>
+    <li class="h2-item"><a href="#b1-6">1.6 this Kayması + Çözümler</a></li>
+    <li class="h1-item"><a href="#b2">Bölüm 2 — Closure</a></li>
+    <li class="h2-item"><a href="#b2-1">2.1 Lexical Scope</a></li>
+    <li class="h2-item"><a href="#b2-2">2.2 Closure Mekanizması</a></li>
+    <li class="h2-item"><a href="#b2-3">2.3 Private Değişken</a></li>
+    <li class="h2-item"><a href="#b2-4">2.4 Fonksiyon Fabrikası</a></li>
+    <li class="h2-item"><a href="#b2-5">2.5 Memoization</a></li>
+    <li class="h2-item"><a href="#b2-6">2.6 Bellek Yönetimi</a></li>
+    <li class="h1-item"><a href="#b3">Bölüm 3 — Arrow Function</a></li>
+    <li class="h2-item"><a href="#b3-1">3.1 Sözdizimi</a></li>
+    <li class="h2-item"><a href="#b3-2">3.2 this Farkı</a></li>
+    <li class="h2-item"><a href="#b3-3">3.3 Karşılaştırma Tablosu</a></li>
+    <li class="h2-item"><a href="#b3-4">3.4 Ne Zaman Hangisi?</a></li>
+    <li class="h1-item"><a href="#b4">Bölüm 4 — Callback + Event Loop</a></li>
+    <li class="h2-item"><a href="#b4-1">4.1 Callback Deseni</a></li>
+    <li class="h2-item"><a href="#b4-2">4.2 Neden Tek Thread?</a></li>
+    <li class="h2-item"><a href="#b4-3">4.3 Event Loop Modeli</a></li>
+    <li class="h2-item"><a href="#b4-4">4.4 Callback Hell</a></li>
+    <li class="h2-item"><a href="#b4-5">4.5 Promise</a></li>
+    <li class="h2-item"><a href="#b4-6">4.6 async/await</a></li>
+    <li class="h1-item"><a href="#b5">Bölüm 5 — Egzersizler</a></li>
+    <li class="h2-item"><a href="#b5-1">5.1 this Egzersizleri</a></li>
+    <li class="h2-item"><a href="#b5-2">5.2 Closure Egzersizleri</a></li>
+    <li class="h2-item"><a href="#b5-3">5.3 Event Loop Sırası</a></li>
+    <li class="h2-item"><a href="#b5-4">5.4 Sık Hatalar</a></li>
+    <li class="h1-item"><a href="#b6">Bölüm 6 — Gerçek Projeler</a></li>
+    <li class="h2-item"><a href="#b6-1">6.1 React Hooks + Closure</a></li>
+    <li class="h2-item"><a href="#b6-2">6.2 Memoization / IIFE</a></li>
+    <li class="h2-item"><a href="#b6-3">6.3 fetch + Event Loop</a></li>
+    <li class="h2-item"><a href="#b6-4">6.4 API Servisi Tasarımı</a></li>
+    <li class="h2-item"><a href="#b6-5">6.5 Tam Sistem Egzersizi</a></li>
+  </ul></nav>
+</aside>
+
+<main>
+<div class="ci">
+
+<!-- COVER -->
+<div class="cover">
+  <p class="cover-meta">Balıkesir Üniversitesi · Bilgisayar Mühendisliği · Bölüm 7</p>
+  <h1>JavaScript'in Kendine<br><span>Özgü Yapıları II</span></h1>
+  <p class="cover-sub">this · Closure · Arrow Function · Callback · Event Loop<br>
+  135 dakikalık (3 × 45 dk) Hafta 7 dersi için hazırlanmış detaylı referans metni.</p>
+  <div class="cover-tags">
+    <span class="tag a">ES6+</span>
+    <span class="tag a">this</span>
+    <span class="tag p">Closure</span>
+    <span class="tag">Arrow Function</span>
+    <span class="tag g">Event Loop</span>
+    <span class="tag">async/await</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     BÖLÜM 1 — this
+══════════════════════════════════════ -->
+<section class="cs" id="b1">
+<span class="cnum">Bölüm 01</span>
+<h2 class="ctitle">this — Bağlama Göre Değişen Kimlik</h2>
+<p class="clead">C# ve Java'da <code>this</code> her zaman tanımlandığı nesneyi gösterir. JavaScript'te ise <code>this</code>'in değeri, fonksiyonun <strong>nasıl çağrıldığına</strong> göre çalışma zamanında belirlenir.</p>
+
+<div class="call hist">
+  <span class="icon">📜</span>
+  <div>
+    <strong>Tarihsel Bağlam</strong>
+    <p>Brendan Eich, JavaScript'i 1995'te 10 günde tasarlarken <code>this</code> davranışını bilinçli olarak Java'dan farklı bıraktı. Amaç: hem nesne-yönelimli hem fonksiyonel programlamayı destekleyen esnek yapı. Bu esneklik yıllar içinde dilin en çok şikâyet edilen özelliği oldu. ES6'da arrow function bu sorunu kısmen, ES2022'de class field syntax ise büyük ölçüde çözdü.</p>
+  </div>
+</div>
+
+<h2 id="b1-1" data-n="1.1">Global Bağlam</h2>
+<p>Herhangi bir nesne bağlamı olmadan çağrılan fonksiyonlarda <code>this</code> tarayıcıda <code>window</code>, Node.js'te <code>global</code>, strict mode'da <code>undefined</code>'dır:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Tarayıcı — sloppy mode</span>
+<span class="fn">console</span>.log(<span class="kw">this</span> === window); <span class="ok-t">// true</span>
+
+<span class="kw">function</span> <span class="fn">normal</span>() {
+  <span class="fn">console</span>.log(<span class="kw">this</span>); <span class="cm">// Window</span>
+}
+<span class="fn">normal</span>();
+
+<span class="cm">// Strict mode:</span>
+<span class="str">'use strict'</span>;
+<span class="kw">function</span> <span class="fn">guvenli</span>() {
+  <span class="fn">console</span>.log(<span class="kw">this</span>); <span class="ok-t">// undefined</span>
+}
+<span class="fn">guvenli</span>();</code></pre>
+</div>
+
+<h2 id="b1-2" data-n="1.2">Method Bağlamı — Noktanın Soluna Bak</h2>
+<p>Bir nesnenin metodu olarak çağrılan fonksiyonda <code>this</code>, noktanın solundaki nesneyi işaret eder. Bu kural mekanik ve kesindir:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> kullanici = {
+  ad: <span class="str">'Ahmet'</span>,
+  yas: <span class="num">25</span>,
+  <span class="fn">selamla</span>() {
+    <span class="fn">console</span>.log(<span class="str">`Merhaba, ${ <span class="kw">this</span>.ad}!`</span>);
+  },
+  <span class="fn">yasArtir</span>() {
+    <span class="kw">this</span>.yas++;
+    <span class="kw">return</span> <span class="kw">this</span>; <span class="cm">// method chaining</span>
+  }
+};
+
+kullanici.<span class="fn">selamla</span>();  <span class="ok-t">// "Merhaba, Ahmet!" — this = kullanici</span>
+kullanici.<span class="fn">yasArtir</span>().<span class="fn">yasArtir</span>(); <span class="cm">// zincirleme</span>
+
+<span class="cm">// Dikkat: metodu "koparmak"</span>
+<span class="kw">const</span> fn = kullanici.selamla;
+<span class="fn">fn</span>(); <span class="er">// undefined veya TypeError — this kayıyor!</span></code></pre>
+</div>
+
+<div class="call danger">
+  <span class="icon">✕</span>
+  <div><strong>Method Kopyalama Tuzağı</strong>
+  <p>Bir metodu değişkene atadığınızda veya callback olarak geçirdiğinizde <code>this</code> bağlamı kaybolur. Bu, JavaScript'teki en yaygın hata kaynaklarından biridir. Çözüm: <code>bind()</code>, arrow function wrapper veya arrow field sözdizimi.</p></div>
+</div>
+
+<h2 id="b1-3" data-n="1.3">Constructor Bağlamı — new Anahtar Kelimesi</h2>
+<p><code>new</code> ile çağrıldığında JS motoru şu adımları izler: boş nesne oluştur → fonksiyonun prototype'ını bağla → <code>this</code>'i yeni nesneye bağla → fonksiyonu çalıştır → nesneyi döndür:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">Araba</span>(marka, model, yil) {
+  <span class="kw">this</span>.marka = marka;
+  <span class="kw">this</span>.model = model;
+  <span class="kw">this</span>.yil   = yil;
+  <span class="kw">this</span>.tanitim = <span class="kw">function</span>() {
+    <span class="kw">return</span> <span class="str">`${ <span class="kw">this</span>.yil} ${ <span class="kw">this</span>.marka} ${ <span class="kw">this</span>.model}`</span>;
+  };
+}
+
+<span class="kw">const</span> a1 = <span class="kw">new</span> <span class="fn">Araba</span>(<span class="str">'Toyota'</span>, <span class="str">'Corolla'</span>, <span class="num">2022</span>);
+<span class="kw">const</span> a2 = <span class="kw">new</span> <span class="fn">Araba</span>(<span class="str">'BMW'</span>, <span class="str">'3 Serisi'</span>, <span class="num">2023</span>);
+
+a1.<span class="fn">tanitim</span>(); <span class="ok-t">// "2022 Toyota Corolla"</span>
+a2.<span class="fn">tanitim</span>(); <span class="ok-t">// "2023 BMW 3 Serisi"</span>
+
+<span class="cm">// new olmadan çağrılırsa felaket:</span>
+<span class="kw">const</span> a3 = <span class="fn">Araba</span>(<span class="str">'Honda'</span>, <span class="str">'Civic'</span>, <span class="num">2021</span>);
+<span class="er">// marka, model, yil global değişken olur!</span></code></pre>
+</div>
+
+<h2 id="b1-4" data-n="1.4">Event Handler Bağlamı</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> btn = document.<span class="fn">getElementById</span>(<span class="str">'gonder'</span>);
+
+<span class="cm">// function: this = btn elementi ✓</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {
+  <span class="fn">console</span>.log(<span class="kw">this</span>.id); <span class="ok-t">// 'gonder'</span>
+  <span class="kw">this</span>.disabled = <span class="kw">true</span>;
+});
+
+<span class="cm">// arrow: this = dış scope (dikkat!)</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () => {
+  <span class="fn">console</span>.log(<span class="kw">this</span>); <span class="er">// Window veya undefined</span>
+});</code></pre>
+</div>
+
+<h2 id="b1-5" data-n="1.5">call, apply ve bind — Manuel Bağlama</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">selamla</span>(mesaj, noktalama) {
+  <span class="kw">return</span> <span class="str">`${mesaj}, ${ <span class="kw">this</span>.ad}${noktalama}`</span>;
+}
+<span class="kw">const</span> kisi = { ad: <span class="str">'Zeynep'</span> };
+
+<span class="cm">// call: hemen çalışır, argümanlar tek tek</span>
+selamla.<span class="fn">call</span>(kisi, <span class="str">'Merhaba'</span>, <span class="str">'!'</span>); <span class="ok-t">// "Merhaba, Zeynep!"</span>
+
+<span class="cm">// apply: hemen çalışır, argümanlar dizi</span>
+selamla.<span class="fn">apply</span>(kisi, [<span class="str">'Merhaba'</span>, <span class="str">'!'</span>]); <span class="ok-t">// "Merhaba, Zeynep!"</span>
+
+<span class="cm">// bind: yeni fonksiyon döner, this sabitlenir</span>
+<span class="kw">const</span> merhaba = selamla.<span class="fn">bind</span>(kisi, <span class="str">'Merhaba'</span>);
+<span class="fn">merhaba</span>(<span class="str">'!'</span>);  <span class="ok-t">// "Merhaba, Zeynep!"</span>
+<span class="fn">merhaba</span>(<span class="str">'...'</span>); <span class="ok-t">// "Merhaba, Zeynep..."</span></code></pre>
+</div>
+
+<h2 id="b1-6" data-n="1.6">this Kayması ve 3 Çözüm Yolu</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> zamanlayici = {
+  saniye: <span class="num">0</span>,
+  <span class="fn">baslat</span>() {
+    <span class="fn">setInterval</span>(<span class="kw">function</span>() {
+      <span class="kw">this</span>.saniye++; <span class="er">// this = Window, kayma!</span>
+    }, <span class="num">1000</span>);
+  }
+};
+
+<span class="cm">// Çözüm 1: Arrow function (önerilen)</span>
+<span class="fn">setInterval</span>(() => { <span class="kw">this</span>.saniye++; }, <span class="num">1000</span>);
+
+<span class="cm">// Çözüm 2: bind()</span>
+<span class="fn">setInterval</span>((<span class="kw">function</span>() {
+  <span class="kw">this</span>.saniye++;
+}).<span class="fn">bind</span>(<span class="kw">this</span>), <span class="num">1000</span>);
+
+<span class="cm">// Çözüm 3: const self = this (eski yöntem)</span>
+<span class="kw">const</span> self = <span class="kw">this</span>;
+<span class="fn">setInterval</span>(<span class="kw">function</span>() { self.saniye++; }, <span class="num">1000</span>);</code></pre>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════
+     BÖLÜM 2 — Closure
+══════════════════════════════════════ -->
+<section class="cs" id="b2">
+<span class="cnum">Bölüm 02</span>
+<h2 class="ctitle">Closure — Fonksiyon Doğduğu Yeri Hatırlar</h2>
+<p class="clead"><strong>Closure</strong>, bir fonksiyonun tanımlandığı scope'taki değişkenlere — o scope sona erse bile — erişebilmesidir. Lexical scope ile garbage collection'ın birleşiminden doğar.</p>
+
+<div class="call hist">
+  <span class="icon">📜</span>
+  <div><strong>Tarihsel Kök</strong>
+  <p><strong>1968</strong> — Peter Landin, SECD makinesinde closure'ı ilk kez formüle etti. <strong>1975</strong> — Sussman & Steele, Scheme dilinde closure'ı ana akıma taşıdı. <strong>1995</strong> — Brendan Eich, Scheme'den doğrudan ilham alarak closure'ı JavaScript'in çekirdeğine koydu. Bugün Python, Ruby, Swift, Kotlin ve Java lambda'larında da closure mevcuttur.</p></div>
+</div>
+
+<h2 id="b2-1" data-n="2.1">Lexical Scope</h2>
+<p>JavaScript'te kapsam, kodu <strong>yazdığınız yere</strong> göre belirlenir — çalıştığınız yere göre değil:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> x = <span class="str">'global'</span>;
+
+<span class="kw">function</span> <span class="fn">dis</span>() {
+  <span class="kw">const</span> y = <span class="str">'dis'</span>;
+
+  <span class="kw">function</span> <span class="fn">ic</span>() {
+    <span class="kw">const</span> z = <span class="str">'ic'</span>;
+    <span class="fn">console</span>.log(x); <span class="ok-t">// 'global' — dışarıdan</span>
+    <span class="fn">console</span>.log(y); <span class="ok-t">// 'dis'    — üst scope</span>
+    <span class="fn">console</span>.log(z); <span class="ok-t">// 'ic'     — kendi</span>
+  }
+  <span class="fn">ic</span>();
+}
+
+<span class="fn">dis</span>();
+<span class="cm">// console.log(y) → ReferenceError — erişilemez</span></code></pre>
+</div>
+
+<h2 id="b2-2" data-n="2.2">Closure Mekanizması</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">disKapsam</span>() {
+  <span class="kw">let</span> sayac = <span class="num">0</span>;
+  <span class="cm">// sayac, closure tarafından yaşatılacak</span>
+
+  <span class="kw">function</span> <span class="fn">icFonksiyon</span>() {
+    sayac++;
+    <span class="kw">return</span> sayac;
+  }
+
+  <span class="kw">return</span> icFonksiyon; <span class="cm">// fonksiyonu dışa aktar</span>
+}
+
+<span class="kw">const</span> artir = <span class="fn">disKapsam</span>();
+<span class="cm">// disKapsam() bitti — ama sayac bellekte yaşıyor!</span>
+
+<span class="fn">console</span>.log(<span class="fn">artir</span>()); <span class="ok-t">// 1</span>
+<span class="fn">console</span>.log(<span class="fn">artir</span>()); <span class="ok-t">// 2</span>
+<span class="fn">console</span>.log(<span class="fn">artir</span>()); <span class="ok-t">// 3</span>
+<span class="cm">// Her çağrıda aynı sayac güncellenir — closure!</span></code></pre>
+</div>
+
+<div class="call info">
+  <span class="icon">⚙</span>
+  <div><strong>Neden Bellekte Kalıyor?</strong>
+  <p>JS motoru her fonksiyon çağrısı için bir "execution context" oluşturur. Bu context bir "environment record" (değişken tablosu) içerir. <code>icFonksiyon</code>, <code>disKapsam</code>'ın environment record'una referans tutar. Bu referans var olduğu sürece garbage collector o record'u serbest bırakamaz.</p></div>
+</div>
+
+<h2 id="b2-3" data-n="2.3">Private Değişken Simülasyonu</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">sayacOlustur</span>(baslangic = <span class="num">0</span>) {
+  <span class="kw">let</span> _deger = baslangic; <span class="cm">// dışarıdan erişilemez</span>
+  <span class="kw">let</span> _adim  = <span class="num">1</span>;
+
+  <span class="kw">return</span> {
+    <span class="fn">artir</span>()         { _deger += _adim; <span class="kw">return this</span>; },
+    <span class="fn">azalt</span>()         { _deger -= _adim; <span class="kw">return this</span>; },
+    <span class="fn">sifirla</span>()       { _deger = baslangic; <span class="kw">return this</span>; },
+    <span class="fn">adimAyarla</span>(n)   { _adim = n; <span class="kw">return this</span>; },
+    <span class="fn">deger</span>()         { <span class="kw">return</span> _deger; },
+  };
+}
+
+<span class="kw">const</span> s = <span class="fn">sayacOlustur</span>(<span class="num">10</span>);
+s.<span class="fn">adimAyarla</span>(<span class="num">5</span>).<span class="fn">artir</span>().<span class="fn">artir</span>(); <span class="cm">// zincirleme</span>
+s.<span class="fn">deger</span>();   <span class="ok-t">// 20</span>
+s._deger;    <span class="er">// undefined — gizli ✓</span></code></pre>
+</div>
+
+<h2 id="b2-4" data-n="2.4">Fonksiyon Fabrikası</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">katsayiUret</span>(n) {
+  <span class="kw">return</span> (x) => x * n; <span class="cm">// n bu closure'a ait</span>
+}
+
+<span class="kw">const</span> ikiyle = <span class="fn">katsayiUret</span>(<span class="num">2</span>); <span class="cm">// n=2 kalıcı</span>
+<span class="kw">const</span> ucle   = <span class="fn">katsayiUret</span>(<span class="num">3</span>); <span class="cm">// n=3 kalıcı</span>
+<span class="kw">const</span> kdv    = <span class="fn">katsayiUret</span>(<span class="num">1.18</span>);
+
+<span class="fn">ikiyle</span>(<span class="num">5</span>);  <span class="ok-t">// 10</span>
+<span class="fn">ucle</span>(<span class="num">5</span>);    <span class="ok-t">// 15</span>
+<span class="fn">kdv</span>(<span class="num">100</span>);  <span class="ok-t">// 118</span>
+<span class="cm">// Her closure kendi n'ini saklar</span></code></pre>
+</div>
+
+<div class="call tip">
+  <span class="icon">✦</span>
+  <div><strong>React Bağlantısı</strong>
+  <p>React'taki <code>useState</code>, <code>useReducer</code>, <code>useCallback</code> ve <code>useMemo</code> hook'larının tamamı closure üzerine kuruludur. Her render yeni bir closure oluşturur; state değerlerini renderlar arasında taşıyan mekanizma budur.</p></div>
+</div>
+
+<h2 id="b2-5" data-n="2.5">Memoization</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">memoize</span>(fn) {
+  <span class="kw">const</span> onbellek = {}; <span class="cm">// closure ile gizlenir</span>
+
+  <span class="kw">return function</span>(...args) {
+    <span class="kw">const</span> key = JSON.<span class="fn">stringify</span>(args);
+    <span class="kw">if</span> (key <span class="kw">in</span> onbellek) <span class="kw">return</span> onbellek[key];
+    onbellek[key] = <span class="fn">fn</span>(...args);
+    <span class="kw">return</span> onbellek[key];
+  };
+}
+
+<span class="kw">const</span> memoFib = (<span class="kw">function</span>() {
+  <span class="kw">const</span> cache = { <span class="num">0</span>: <span class="num">0</span>, <span class="num">1</span>: <span class="num">1</span> }; <span class="cm">// IIFE ile gizli</span>
+  <span class="kw">return function</span> <span class="fn">fib</span>(n) {
+    <span class="kw">if</span> (n <span class="kw">in</span> cache) <span class="kw">return</span> cache[n];
+    cache[n] = <span class="fn">fib</span>(n-<span class="num">1</span>) + <span class="fn">fib</span>(n-<span class="num">2</span>);
+    <span class="kw">return</span> cache[n];
+  };
+})(); <span class="cm">// IIFE — hemen çalışır</span>
+
+<span class="fn">memoFib</span>(<span class="num">40</span>); <span class="ok-t">// Anlık</span></code></pre>
+</div>
+
+<h2 id="b2-6" data-n="2.6">Closure ve Bellek Yönetimi</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Dikkat: büyük veriyle closure</span>
+<span class="kw">function</span> <span class="fn">tehlikeli</span>() {
+  <span class="kw">const</span> buyukVeri = <span class="kw">new</span> Array(<span class="num">1000000</span>).<span class="fn">fill</span>(<span class="str">'x'</span>);
+
+  <span class="kw">return function</span>() {
+    <span class="cm">// buyukVeri kullanılmıyor ama referans tutuldu!</span>
+    <span class="kw">return</span> <span class="num">42</span>;
+  };
+}
+<span class="cm">// fn yaşadığı sürece 1M elemanlı dizi bellekte!</span>
+<span class="cm">// Çözüm: gereksiz referansları null'a eşitleyin</span></code></pre>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════
+     BÖLÜM 3 — Arrow Function
+══════════════════════════════════════ -->
+<section class="cs" id="b3">
+<span class="cnum">Bölüm 03</span>
+<h2 class="ctitle">Arrow Function — Sadece Kısaltma Değil</h2>
+<p class="clead">Arrow function'ın <code>function</code>'dan temel farkı <code>this</code> bağlamıdır. Sözdizimi kısalığı sadece yan fayda.</p>
+
+<h2 id="b3-1" data-n="3.1">Sözdizimi</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Geleneksel</span>
+<span class="kw">function</span> <span class="fn">topla</span>(a, b) { <span class="kw">return</span> a + b; }
+
+<span class="cm">// Arrow — implicit return</span>
+<span class="kw">const</span> topla = (a, b) => a + b;
+
+<span class="cm">// Tek parametre, parantez opsiyonel</span>
+<span class="kw">const</span> karesi = x => x * x;
+
+<span class="cm">// Parametresiz</span>
+<span class="kw">const</span> selamla = () => <span class="str">'Merhaba'</span>;
+
+<span class="cm">// Nesne döndürmek — parantez şart!</span>
+<span class="kw">const</span> nesne = x => ({ deger: x, iki: x * <span class="num">2</span> });</code></pre>
+</div>
+
+<h2 id="b3-2" data-n="3.2">this Farkı — Lexical this</h2>
+<p>Arrow function kendi <code>this</code> bağlamını oluşturmaz; tanımlandığı scope'un <code>this</code>'ini kullanır (lexical this):</p>
+
+<div class="cmp-grid">
+  <div class="cmp-card">
+    <div class="cmp-head" style="background:var(--red-bg);color:var(--red);">✕  function — dinamik this</div>
+    <div class="cmp-body">
+      <div class="cb" style="margin:8px;border-radius:6px;">
+        <pre style="padding:12px;font-size:12px;"><code><span class="kw">const</span> obj = {
+  ad: <span class="str">'Ali'</span>,
+  fn: <span class="kw">function</span>() {
+    <span class="kw">return this</span>.ad;
+    <span class="cm">// this = obj ✓</span>
+  }
+};
+obj.<span class="fn">fn</span>(); <span class="ok-t">// 'Ali'</span></code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="cmp-card">
+    <div class="cmp-head" style="background:var(--amber-bg);color:var(--amber);">⚠  arrow — lexical this</div>
+    <div class="cmp-body">
+      <div class="cb" style="margin:8px;border-radius:6px;">
+        <pre style="padding:12px;font-size:12px;"><code><span class="kw">const</span> obj = {
+  ad: <span class="str">'Ali'</span>,
+  arrow: () => {
+    <span class="kw">return this</span>.ad;
+    <span class="er">// this = global!</span>
+  }
+};
+obj.<span class="fn">arrow</span>(); <span class="er">// undefined</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="b3-3" data-n="3.3">Tam Karşılaştırma Tablosu</h2>
+
+<div class="tw">
+<table>
+  <thead><tr><th>Özellik</th><th>function</th><th>Arrow</th></tr></thead>
+  <tbody>
+    <tr><td>this bağlamı</td><td>Dinamik (çağrıya göre)</td><td>Lexical (tanıma göre)</td></tr>
+    <tr><td>arguments nesnesi</td><td>Var</td><td>Yok — ...rest kullanın</td></tr>
+    <tr><td>new ile kullanım</td><td>✓ Constructor</td><td>✗ TypeError fırlatır</td></tr>
+    <tr><td>super</td><td>✓ (class içinde)</td><td>✗</td></tr>
+    <tr><td>prototype</td><td>Var</td><td>Yok</td></tr>
+    <tr><td>generator (function*)</td><td>✓</td><td>✗</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="b3-4" data-n="3.4">Ne Zaman Hangisi?</h2>
+<ul class="cl">
+  <li><strong>Object method:</strong> <code>function</code> — <code>this = nesne</code> olmalı</li>
+  <li><strong>Constructor:</strong> <code>function</code> veya <code>class</code> — arrow <code>new</code> ile kullanılamaz</li>
+  <li><strong>setTimeout/setInterval içinde this:</strong> Arrow — dış <code>this</code>'i yakalar</li>
+  <li><strong>Array.map/filter/reduce:</strong> Arrow — kısa, <code>this</code> gerekmez</li>
+  <li><strong>Event handler (this = element):</strong> <code>function</code></li>
+</ul>
+</section>
+
+<!-- ══════════════════════════════════════
+     BÖLÜM 4 — Callback + Event Loop
+══════════════════════════════════════ -->
+<section class="cs" id="b4">
+<span class="cnum">Bölüm 04</span>
+<h2 class="ctitle">Callback, Event Loop ve Asenkron JS</h2>
+<p class="clead">JavaScript'in asenkron programlama modeli tek thread üzerinde nasıl çalıştığını açıklar. Bu modelin temeli callback, motoru ise Event Loop'dur.</p>
+
+<h2 id="b4-1" data-n="4.1">Callback Deseni</h2>
+<p><strong>Callback</strong>: başka bir fonksiyona argüman olarak geçirilen, belirli bir olay gerçekleştiğinde çağrılmak üzere bırakılan fonksiyon:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">isle</span>(veri, callback) {
+  <span class="kw">const</span> sonuc = veri.<span class="fn">toUpperCase</span>();
+  <span class="fn">callback</span>(sonuc);
+}
+
+<span class="fn">isle</span>(<span class="str">'merhaba'</span>, (s) => <span class="fn">console</span>.log(s)); <span class="ok-t">// 'MERHABA'</span>
+
+<span class="cm">// DOM olayı:</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () => console.<span class="fn">log</span>(<span class="str">'Tıklandı'</span>));
+
+<span class="cm">// Zamanlayıcı:</span>
+<span class="fn">setTimeout</span>(() => console.<span class="fn">log</span>(<span class="str">'1 saniye'</span>), <span class="num">1000</span>);
+
+<span class="cm">// Array metodları:</span>
+[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>].<span class="fn">filter</span>(x => x % <span class="num">2</span> === <span class="num">0</span>); <span class="ok-t">// [2]</span></code></pre>
+</div>
+
+<div class="call hist">
+  <span class="icon">📜</span>
+  <div><strong>Callback'in Kökeni</strong>
+  <p>Callback deseni 1960'lardaki continuation-passing style (CPS) programlama stiliyle kökten bağlantılıdır. UNIX sinyalleri, Smalltalk-80 event handler'ları, Scheme continuation'ları — hepsi aynı fikrin farklı yansımasıdır. Node.js (2009) bu deseni sunucu tarafında ana akıma taşıdı.</p></div>
+</div>
+
+<h2 id="b4-2" data-n="4.2">Neden Tek Thread?</h2>
+<ul class="cl">
+  <li><strong>DOM'da race condition yok:</strong> Birden fazla thread DOM'u aynı anda değiştirirse tutarsızlık kaçınılmaz olur.</li>
+  <li><strong>Basit programlama modeli:</strong> Mutex, semaphore, monitor gibi eşzamanlılık primitiflerine gerek yok.</li>
+  <li><strong>I/O verimliliği:</strong> Async model, I/O-yoğun iş yükleri için thread-per-request modelinden çok daha verimlidir.</li>
+</ul>
+
+<h2 id="b4-3" data-n="4.3">Event Loop Modeli</h2>
+
+<div class="call info">
+  <span class="icon">⚙</span>
+  <div><strong>Bileşenler</strong>
+  <p><strong>Call Stack:</strong> Fonksiyon çağrıları yığını (LIFO). <strong>Web APIs:</strong> setTimeout, fetch, addEventListener — JS değil ortam yönetir. <strong>Microtask Queue:</strong> Promise.then(), queueMicrotask() — stack boşalınca öncelikli. <strong>Task Queue (Macro):</strong> setTimeout, setInterval — Microtask boşaldıktan sonra. <strong>Event Loop:</strong> Stack boş → önce Microtask → sonra Task → tekrar.</p></div>
+</div>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript — Sıra Tahmini</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="fn">console</span>.log(<span class="str">'A'</span>);
+
+<span class="fn">setTimeout</span>(() => <span class="fn">console</span>.log(<span class="str">'B — setTimeout 0ms'</span>), <span class="num">0</span>);
+
+<span class="kw">Promise</span>.<span class="fn">resolve</span>().<span class="fn">then</span>(() => <span class="fn">console</span>.log(<span class="str">'C — Promise'</span>));
+
+<span class="fn">queueMicrotask</span>(() => <span class="fn">console</span>.log(<span class="str">'D — queueMicrotask'</span>));
+
+<span class="fn">console</span>.log(<span class="str">'E'</span>);
+
+<span class="cm">// Çıktı: A → E → C → D → B</span>
+<span class="cm">// A, E: synchronous (Call Stack)</span>
+<span class="cm">// C, D: Microtask Queue (önce)</span>
+<span class="cm">// B:    Task Queue (en son)</span></code></pre>
+</div>
+
+<div class="call warn">
+  <span class="icon">⚠</span>
+  <div><strong>setTimeout(fn, 0) Yanılgısı</strong>
+  <p>"0ms bekle" = "hemen çalış" değildir. "En az 0ms bekle, Task Queue'ya ekle" demektir. Microtask Queue her zaman Task Queue'dan önce işlenir. Bu performans optimizasyonlarında kritik bir detaydır.</p></div>
+</div>
+
+<h2 id="b4-4" data-n="4.4">Callback Hell</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">Callback Hell — Kaçınılacak</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="fn">kullaniciyiGetir</span>(userId, (kullanici, hata) => {
+  <span class="kw">if</span> (hata) { <span class="fn">hataYonet</span>(hata); <span class="kw">return</span>; }
+
+  <span class="fn">siparisleriGetir</span>(kullanici.id, (siparisler, hata) => {
+    <span class="kw">if</span> (hata) { <span class="fn">hataYonet</span>(hata); <span class="kw">return</span>; }
+
+    <span class="fn">urunleriGetir</span>(siparisler[<span class="num">0</span>].id, (urunler, hata) => {
+      <span class="kw">if</span> (hata) { <span class="fn">hataYonet</span>(hata); <span class="kw">return</span>; }
+      <span class="fn">goster</span>(kullanici, siparisler, urunler);
+      <span class="cm">// Her hata kolu tekrar, test imkânsız</span>
+    });
+  });
+});</code></pre>
+</div>
+
+<h2 id="b4-5" data-n="4.5">Promise</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Promise zinciri — doğrusal, tek catch</span>
+<span class="fn">kullaniciyiGetir</span>(userId)
+  .<span class="fn">then</span>(k => <span class="fn">siparisleriGetir</span>(k.id))
+  .<span class="fn">then</span>(s => <span class="fn">urunleriGetir</span>(s[<span class="num">0</span>].id))
+  .<span class="fn">then</span>(goster)
+  .<span class="fn">catch</span>(hataYonet);
+
+<span class="cm">// Paralel istekler:</span>
+<span class="kw">Promise</span>.<span class="fn">all</span>([
+  <span class="fn">kullaniciyiGetir</span>(userId),
+  <span class="fn">ayarlariGetir</span>(userId),
+]).<span class="fn">then</span>(([kullanici, ayarlar]) => <span class="fn">goster</span>(kullanici, ayarlar));</code></pre>
+</div>
+
+<h2 id="b4-6" data-n="4.6">async/await</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">async function</span> <span class="fn">yukle</span>(userId) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> kullanici  = <span class="kw">await</span> <span class="fn">kullaniciyiGetir</span>(userId);
+    <span class="kw">const</span> siparisler = <span class="kw">await</span> <span class="fn">siparisleriGetir</span>(kullanici.id);
+    <span class="fn">goster</span>(kullanici, siparisler);
+  } <span class="kw">catch</span> (hata) {
+    <span class="fn">hataYonet</span>(hata);
+  }
+}
+
+<span class="cm">// Paralel — Promise.all ile birlikte kullanın:</span>
+<span class="kw">async function</span> <span class="fn">paralel</span>(userId) {
+  <span class="kw">const</span> [k, a] = <span class="kw">await</span> <span class="kw">Promise</span>.<span class="fn">all</span>([
+    <span class="fn">kullaniciyiGetir</span>(userId),
+    <span class="fn">ayarlariGetir</span>(userId),
+  ]);
+  <span class="fn">goster</span>(k, a);
+}</code></pre>
+</div>
+
+<div class="call info">
+  <span class="icon">ℹ</span>
+  <div><strong>async/await'in Gerçeği</strong>
+  <p><code>async/await</code> arka planda Promise kullanır. Bir <code>await</code> gördüğünde JS motoru kontrolü Event Loop'a bırakır (bloklamaz). Promise çözümlendiğinde devam Microtask Queue'ya eklenir. Yani "senkron görünümlü asenkron" kod yazar — gerçekte bloklamaz.</p></div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════
+     BÖLÜM 5 — Egzersizler
+══════════════════════════════════════ -->
+<section class="cs" id="b5">
+<span class="cnum">Bölüm 05</span>
+<h2 class="ctitle">Pratik Egzersizler ve Sık Hatalar</h2>
+<p class="clead">Teoriyi pekiştirmenin en iyi yolu uygulamalı denemedir.</p>
+
+<h2 id="b5-1" data-n="5.1">this Egzersizleri</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">Egzersiz 1.1</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> a = { x: <span class="num">10</span>, <span class="fn">getX</span>() { <span class="kw">return this</span>.x; } };
+<span class="kw">const</span> b = { x: <span class="num">20</span> };
+
+a.<span class="fn">getX</span>();               <span class="ok-t">// (1) → 10</span>
+b.getX = a.getX; b.<span class="fn">getX</span>(); <span class="ok-t">// (2) → 20</span>
+<span class="kw">const</span> fn = a.getX;
+<span class="fn">fn</span>();                   <span class="er">// (3) → undefined (global)</span>
+fn.<span class="fn">call</span>({ x: <span class="num">30</span> });    <span class="ok-t">// (4) → 30</span>
+fn.<span class="fn">call</span>(a);             <span class="ok-t">// (5) → 10</span></code></pre>
+</div>
+
+<h2 id="b5-2" data-n="5.2">Closure Egzersizleri</h2>
+
+<h3>Banka Hesabı</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">Egzersiz 2.1</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">hesapOlustur</span>(baslangic = <span class="num">0</span>) {
+  <span class="kw">let</span> _bakiye = baslangic;
+
+  <span class="kw">return</span> {
+    <span class="fn">yatir</span>(m)  { <span class="kw">if</span> (m <= <span class="num">0</span>) <span class="kw">return</span> <span class="str">'Geçersiz'</span>; _bakiye += m; <span class="kw">return</span> _bakiye; },
+    <span class="fn">cek</span>(m)    { <span class="kw">if</span> (m > _bakiye) <span class="kw">return</span> <span class="str">'Yetersiz'</span>; _bakiye -= m; <span class="kw">return</span> _bakiye; },
+    <span class="fn">bakiye</span>()  { <span class="kw">return</span> _bakiye; },
+  };
+}
+
+<span class="kw">const</span> h = <span class="fn">hesapOlustur</span>(<span class="num">1000</span>);
+h.<span class="fn">yatir</span>(<span class="num">500</span>);  <span class="ok-t">// 1500</span>
+h.<span class="fn">cek</span>(<span class="num">200</span>);    <span class="ok-t">// 1300</span>
+h.<span class="fn">cek</span>(<span class="num">2000</span>);   <span class="er">// 'Yetersiz'</span>
+h._bakiye;     <span class="er">// undefined ✓</span></code></pre>
+</div>
+
+<h2 id="b5-3" data-n="5.3">Event Loop Sırası</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">Egzersiz 3.1 — Promise constructor dikkat!</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="fn">console</span>.log(<span class="str">'1'</span>);
+
+<span class="fn">setTimeout</span>(() => <span class="fn">console</span>.log(<span class="str">'2'</span>), <span class="num">0</span>);
+
+<span class="kw">new</span> <span class="kw">Promise</span>((resolve) => {
+  <span class="fn">console</span>.log(<span class="str">'3'</span>); <span class="cm">// Constructor SYNC çalışır!</span>
+  <span class="fn">resolve</span>();
+}).<span class="fn">then</span>(() => <span class="fn">console</span>.log(<span class="str">'4'</span>)); <span class="cm">// Microtask</span>
+
+<span class="fn">console</span>.log(<span class="str">'5'</span>);
+
+<span class="cm">// Çıktı: 1, 3, 5, 4, 2</span></code></pre>
+</div>
+
+<h2 id="b5-4" data-n="5.4">Sık Hatalar</h2>
+
+<h3>Hata 1: Object Method'da Arrow</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// HATALI:</span>
+<span class="kw">const</span> obj = {
+  ad: <span class="str">'Ali'</span>,
+  selamla: () => <span class="kw">this</span>.ad <span class="er">// this = global, not obj!</span>
+};
+
+<span class="cm">// DOĞRU:</span>
+<span class="kw">const</span> obj = {
+  ad: <span class="str">'Ali'</span>,
+  <span class="fn">selamla</span>() { <span class="kw">return this</span>.ad; } <span class="ok-t">// ✓</span>
+};</code></pre>
+</div>
+
+<h3>Hata 2: Callback Hell</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// HATALI:</span>
+<span class="fn">getData</span>(url1, (d1) => {
+  <span class="fn">getData</span>(url2, (d2) => { <span class="cm">/* ... */</span> });
+});
+
+<span class="cm">// DOĞRU — async/await:</span>
+<span class="kw">async function</span> <span class="fn">yukle</span>() {
+  <span class="kw">const</span> d1 = <span class="kw">await</span> <span class="fn">getData</span>(url1);
+  <span class="kw">const</span> d2 = <span class="kw">await</span> <span class="fn">getData</span>(url2);
+  <span class="fn">isle</span>(d1, d2);
+}
+
+<span class="cm">// DAHA İYİ — paralel:</span>
+<span class="kw">const</span> [d1, d2] = <span class="kw">await</span> <span class="kw">Promise</span>.<span class="fn">all</span>([<span class="fn">getData</span>(url1), <span class="fn">getData</span>(url2)]);</code></pre>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════
+     BÖLÜM 6 — Gerçek Projeler
+══════════════════════════════════════ -->
+<section class="cs" id="b6">
+<span class="cnum">Bölüm 06</span>
+<h2 class="ctitle">Gerçek Projelerde Bu Hafta</h2>
+<p class="clead">this, closure, arrow function ve Event Loop izole kavramlar değil — birbiriyle sürekli etkileşen mekanizmalardır.</p>
+
+<h2 id="b6-1" data-n="6.1">React Hooks ve Closure</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript — Stale Closure</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Stale closure hatası:</span>
+<span class="kw">function</span> <span class="fn">Zamanlayici</span>() {
+  <span class="kw">const</span> [sayi, setSayi] = React.<span class="fn">useState</span>(<span class="num">0</span>);
+
+  React.<span class="fn">useEffect</span>(() => {
+    <span class="kw">const</span> t = <span class="fn">setInterval</span>(() => {
+      <span class="fn">setSayi</span>(sayi + <span class="num">1</span>); <span class="er">// sayi daima 0 — stale!</span>
+    }, <span class="num">1000</span>);
+    <span class="kw">return</span> () => <span class="fn">clearInterval</span>(t);
+  }, []); <span class="cm">// sayi=0 yakalandı</span>
+
+  <span class="cm">// Çözüm — fonksiyonel güncelleme:</span>
+  <span class="fn">setSayi</span>(prev => prev + <span class="num">1</span>); <span class="ok-t">// her zaman güncel</span>
+}</code></pre>
+</div>
+
+<h2 id="b6-2" data-n="6.2">IIFE + Closure: Memoization</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> memoFib = (<span class="kw">function</span>() {
+  <span class="kw">const</span> cache = { <span class="num">0</span>: <span class="num">0</span>, <span class="num">1</span>: <span class="num">1</span> }; <span class="cm">// IIFE ile gizli</span>
+  <span class="kw">return function</span> <span class="fn">fib</span>(n) {
+    <span class="kw">if</span> (n <span class="kw">in</span> cache) <span class="kw">return</span> cache[n];
+    cache[n] = <span class="fn">fib</span>(n-<span class="num">1</span>) + <span class="fn">fib</span>(n-<span class="num">2</span>);
+    <span class="kw">return</span> cache[n];
+  };
+})();
+
+<span class="fn">memoFib</span>(<span class="num">40</span>); <span class="ok-t">// Anlık — her n yalnızca bir kez</span></code></pre>
+</div>
+
+<h2 id="b6-3" data-n="6.3">fetch + Event Loop</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">async function</span> <span class="fn">yukle</span>() {
+  <span class="fn">console</span>.log(<span class="str">'1. başladı'</span>);
+  <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/data'</span>);
+  <span class="cm">// fetch: Web APIs → ağ isteği</span>
+  <span class="cm">// await: Microtask'ta bekler</span>
+  <span class="fn">console</span>.log(<span class="str">'2. yanıt alındı'</span>);
+  <span class="kw">const</span> veri = <span class="kw">await</span> yanit.<span class="fn">json</span>();
+  <span class="fn">console</span>.log(<span class="str">'3. parse edildi'</span>);
+}
+
+<span class="fn">console</span>.log(<span class="str">'A'</span>);
+<span class="fn">yukle</span>().<span class="fn">then</span>(() => <span class="fn">console</span>.log(<span class="str">'D'</span>));
+<span class="fn">console</span>.log(<span class="str">'B'</span>);
+<span class="cm">// Çıktı: A, B, 1, 2, 3, D</span></code></pre>
+</div>
+
+<h2 id="b6-4" data-n="6.4">API Servisi — this + Arrow + Closure</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">class</span> <span class="fn">ApiServis</span> {
+  <span class="fn">constructor</span>(baseUrl) {
+    <span class="kw">this</span>.baseUrl = baseUrl;
+    <span class="kw">this</span>.token   = <span class="kw">null</span>;
+  }
+
+  <span class="cm">// Arrow field: this daima örneği gösterir</span>
+  girisYap = <span class="kw">async</span> (kullanici, sifre) => {
+    <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="kw">this</span>.baseUrl + <span class="str">'/login'</span>, {
+      method: <span class="str">'POST'</span>,
+      body: JSON.<span class="fn">stringify</span>({ kullanici, sifre }),
+    });
+    <span class="kw">const</span> veri = <span class="kw">await</span> yanit.<span class="fn">json</span>();
+    <span class="kw">this</span>.token = veri.token;
+    <span class="kw">return</span> veri;
+  };
+
+  <span class="cm">// Closure: token dışa sızdırılmadan header ekle</span>
+  istekYap = <span class="kw">async</span> (endpoint) => {
+    <span class="kw">return</span> <span class="fn">fetch</span>(<span class="kw">this</span>.baseUrl + endpoint, {
+      headers: { Authorization: <span class="str">'Bearer '</span> + <span class="kw">this</span>.token }
+    }).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+  };
+}</code></pre>
+</div>
+
+<h2 id="b6-5" data-n="6.5">Tam Sistem Egzersizi</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="clang">JavaScript — Closure + Arrow + async</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">kullaniciModulu</span>() {
+  <span class="kw">const</span> _liste = []; <span class="cm">// private closure</span>
+
+  <span class="kw">const</span> _apidanCek = (id) => <span class="kw">new</span> <span class="kw">Promise</span>(resolve =>
+    <span class="fn">setTimeout</span>(() => <span class="fn">resolve</span>({ id, ad: <span class="str">'User'</span> + id }), <span class="num">100</span>)
+  );
+
+  <span class="kw">return</span> {
+    <span class="kw">async</span> <span class="fn">yukle</span>(idler, callback) {
+      <span class="kw">const</span> sonuclar = <span class="kw">await</span> <span class="kw">Promise</span>.<span class="fn">all</span>(
+        idler.<span class="fn">map</span>(id => <span class="fn">_apidanCek</span>(id))
+      );
+      sonuclar.<span class="fn">forEach</span>(u => _liste.<span class="fn">push</span>(u));
+      callback?.(sonuclar); <span class="cm">// opsiyonel callback</span>
+      <span class="kw">return</span> sonuclar;
+    },
+    liste: () => [..._liste],
+    temizle: () => _liste.<span class="fn">splice</span>(<span class="num">0</span>),
+  };
+}
+
+<span class="kw">const</span> m = <span class="fn">kullaniciModulu</span>();
+<span class="kw">await</span> m.<span class="fn">yukle</span>([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>], s => <span class="fn">console</span>.log(<span class="str">'Yüklendi:'</span>, s.length));
+m._liste; <span class="er">// undefined — gizli ✓</span></code></pre>
+</div>
+
+<div class="call tip">
+  <span class="icon">📚</span>
+  <div><strong>Öğrenme Kaynakları</strong>
+  <p>MDN Web Docs: <code>this</code>, Closures, Arrow functions, Event Loop — <strong>developer.mozilla.org</strong><br>
+  Jake Archibald: "In The Loop" — YouTube, Event Loop görsel anlatımı<br>
+  Philip Roberts: "What the heck is the event loop anyway?" — JSConf EU 2014<br>
+  javascript.info: Closures, Scheduling, Promises bölümleri<br>
+  Exercism.io: JavaScript track — closure & higher-order function egzersizleri</p>
+  </div>
+</div>
+
+<div class="send">— Bölüm Sonu —</div>
+</section>
+
+</div><!-- /ci -->
+</main>
+</div><!-- /layout -->
+
+<script>
+// Progress
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  document.getElementById('pb').style.width=(d.scrollTop/(d.scrollHeight-d.clientHeight)*100)+'%';
+});
+
+// Active nav
+const sects=document.querySelectorAll('[id]');
+const links=document.querySelectorAll('nav a');
+const obs=new IntersectionObserver(e=>{
+  e.forEach(en=>{
+    if(en.isIntersecting) links.forEach(a=>{
+      a.classList.toggle('active',a.getAttribute('href')==='#'+en.target.id);
+    });
+  });
+},{rootMargin:'-20% 0px -70% 0px'});
+sects.forEach(s=>obs.observe(s));
+
+// Reveal
+const ro=new IntersectionObserver(e=>{
+  e.forEach(en=>{ if(en.isIntersecting){en.target.classList.add('visible');ro.unobserve(en.target);} });
+},{threshold:0.05});
+document.querySelectorAll('.cs').forEach(s=>ro.observe(s));
+
+// Copy code
+function copyCode(btn){
+  const text=btn.closest('.cb').querySelector('pre').innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Kopyalandı!';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='Kopyala';btn.classList.remove('ok');},2000);
+  });
+}
+
+// Font toggle
+let fm=0;
+const fonts=[null,'var(--ui)','var(--code)'];
+const labels=['Aa','Sf','Cd'];
+function toggleFont(){
+  fm=(fm+1)%3;
+  document.querySelectorAll('p,li,.clead').forEach(el=>el.style.fontFamily=fonts[fm]||'');
+  document.querySelector('[onclick="toggleFont()"]').textContent=labels[fm];
+}
+
+// Nav filter
+function filterNav(q){
+  const t=q.toLowerCase();
+  document.querySelectorAll('nav li').forEach(li=>{
+    li.style.display=(!t||li.textContent.toLowerCase().includes(t))?'':'none';
+  });
+}
+</script>
+</body>
+</html>
