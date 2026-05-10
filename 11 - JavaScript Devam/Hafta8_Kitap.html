@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veri Yapıları · DOM · AJAX — BAÜ İnternet Programlama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0c0e14;
+  --surf:    #131720;
+  --surf2:   #1a2030;
+  --bdr:     #212840;
+  --bdr2:    #2d3a55;
+  --text:    #d8dff0;
+  --muted:   #6b7a9e;
+  --dim:     #8494bc;
+  --acc:     #4f9eff;
+  --acc2:    #7ec8ff;
+  --acc-bg:  rgba(79,158,255,.08);
+  --grn:     #4ade80;
+  --grn-bg:  rgba(74,222,128,.08);
+  --amb:     #f59e0b;
+  --amb-bg:  rgba(245,158,11,.08);
+  --red:     #f87171;
+  --red-bg:  rgba(248,113,113,.08);
+  --pur:     #c084fc;
+  --pur-bg:  rgba(192,132,252,.08);
+  --tel:     #2dd4bf;
+  --tel-bg:  rgba(45,212,191,.08);
+  --r:       10px;
+  --sw:      272px;
+  --cw:      800px;
+  --body:    'Literata', Georgia, serif;
+  --ui:      'Sora', system-ui, sans-serif;
+  --code:    'Fira Code', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.85;min-height:100vh;}
+
+/* Progress */
+#pb{position:fixed;top:0;left:0;z-index:1000;height:3px;background:linear-gradient(90deg,var(--acc),var(--pur));width:0%;transition:width .1s;box-shadow:0 0 12px var(--acc);}
+
+/* Header */
+header{position:fixed;top:3px;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:54px;background:rgba(12,14,20,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);}
+.hb{display:flex;align-items:center;gap:12px;font-family:var(--ui);font-size:13px;color:var(--muted);}
+.badge{background:var(--acc-bg);color:var(--acc);border:1px solid rgba(79,158,255,.25);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.04em;}
+.ha{display:flex;gap:8px;}
+.bi{background:var(--surf2);border:1px solid var(--bdr);color:var(--muted);border-radius:8px;width:34px;height:34px;display:grid;place-items:center;cursor:pointer;font-size:15px;transition:all .2s;}
+.bi:hover{border-color:var(--acc);color:var(--acc);}
+
+/* Layout */
+.layout{display:flex;padding-top:57px;min-height:100vh;}
+
+/* Sidebar */
+aside{position:fixed;top:57px;left:0;width:var(--sw);height:calc(100vh - 57px);overflow-y:auto;padding:20px 0 40px;border-right:1px solid var(--bdr);background:var(--bg);scrollbar-width:thin;scrollbar-color:var(--bdr2) transparent;}
+.st{font-family:var(--ui);font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:0 20px 8px;}
+.sw{padding:0 16px 14px;}
+.si{width:100%;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--ui);font-size:12.5px;outline:none;transition:border-color .2s;}
+.si:focus{border-color:var(--acc);}
+.si::placeholder{color:var(--muted);}
+nav ul{list-style:none;}
+nav a{display:block;padding:5px 20px;font-family:var(--ui);font-size:12.5px;color:var(--muted);text-decoration:none;border-left:2px solid transparent;transition:all .15s;line-height:1.4;}
+nav a:hover{color:var(--acc);background:var(--acc-bg);}
+nav a.active{color:var(--acc2);border-left-color:var(--acc);background:var(--acc-bg);}
+.h1-item>a{font-weight:600;font-size:13px;color:var(--dim);padding-top:9px;}
+.h2-item>a{padding-left:32px;}
+.h3-item>a{padding-left:44px;font-size:12px;}
+
+/* Main */
+main{margin-left:var(--sw);flex:1;padding:48px 60px 96px;max-width:calc(var(--sw) + var(--cw) + 120px);}
+.ci{max-width:var(--cw);}
+
+/* Cover */
+.cover{padding:64px 0 80px;border-bottom:1px solid var(--bdr);margin-bottom:72px;}
+.cmeta{font-family:var(--ui);font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+.cmeta::before{content:'';display:inline-block;width:28px;height:2px;background:var(--acc);}
+.cover h1{font-family:var(--ui);font-size:clamp(28px,4vw,42px);font-weight:700;line-height:1.15;color:#fff;margin-bottom:16px;letter-spacing:-.02em;}
+.cover h1 span{color:var(--acc);}
+.csub{font-size:16px;color:var(--muted);font-style:italic;margin-bottom:32px;line-height:1.6;}
+.ctags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{font-family:var(--ui);font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;background:var(--surf2);border:1px solid var(--bdr2);color:var(--dim);}
+.tag.a{background:var(--acc-bg);border-color:rgba(79,158,255,.3);color:var(--acc);}
+.tag.g{background:var(--grn-bg);border-color:rgba(74,222,128,.3);color:var(--grn);}
+.tag.p{background:var(--pur-bg);border-color:rgba(192,132,252,.3);color:var(--pur);}
+.tag.t{background:var(--tel-bg);border-color:rgba(45,212,191,.3);color:var(--tel);}
+.tag.o{background:var(--amb-bg);border-color:rgba(245,158,11,.3);color:var(--amb);}
+
+/* Sections */
+.cs{margin-bottom:80px;opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s;}
+.cs.visible{opacity:1;transform:none;}
+.cover{opacity:1;transform:none;}
+.cnum{font-family:var(--ui);font-size:11px;font-weight:600;color:var(--acc);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:8px;}
+.ctitle{font-family:var(--ui);font-size:clamp(22px,3vw,30px);font-weight:700;color:#fff;margin:0 0 10px;line-height:1.2;letter-spacing:-.02em;}
+.clead{font-size:15.5px;color:var(--muted);font-style:italic;margin-bottom:8px;line-height:1.8;padding-bottom:24px;border-bottom:1px solid var(--bdr);}
+h2{font-family:var(--ui);font-size:21px;font-weight:700;color:#fff;margin:52px 0 18px;letter-spacing:-.01em;}
+h2::before{content:attr(data-n);font-size:11px;font-weight:600;color:var(--acc);letter-spacing:.08em;display:block;margin-bottom:6px;font-family:var(--ui);}
+h3{font-family:var(--ui);font-size:16px;font-weight:600;color:var(--text);margin:36px 0 12px;}
+h3::before{content:'↳ ';color:var(--acc);font-size:14px;}
+p{font-size:15.5px;line-height:1.9;color:var(--text);margin-bottom:18px;}
+code{font-family:var(--code);font-size:13.5px;background:var(--surf2);color:var(--amb);padding:1px 6px;border-radius:4px;border:1px solid var(--bdr);}
+strong{color:#fff;font-weight:600;}
+
+/* Code blocks */
+.cb{position:relative;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin:20px 0 28px;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surf2);border-bottom:1px solid var(--bdr);}
+.dots{display:flex;gap:6px;}
+.dots span{width:10px;height:10px;border-radius:50%;}
+.dots span:nth-child(1){background:#ff5f57;}
+.dots span:nth-child(2){background:#febc2e;}
+.dots span:nth-child(3){background:#28c840;}
+.cl{font-family:var(--ui);font-size:11px;color:var(--muted);letter-spacing:.05em;}
+.cbtn{background:none;border:1px solid var(--bdr);color:var(--muted);font-family:var(--ui);font-size:11px;padding:3px 10px;border-radius:5px;cursor:pointer;transition:all .2s;}
+.cbtn:hover{border-color:var(--acc);color:var(--acc);}
+.cbtn.ok{border-color:var(--grn);color:var(--grn);}
+pre{margin:0;padding:20px;overflow-x:auto;font-size:13.5px;line-height:1.7;tab-size:2;}
+pre code{background:none;border:none;padding:0;color:var(--text);font-size:inherit;}
+.kw{color:#c084fc;font-weight:500;}.str{color:#86efac;}.num{color:#fbbf24;}
+.cm{color:#4b5a7a;font-style:italic;}.fn{color:#60a5fa;}.ok-t{color:#4ade80;}.er{color:#f87171;}.or{color:#fb923c;}
+
+/* Callouts */
+.call{border-radius:var(--r);padding:16px 20px;margin:20px 0 28px;display:flex;gap:14px;align-items:flex-start;border:1px solid;font-size:14.5px;line-height:1.75;}
+.call .ic{font-size:18px;flex-shrink:0;margin-top:1px;}
+.call strong{font-family:var(--ui);font-size:13px;display:block;margin-bottom:4px;}
+.call p{margin:0;font-size:14px;}
+.call.info{background:var(--acc-bg);border-color:rgba(79,158,255,.3);}
+.call.info strong{color:var(--acc);}
+.call.warn{background:var(--amb-bg);border-color:rgba(245,158,11,.3);}
+.call.warn strong{color:var(--amb);}
+.call.danger{background:var(--red-bg);border-color:rgba(248,113,113,.3);}
+.call.danger strong{color:var(--red);}
+.call.tip{background:var(--grn-bg);border-color:rgba(74,222,128,.3);}
+.call.tip strong{color:var(--grn);}
+.call.hist{background:var(--pur-bg);border-color:rgba(192,132,252,.3);}
+.call.hist strong{color:var(--pur);}
+
+/* Tables */
+.tw{overflow-x:auto;margin:20px 0 28px;border:1px solid var(--bdr);border-radius:var(--r);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+thead tr{background:var(--surf2);}
+thead th{padding:12px 16px;text-align:left;font-family:var(--ui);font-size:12px;font-weight:600;color:var(--acc2);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--bdr);}
+tbody tr{border-bottom:1px solid var(--bdr);}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:nth-child(even){background:rgba(255,255,255,.02);}
+tbody tr:hover{background:var(--acc-bg);}
+tbody td{padding:10px 16px;color:var(--dim);font-size:13px;vertical-align:top;}
+tbody td:first-child{color:var(--acc2);font-weight:600;font-family:var(--code);}
+
+/* Lists */
+ul.cl,ol.cl{margin:12px 0 20px;padding-left:0;list-style:none;}
+ul.cl li,ol.cl li{padding:5px 0 5px 28px;position:relative;font-size:15px;line-height:1.8;}
+ul.cl li::before{content:'▸';position:absolute;left:6px;color:var(--acc);font-size:11px;top:9px;}
+ol.cl{counter-reset:oc;}
+ol.cl li{counter-increment:oc;}
+ol.cl li::before{content:counter(oc)'.';position:absolute;left:0;color:var(--acc);font-family:var(--ui);font-size:12px;font-weight:700;top:8px;}
+
+/* Compare grid */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0 28px;}
+.cmp-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;}
+.cmp-head{padding:10px 16px;font-family:var(--ui);font-size:12px;font-weight:700;letter-spacing:.05em;}
+
+/* Method cards */
+.mcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:20px 0 28px;}
+.mcard{background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;}
+.mcard-name{font-family:var(--code);font-size:16px;font-weight:600;margin-bottom:6px;}
+.mcard-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.mcard-ex{font-family:var(--code);font-size:11.5px;color:var(--grn);margin-top:8px;}
+
+/* Section end */
+.send{text-align:center;padding:60px 0 20px;color:var(--muted);font-style:italic;font-size:14px;}
+.send::before{content:'';display:block;width:40px;height:1px;background:var(--bdr2);margin:0 auto 20px;}
+
+/* Responsive */
+@media(max-width:900px){aside{display:none;}main{margin-left:0;padding:32px 24px 80px;}}
+@media print{aside,header,#pb{display:none!important;}main{margin:0;padding:20px;}body{background:white;color:black;}}
+</style>
+</head>
+<body>
+<div id="pb"></div>
+<header>
+  <div class="hb">
+    <span class="badge">Hafta 8</span>
+    <span>BAÜ · Bilgisayar Mühendisliği · İnternet Programlama</span>
+  </div>
+  <div class="ha">
+    <button class="bi" onclick="toggleFont()" title="Yazı tipi">Aa</button>
+    <button class="bi" onclick="window.print()" title="Yazdır">⎙</button>
+  </div>
+</header>
+
+<div class="layout">
+<aside>
+  <div class="sw"><input type="text" class="si" placeholder="Ara…" oninput="filterNav(this.value)"></div>
+  <p class="st">İçindekiler</p>
+  <nav><ul id="toc">
+    <li class="h1-item"><a href="#b1">Bölüm 1 — Array Metodları</a></li>
+    <li class="h2-item"><a href="#b1-1">1.1 map</a></li>
+    <li class="h2-item"><a href="#b1-2">1.2 filter</a></li>
+    <li class="h2-item"><a href="#b1-3">1.3 reduce</a></li>
+    <li class="h2-item"><a href="#b1-4">1.4 flat ve flatMap</a></li>
+    <li class="h2-item"><a href="#b1-5">1.5 Zincirleme + Karşılaştırma</a></li>
+    <li class="h2-item"><a href="#b1-6">1.6 Gerçek Dünya Örneği</a></li>
+    <li class="h1-item"><a href="#b2">Bölüm 2 — Object Metodları</a></li>
+    <li class="h2-item"><a href="#b2-1">2.1 keys / values / entries</a></li>
+    <li class="h2-item"><a href="#b2-2">2.2 Spread Operatörü</a></li>
+    <li class="h2-item"><a href="#b2-3">2.3 Rest Operatörü</a></li>
+    <li class="h2-item"><a href="#b2-4">2.4 Destructuring Derinlemesine</a></li>
+    <li class="h1-item"><a href="#b3">Bölüm 3 — ES Modülleri</a></li>
+    <li class="h2-item"><a href="#b3-1">3.1 Named Export</a></li>
+    <li class="h2-item"><a href="#b3-2">3.2 Default Export</a></li>
+    <li class="h2-item"><a href="#b3-3">3.3 Barrel Pattern</a></li>
+    <li class="h2-item"><a href="#b3-4">3.4 Dinamik import</a></li>
+    <li class="h2-item"><a href="#b3-5">3.5 Vite + npm</a></li>
+    <li class="h1-item"><a href="#b4">Bölüm 4 — DOM</a></li>
+    <li class="h2-item"><a href="#b4-1">4.1 Element Seçiciler</a></li>
+    <li class="h2-item"><a href="#b4-2">4.2 İçerik Manipülasyonu</a></li>
+    <li class="h2-item"><a href="#b4-3">4.3 Stil ve Sınıf</a></li>
+    <li class="h2-item"><a href="#b4-4">4.4 Element Oluşturma</a></li>
+    <li class="h2-item"><a href="#b4-5">4.5 Event Delegation</a></li>
+    <li class="h2-item"><a href="#b4-6">4.6 DocumentFragment</a></li>
+    <li class="h1-item"><a href="#b5">Bölüm 5 — AJAX ve fetch</a></li>
+    <li class="h2-item"><a href="#b5-1">5.1 XHR Tarihi</a></li>
+    <li class="h2-item"><a href="#b5-2">5.2 fetch API</a></li>
+    <li class="h2-item"><a href="#b5-3">5.3 POST / PUT / DELETE</a></li>
+    <li class="h2-item"><a href="#b5-4">5.4 Hata Yönetimi</a></li>
+    <li class="h2-item"><a href="#b5-5">5.5 Paralel İstekler</a></li>
+    <li class="h2-item"><a href="#b5-6">5.6 Tam Örnek</a></li>
+    <li class="h1-item"><a href="#b6">Bölüm 6 — Egzersizler</a></li>
+    <li class="h2-item"><a href="#b6-1">6.1 Array Egzersizleri</a></li>
+    <li class="h2-item"><a href="#b6-2">6.2 Object Egzersizleri</a></li>
+    <li class="h2-item"><a href="#b6-3">6.3 DOM + fetch Egzersizi</a></li>
+    <li class="h2-item"><a href="#b6-4">6.4 Sık Hatalar</a></li>
+  </ul></nav>
+</aside>
+
+<main><div class="ci">
+
+<!-- COVER -->
+<div class="cover">
+  <p class="cmeta">Balıkesir Üniversitesi · Bilgisayar Mühendisliği · Bölüm 8</p>
+  <h1>Veri Yapıları, DOM<br><span>ve AJAX</span></h1>
+  <p class="csub">Array · Object · Modüller · DOM Manipülasyonu · fetch · AJAX<br>
+  135 dakikalık (3 × 45 dk) Hafta 8 dersi için hazırlanmış detaylı referans metni.</p>
+  <div class="ctags">
+    <span class="tag a">ES6+</span>
+    <span class="tag g">map/filter/reduce</span>
+    <span class="tag t">Spread/Rest</span>
+    <span class="tag p">Modüller</span>
+    <span class="tag o">DOM</span>
+    <span class="tag a">fetch/AJAX</span>
+  </div>
+</div>
+
+<!-- ══ BÖLÜM 1 — ARRAY ══ -->
+<section class="cs" id="b1">
+<span class="cnum">Bölüm 01</span>
+<h2 class="ctitle">Array Metodları — Fonksiyonel Veri Dönüşümü</h2>
+<p class="clead">Döngü yazmak yerine veriyi <strong>dönüştürün, filtreleyin, tek değere indirin</strong>. ES5'ten bu yana var olan bu metodlar, modern JavaScript'in en temel yapı taşlarıdır.</p>
+
+<div class="call hist">
+  <span class="ic">📜</span>
+  <div><strong>Fonksiyonel Programlama Kökü</strong>
+  <p>map, filter ve reduce kavramları 1950'lerdeki Lisp dilinden gelir. John McCarthy'nin Lisp'i (1958), fonksiyonu birinci sınıf vatandaş olarak tanıyan ilk dildi. Haskell (1990) bu yaklaşımı zirveye taşıdı. ES5 (2009) bu üç metodu JavaScript'e kazandırdı; ES6 (2015) arrow function ile kullanımı dramatik biçimde sadeleştirdi.</p></div>
+</div>
+
+<h2 id="b1-1" data-n="1.1">map — Her Elemanı Dönüştür</h2>
+<p><code>map</code>, bir diziyi alır ve her elemanı bir fonksiyondan geçirerek <strong>aynı uzunlukta</strong> yeni bir dizi döndürür. Orijinal dizi değişmez:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> sayilar = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>];
+
+<span class="cm">// Karelerini al</span>
+<span class="kw">const</span> kareler = sayilar.<span class="fn">map</span>(x => x * x);
+<span class="ok-t">// [1, 4, 9, 16, 25]</span>
+
+<span class="cm">// Nesne dizisinden alan çıkarma</span>
+<span class="kw">const</span> kullanicilar = [
+  { ad: <span class="str">'Ahmet'</span>, yas: <span class="num">25</span>, aktif: <span class="kw">true</span> },
+  { ad: <span class="str">'Ayşe'</span>,  yas: <span class="num">30</span>, aktif: <span class="kw">false</span> },
+  { ad: <span class="str">'Mehmet'</span>, yas: <span class="num">22</span>, aktif: <span class="kw">true</span> },
+];
+
+<span class="kw">const</span> adlar = kullanicilar.<span class="fn">map</span>(k => k.ad);
+<span class="ok-t">// ['Ahmet', 'Ayşe', 'Mehmet']</span>
+
+<span class="cm">// Dönüşüm — her kullanıcıya label ekle</span>
+<span class="kw">const</span> etiketli = kullanicilar.<span class="fn">map</span>(k => ({
+  ...k,
+  label: <span class="str">`${k.ad} (${k.yas})`</span>
+}));
+
+<span class="cm">// React'ta liste render:</span>
+<span class="cm">// kullanicilar.map(k => &lt;li key={k.ad}&gt;{k.ad}&lt;/li&gt;)</span></code></pre>
+</div>
+
+<h2 id="b1-2" data-n="1.2">filter — Koşulu Sağlayanları Al</h2>
+<p><code>filter</code>, her eleman için bir test fonksiyonu çalıştırır; <code>true</code> döndürenleri yeni diziye alır. Uzunluk azalabilir, hiç değişmeyebilir:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> sayilar = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>,<span class="num">7</span>,<span class="num">8</span>];
+
+<span class="kw">const</span> ciftler = sayilar.<span class="fn">filter</span>(x => x % <span class="num">2</span> === <span class="num">0</span>);
+<span class="ok-t">// [2, 4, 6, 8]</span>
+
+<span class="cm">// Aktif kullanıcıları bul</span>
+<span class="kw">const</span> aktifler = kullanicilar.<span class="fn">filter</span>(k => k.aktif);
+<span class="ok-t">// [{ad:'Ahmet',...}, {ad:'Mehmet',...}]</span>
+
+<span class="cm">// filter + map zincirleme — sık kullanılan kalıp</span>
+<span class="kw">const</span> aktifAdlar = kullanicilar
+  .<span class="fn">filter</span>(k => k.aktif)
+  .<span class="fn">map</span>(k => k.ad);
+<span class="ok-t">// ['Ahmet', 'Mehmet']</span>
+
+<span class="cm">// Falsy değerleri temizle</span>
+<span class="kw">const</span> temiz = [<span class="num">1</span>, <span class="kw">null</span>, <span class="str">'a'</span>, <span class="kw">undefined</span>, <span class="num">0</span>, <span class="str">'b'</span>].<span class="fn">filter</span>(Boolean);
+<span class="ok-t">// [1, 'a', 'b']</span></code></pre>
+</div>
+
+<h2 id="b1-3" data-n="1.3">reduce — Tek Değere İndir</h2>
+<p><code>reduce</code> en güçlü ve en esnek array metodudur. Bir birikimli değer (<code>acc</code>) ve mevcut eleman (<code>curr</code>) alır; sonuç herhangi bir tip olabilir — sayı, nesne, dizi, string:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Basit toplam</span>
+<span class="kw">const</span> toplam = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>].<span class="fn">reduce</span>((acc, curr) => acc + curr, <span class="num">0</span>);
+<span class="ok-t">// 15</span>
+
+<span class="cm">// Sepet toplamı — gerçek dünya</span>
+<span class="kw">const</span> sepet = [
+  { urun: <span class="str">'Kitap'</span>,   fiyat: <span class="num">45</span>, adet: <span class="num">2</span> },
+  { urun: <span class="str">'Kalem'</span>,   fiyat: <span class="num">5</span>,  adet: <span class="num">10</span> },
+  { urun: <span class="str">'Defter'</span>,  fiyat: <span class="num">20</span>, adet: <span class="num">3</span> },
+];
+<span class="kw">const</span> genelToplam = sepet.<span class="fn">reduce</span>((acc, item) =>
+  acc + item.fiyat * item.adet, <span class="num">0</span>);
+<span class="ok-t">// 180  (90 + 50 + 60)</span>
+
+<span class="cm">// Gruplama — şehire göre</span>
+<span class="kw">const</span> sehirler = kullanicilar.<span class="fn">reduce</span>((acc, k) => {
+  <span class="kw">const</span> sehir = k.sehir ?? <span class="str">'Bilinmiyor'</span>;
+  (acc[sehir] ??= []).<span class="fn">push</span>(k.ad);
+  <span class="kw">return</span> acc;
+}, {});
+<span class="ok-t">// { 'İstanbul': ['Ahmet'], 'Ankara': ['Ayşe','Mehmet'] }</span>
+
+<span class="cm">// reduce ile map yapımı (kavramsal)</span>
+<span class="kw">const</span> myMap = (arr, fn) => arr.<span class="fn">reduce</span>((acc, x) => [...acc, <span class="fn">fn</span>(x)], []);
+<span class="cm">// map ve filter, reduce ile yazılabilir</span></code></pre>
+</div>
+
+<h2 id="b1-4" data-n="1.4">flat ve flatMap</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// flat — iç içe dizileri düzleştir</span>
+[[<span class="num">1</span>,<span class="num">2</span>],[<span class="num">3</span>,<span class="num">4</span>],[<span class="num">5</span>]].<span class="fn">flat</span>();
+<span class="ok-t">// [1, 2, 3, 4, 5]  — 1 seviye (varsayılan)</span>
+
+[<span class="num">1</span>, [<span class="num">2</span>, [<span class="num">3</span>, [<span class="num">4</span>]]]].<span class="fn">flat</span>(Infinity);
+<span class="ok-t">// [1, 2, 3, 4]  — tüm derinlikler</span>
+
+<span class="cm">// flatMap = map + flat(1) — çok yaygın!</span>
+<span class="kw">const</span> cumleler = [<span class="str">'merhaba dünya'</span>, <span class="str">'iyi günler'</span>];
+cumleler.<span class="fn">flatMap</span>(s => s.<span class="fn">split</span>(<span class="str">' '</span>));
+<span class="ok-t">// ['merhaba', 'dünya', 'iyi', 'günler']</span>
+
+<span class="cm">// API yanıtlarında — kategoriler içinde ürünler</span>
+<span class="kw">const</span> kategoriler = [
+  { ad: <span class="str">'Elektronik'</span>, urunler: [<span class="str">'Telefon'</span>, <span class="str">'Laptop'</span>] },
+  { ad: <span class="str">'Giyim'</span>,      urunler: [<span class="str">'Gömlek'</span>, <span class="str">'Pantolon'</span>] },
+];
+<span class="kw">const</span> tumUrunler = kategoriler.<span class="fn">flatMap</span>(k => k.urunler);
+<span class="ok-t">// ['Telefon', 'Laptop', 'Gömlek', 'Pantolon']</span></code></pre>
+</div>
+
+<h2 id="b1-5" data-n="1.5">Zincirleme ve Karşılaştırma</h2>
+
+<div class="tw"><table>
+  <thead><tr><th>Metod</th><th>Girdi</th><th>Çıktı</th><th>Amaç</th></tr></thead>
+  <tbody>
+    <tr><td>map</td><td>[a,b,c]</td><td>aynı uzunlukta dizi</td><td>Her elemanı dönüştür</td></tr>
+    <tr><td>filter</td><td>[a,b,c]</td><td>≤ girdi uzunluğu dizi</td><td>Koşulu sağlayanları seç</td></tr>
+    <tr><td>reduce</td><td>[a,b,c]</td><td>herhangi bir tip</td><td>Tek değere indir</td></tr>
+    <tr><td>flat</td><td>[[a],[b,c]]</td><td>düz dizi</td><td>İç içeyi düzleştir</td></tr>
+    <tr><td>flatMap</td><td>[a,b]</td><td>düz dizi</td><td>map + flat(1)</td></tr>
+    <tr><td>forEach</td><td>[a,b,c]</td><td>undefined</td><td>Yan etki (değer döndürmez)</td></tr>
+  </tbody>
+</table></div>
+
+<div class="call tip">
+  <span class="ic">✦</span>
+  <div><strong>Zincirleme Kalıbı</strong>
+  <p>Array metodları zincirlenerek kullanılır. Okunaklı, test edilebilir ve fonksiyonel: <code>veri.filter(koşul).map(dönüşüm).reduce(birleşim)</code>. React'ta liste render etmek için her zaman <code>map</code> kullanın — <code>forEach</code> değer döndürmez, JSX ile çalışmaz.</p></div>
+</div>
+
+<h2 id="b1-6" data-n="1.6">Gerçek Dünya: Sipariş Analizi</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript — E-ticaret Raporu</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> siparisler = [
+  { id: <span class="num">1</span>, musteri: <span class="str">'Ahmet'</span>, urun: <span class="str">'Laptop'</span>,  fiyat: <span class="num">15000</span>, teslim: <span class="kw">true</span>  },
+  { id: <span class="num">2</span>, musteri: <span class="str">'Ayşe'</span>,  urun: <span class="str">'Telefon'</span>, fiyat: <span class="num">8000</span>,  teslim: <span class="kw">false</span> },
+  { id: <span class="num">3</span>, musteri: <span class="str">'Ahmet'</span>, urun: <span class="str">'Klavye'</span>,  fiyat: <span class="num">500</span>,   teslim: <span class="kw">true</span>  },
+  { id: <span class="num">4</span>, musteri: <span class="str">'Mehmet'</span>,urun: <span class="str">'Monitör'</span>, fiyat: <span class="num">5000</span>,  teslim: <span class="kw">false</span> },
+];
+
+<span class="cm">// 1. Teslim edilmemiş siparişlerin toplamı</span>
+<span class="kw">const</span> bekleyen = siparisler
+  .<span class="fn">filter</span>(s => !s.teslim)
+  .<span class="fn">reduce</span>((acc, s) => acc + s.fiyat, <span class="num">0</span>);
+<span class="ok-t">// 13000</span>
+
+<span class="cm">// 2. Müşteri bazında özet</span>
+<span class="kw">const</span> musteriOzet = siparisler.<span class="fn">reduce</span>((acc, s) => {
+  acc[s.musteri] ??= { toplam: <span class="num">0</span>, adet: <span class="num">0</span> };
+  acc[s.musteri].toplam += s.fiyat;
+  acc[s.musteri].adet++;
+  <span class="kw">return</span> acc;
+}, {});
+<span class="ok-t">// { Ahmet: {toplam:15500, adet:2}, Ayşe: {...}, Mehmet: {...} }</span>
+
+<span class="cm">// 3. En pahalı ürünlerin adı</span>
+<span class="kw">const</span> pahaliUrunler = siparisler
+  .<span class="fn">filter</span>(s => s.fiyat > <span class="num">5000</span>)
+  .<span class="fn">map</span>(s => s.urun);
+<span class="ok-t">// ['Laptop', 'Telefon']</span></code></pre>
+</div>
+</section>
+
+<!-- ══ BÖLÜM 2 — OBJECT ══ -->
+<section class="cs" id="b2">
+<span class="cnum">Bölüm 02</span>
+<h2 class="ctitle">Object Metodları, Spread ve Destructuring</h2>
+<p class="clead">Nesneleri döngüde gezmek, kopyalamak, birleştirmek ve parçalarını çıkarmak için modern JavaScript'in sunduğu güçlü araçlar.</p>
+
+<h2 id="b2-1" data-n="2.1">Object.keys, Object.values, Object.entries</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> urun = {
+  ad:     <span class="str">'Laptop'</span>,
+  fiyat:  <span class="num">15000</span>,
+  stok:   <span class="num">50</span>,
+  aktif:  <span class="kw">true</span>,
+};
+
+Object.<span class="fn">keys</span>(urun);
+<span class="ok-t">// ['ad', 'fiyat', 'stok', 'aktif']</span>
+
+Object.<span class="fn">values</span>(urun);
+<span class="ok-t">// ['Laptop', 15000, 50, true]</span>
+
+Object.<span class="fn">entries</span>(urun);
+<span class="ok-t">// [['ad','Laptop'], ['fiyat',15000], ['stok',50], ['aktif',true]]</span>
+
+<span class="cm">// Nesneyi döngüde gez</span>
+Object.<span class="fn">entries</span>(urun).<span class="fn">forEach</span>(([anahtar, deger]) => {
+  <span class="fn">console</span>.log(<span class="str">`${anahtar}: ${deger}`</span>);
+});
+
+<span class="cm">// Nesneyi filtrele (Object.fromEntries ile geri dön)</span>
+<span class="kw">const</span> sayisallar = Object.<span class="fn">fromEntries</span>(
+  Object.<span class="fn">entries</span>(urun).<span class="fn">filter</span>(([, v]) => <span class="kw">typeof</span> v === <span class="str">'number'</span>)
+);
+<span class="ok-t">// { fiyat: 15000, stok: 50 }</span></code></pre>
+</div>
+
+<h2 id="b2-2" data-n="2.2">Spread Operatörü (...)</h2>
+<p>Spread, bir nesneyi veya diziyi "açarak" yeni bir yapıya kopyalar. Sığ kopya (shallow copy) oluşturur:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> temel = { x: <span class="num">1</span>, y: <span class="num">2</span> };
+
+<span class="cm">// Kopyala</span>
+<span class="kw">const</span> kopya = { ...temel };           <span class="ok-t">// { x:1, y:2 }</span>
+
+<span class="cm">// Genişlet</span>
+<span class="kw">const</span> genis = { ...temel, z: <span class="num">3</span> };   <span class="ok-t">// { x:1, y:2, z:3 }</span>
+
+<span class="cm">// Güncelle — React state kalıbı</span>
+<span class="kw">const</span> durum = { ad: <span class="str">'Ali'</span>, yas: <span class="num">25</span>, sehir: <span class="str">'Ankara'</span> };
+<span class="kw">const</span> guncellendi = { ...durum, yas: <span class="num">26</span> };
+<span class="ok-t">// { ad:'Ali', yas:26, sehir:'Ankara' } — orijinal değişmedi</span>
+
+<span class="cm">// Birleştir — sağdaki öncelikli</span>
+<span class="kw">const</span> varsayilan = { renk: <span class="str">'mavi'</span>, boyut: <span class="str">'M'</span>, aktif: <span class="kw">true</span> };
+<span class="kw">const</span> ozel       = { renk: <span class="str">'kırmızı'</span> };
+<span class="kw">const</span> sonuc = { ...varsayilan, ...ozel };
+<span class="ok-t">// { renk:'kırmızı', boyut:'M', aktif:true }</span>
+
+<span class="cm">// Dizi spread</span>
+<span class="kw">const</span> a = [<span class="num">1</span>,<span class="num">2</span>], b = [<span class="num">3</span>,<span class="num">4</span>];
+<span class="kw">const</span> c = [...a, ...b, <span class="num">5</span>]; <span class="ok-t">// [1, 2, 3, 4, 5]</span></code></pre>
+</div>
+
+<div class="call warn">
+  <span class="ic">⚠</span>
+  <div><strong>Sığ Kopya Uyarısı</strong>
+  <p>Spread, yalnızca <strong>bir seviye</strong> kopyalar. İç içe nesneler hâlâ aynı referansı paylaşır. <code>const a = {x: {y: 1}}; const b = {...a}; b.x.y = 2;</code> yaptığınızda <code>a.x.y</code> de 2 olur. Derin kopya için <code>structuredClone(obj)</code> kullanın.</p></div>
+</div>
+
+<h2 id="b2-3" data-n="2.3">Rest Operatörü (...)</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Nesne rest — kalanları topla</span>
+<span class="kw">const</span> { ad, yas, ...geri } = kullanici;
+<span class="cm">// geri = { sehir:'İstanbul', aktif:true }</span>
+
+<span class="cm">// Belirli alanları çıkarmak için</span>
+<span class="kw">const</span> { sifre, ...guvenli } = kullanici;
+<span class="cm">// API yanıtını şifresiz gönder</span>
+
+<span class="cm">// Fonksiyon rest parametresi</span>
+<span class="kw">function</span> <span class="fn">topla</span>(ilk, ...digerleri) {
+  <span class="kw">return</span> digerleri.<span class="fn">reduce</span>((acc, n) => acc + n, ilk);
+}
+<span class="fn">topla</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>); <span class="ok-t">// 10</span>
+
+<span class="cm">// Dizi rest</span>
+<span class="kw">const</span> [ilk, ikinci, ...kalan] = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>];
+<span class="cm">// ilk=10, ikinci=20, kalan=[30,40,50]</span></code></pre>
+</div>
+
+<h2 id="b2-4" data-n="2.4">Destructuring — Derinlemesine</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Varsayılan değer</span>
+<span class="kw">const</span> { ad, sehir = <span class="str">'Bilinmiyor'</span> } = kullanici;
+
+<span class="cm">// Yeniden adlandırma</span>
+<span class="kw">const</span> { ad: kullaniciAdi, yas: kullaniciYasi } = kullanici;
+
+<span class="cm">// İç içe destructuring</span>
+<span class="kw">const</span> kullanici2 = {
+  ad: <span class="str">'Zeynep'</span>,
+  adres: { sehir: <span class="str">'İzmir'</span>, ilce: <span class="str">'Bornova'</span> }
+};
+<span class="kw">const</span> { ad: isim, adres: { sehir, ilce } } = kullanici2;
+<span class="cm">// isim='Zeynep', sehir='İzmir', ilce='Bornova'</span>
+
+<span class="cm">// Fonksiyon parametresinde destructuring</span>
+<span class="kw">function</span> <span class="fn">kullaniciyiGoster</span>({ ad, yas, sehir = <span class="str">'Bilinmiyor'</span> }) {
+  <span class="fn">console</span>.log(<span class="str">`${ad}, ${yas}, ${sehir}`</span>);
+}
+<span class="fn">kullaniciyiGoster</span>({ ad: <span class="str">'Ali'</span>, yas: <span class="num">30</span> });
+<span class="ok-t">// 'Ali, 30, Bilinmiyor'</span>
+
+<span class="cm">// Dizi swap</span>
+<span class="kw">let</span> [a, b] = [<span class="num">1</span>, <span class="num">2</span>];
+[a, b] = [b, a]; <span class="cm">// a=2, b=1  — geçici değişkensiz!</span></code></pre>
+</div>
+</section>
+
+<!-- ══ BÖLÜM 3 — MODÜLLER ══ -->
+<section class="cs" id="b3">
+<span class="cnum">Bölüm 03</span>
+<h2 class="ctitle">ES Modülleri — import / export</h2>
+<p class="clead">Her dosya izole bir kapsama sahip olur. Global kirlilik ortadan kalkar, kod organize edilir, bağımlılıklar açık hale gelir.</p>
+
+<div class="call hist">
+  <span class="ic">📜</span>
+  <div><strong>Modül Sistemleri Tarihi</strong>
+  <p>ES6'dan önce JavaScript'te resmi modül sistemi yoktu. <strong>2009</strong> — Node.js, CommonJS'i (<code>require/module.exports</code>) tanıttı. <strong>2011</strong> — AMD (RequireJS), tarayıcı için asenkron modül yükleme getirdi. <strong>2015</strong> — ES6, <code>import/export</code> ile dil düzeyinde modül sistemini standartlaştırdı. Bugün tarayıcılar ve Node.js ikisini de destekler; modern projeler hep ES modülü kullanır.</p></div>
+</div>
+
+<h2 id="b3-1" data-n="3.1">Named Export</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">matematik.js</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Named export — her dosyada istediğiniz kadar</span>
+<span class="kw">export function</span> <span class="fn">topla</span>(a, b)  { <span class="kw">return</span> a + b; }
+<span class="kw">export function</span> <span class="fn">carp</span>(a, b)  { <span class="kw">return</span> a * b; }
+<span class="kw">export function</span> <span class="fn">bol</span>(a, b)   { <span class="kw">return</span> a / b; }
+<span class="kw">export const</span> PI = <span class="num">3.14159265</span>;
+<span class="kw">export const</span> E  = <span class="num">2.71828182</span>;
+
+<span class="cm">// veya sonda gruplu export:</span>
+<span class="kw">export</span> { topla, carp, bol, PI, E };</code></pre>
+</div>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">app.js — import</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Belirli isimleri import et (destructuring benzeri)</span>
+<span class="kw">import</span> { topla, PI } <span class="kw">from</span> <span class="str">'./matematik.js'</span>;
+
+<span class="cm">// Hepsini namespace altında</span>
+<span class="kw">import</span> * <span class="kw">as</span> mat <span class="kw">from</span> <span class="str">'./matematik.js'</span>;
+mat.<span class="fn">topla</span>(<span class="num">2</span>, <span class="num">3</span>); <span class="ok-t">// 5</span>
+mat.PI;          <span class="ok-t">// 3.14159...</span>
+
+<span class="cm">// Yeniden adlandırma</span>
+<span class="kw">import</span> { topla <span class="kw">as</span> ekle } <span class="kw">from</span> <span class="str">'./matematik.js'</span>;</code></pre>
+</div>
+
+<h2 id="b3-2" data-n="3.2">Default Export</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// kullanici.js — bir dosyada yalnızca 1 default export</span>
+<span class="kw">export default function</span> <span class="fn">kullaniciyiGetir</span>(id) {
+  <span class="kw">return</span> <span class="fn">fetch</span>(<span class="str">`/api/users/${id}`</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+}
+
+<span class="cm">// app.js — istediğiniz isimle import</span>
+<span class="kw">import</span> getUser <span class="kw">from</span> <span class="str">'./kullanici.js'</span>;   <span class="cm">// ✓</span>
+<span class="kw">import</span> fetchUser <span class="kw">from</span> <span class="str">'./kullanici.js'</span>; <span class="cm">// ✓ aynı şey</span>
+
+<span class="cm">// Default + named birlikte</span>
+<span class="kw">import</span> kullaniciyiGetir, { dogrula, guncelle } <span class="kw">from</span> <span class="str">'./kullanici.js'</span>;</code></pre>
+</div>
+
+<h2 id="b3-3" data-n="3.3">Barrel Pattern (index.js)</h2>
+<p>Büyük projelerde çok fazla import satırı oluşur. Barrel pattern, bir klasörün tüm export'larını tek noktadan sunar:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">utils/index.js</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// utils/index.js — tek çıkış noktası</span>
+<span class="kw">export</span> { topla, carp } <span class="kw">from</span> <span class="str">'./matematik.js'</span>;
+<span class="kw">export</span> { formatTarih } <span class="kw">from</span> <span class="str">'./tarih.js'</span>;
+<span class="kw">export</span> { dogrula }    <span class="kw">from</span> <span class="str">'./validasyon.js'</span>;
+
+<span class="cm">// app.js — tek import</span>
+<span class="kw">import</span> { topla, formatTarih, dogrula } <span class="kw">from</span> <span class="str">'./utils'</span>;
+<span class="cm">// utils/index.js otomatik okunur</span></code></pre>
+</div>
+
+<h2 id="b3-4" data-n="3.4">Dinamik import ve Code Splitting</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Statik import — derleme zamanında yüklenir</span>
+<span class="kw">import</span> { buyukKutuphane } <span class="kw">from</span> <span class="str">'./buyuk.js'</span>;
+
+<span class="cm">// Dinamik import — çalışma zamanında, gerektiğinde</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">async</span> () => {
+  <span class="kw">const</span> { grafik } = <span class="kw">await</span> <span class="kw">import</span>(<span class="str">'./grafik.js'</span>);
+  <span class="fn">grafik</span>.<span class="fn">ciz</span>(veri);
+});
+<span class="cm">// grafik.js yalnızca butona tıklandığında indirilir</span>
+<span class="cm">// → ilk yükleme hızlanır (code splitting)</span></code></pre>
+</div>
+
+<h2 id="b3-5" data-n="3.5">Vite + npm — Modern Tooling</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">Terminal</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm"># Yeni proje</span>
+<span class="or">npm</span> create vite@latest projem -- --template vanilla
+
+<span class="cm"># Bağımlılıkları kur</span>
+<span class="or">npm</span> install
+
+<span class="cm"># Geliştirme sunucusu — hot reload</span>
+<span class="or">npm</span> run dev        <span class="cm">→ localhost:5173</span>
+
+<span class="cm"># Üretim build</span>
+<span class="or">npm</span> run build      <span class="cm">→ dist/ klasörü</span>
+
+<span class="cm"># Harici paket ekle</span>
+<span class="or">npm</span> install lodash
+<span class="or">npm</span> install -D typescript   <span class="cm">  # sadece geliştirmede</span></code></pre>
+</div>
+
+<div class="call info">
+  <span class="ic">ℹ</span>
+  <div><strong>Vite Neden Hızlı?</strong>
+  <p>Webpack gibi eski araçlar tüm projeyi bundle'layarak başlar. Vite, tarayıcının native ES modülü desteğini kullanır — yalnızca istenen dosyayı dönüştürür. Sonuç: büyük projelerde bile saniyeler içinde başlayan geliştirme sunucusu.</p></div>
+</div>
+</section>
+
+<!-- ══ BÖLÜM 4 — DOM ══ -->
+<section class="cs" id="b4">
+<span class="cnum">Bölüm 04</span>
+<h2 class="ctitle">DOM — Document Object Model</h2>
+<p class="clead">Tarayıcı HTML'yi bir ağaç yapısına (DOM) çevirir. JavaScript bu ağacı okuyabilir, değiştirebilir, yeni düğümler ekleyebilir veya silebilir. Her değişiklik ekrana yansır.</p>
+
+<h2 id="b4-1" data-n="4.1">Element Seçiciler</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Tek element — CSS seçici</span>
+<span class="kw">const</span> btn   = document.<span class="fn">querySelector</span>(<span class="str">'#gonder'</span>);
+<span class="kw">const</span> h1    = document.<span class="fn">querySelector</span>(<span class="str">'h1'</span>);
+<span class="kw">const</span> kart  = document.<span class="fn">querySelector</span>(<span class="str">'.kart'</span>);
+<span class="kw">const</span> input = document.<span class="fn">querySelector</span>(<span class="str">'form input[type="email"]'</span>);
+
+<span class="cm">// Tüm eşleşenler — NodeList (dizi benzeri)</span>
+<span class="kw">const</span> tumBtn = document.<span class="fn">querySelectorAll</span>(<span class="str">'button'</span>);
+tumBtn.<span class="fn">forEach</span>(btn => btn.classList.<span class="fn">add</span>(<span class="str">'stilum'</span>));
+
+<span class="cm">// Eski API — hâlâ geçerli</span>
+document.<span class="fn">getElementById</span>(<span class="str">'id'</span>);
+document.<span class="fn">getElementsByClassName</span>(<span class="str">'cls'</span>); <span class="cm">// canlı HTMLCollection</span>
+
+<span class="cm">// Bir element içinde arama</span>
+<span class="kw">const</span> form = document.<span class="fn">querySelector</span>(<span class="str">'#giris-form'</span>);
+<span class="kw">const</span> emailInput = form.<span class="fn">querySelector</span>(<span class="str">'input[type="email"]'</span>);</code></pre>
+</div>
+
+<h2 id="b4-2" data-n="4.2">İçerik Manipülasyonu</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> el = document.<span class="fn">querySelector</span>(<span class="str">'#baslik'</span>);
+
+<span class="cm">// textContent — sadece metin, XSS güvenli</span>
+el.textContent = <span class="str">'Yeni Başlık'</span>;
+
+<span class="cm">// innerHTML — HTML parse eder (dikkat: XSS riski!)</span>
+el.innerHTML = <span class="str">'&lt;strong&gt;Kalın&lt;/strong&gt; başlık'</span>;
+
+<span class="cm">// Attribute</span>
+el.<span class="fn">setAttribute</span>(<span class="str">'data-id'</span>, <span class="str">'42'</span>);
+el.<span class="fn">getAttribute</span>(<span class="str">'data-id'</span>); <span class="ok-t">// '42'</span>
+el.<span class="fn">removeAttribute</span>(<span class="str">'hidden'</span>);
+
+<span class="cm">// dataset — data-* attribute'ları</span>
+el.dataset.kullaniciId = <span class="str">'123'</span>; <span class="cm">// data-kullanici-id="123"</span>
+el.dataset.kullaniciId;          <span class="ok-t">// '123'</span></code></pre>
+</div>
+
+<div class="call danger">
+  <span class="ic">✕</span>
+  <div><strong>innerHTML ve XSS</strong>
+  <p>Kullanıcıdan gelen veriyi doğrudan <code>innerHTML</code>'e koymayın: <code>el.innerHTML = kullaniciGirdisi</code> XSS (Cross-Site Scripting) açığı oluşturur. Kullanıcı verisi için her zaman <code>textContent</code> kullanın veya <code>DOMPurify</code> gibi bir sanitizer kullanın.</p></div>
+</div>
+
+<h2 id="b4-3" data-n="4.3">Stil ve Sınıf Manipülasyonu</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> btn = document.<span class="fn">querySelector</span>(<span class="str">'#btn'</span>);
+
+<span class="cm">// classList — önerilen yöntem</span>
+btn.classList.<span class="fn">add</span>(<span class="str">'aktif'</span>);
+btn.classList.<span class="fn">remove</span>(<span class="str">'pasif'</span>);
+btn.classList.<span class="fn">toggle</span>(<span class="str">'acik'</span>);    <span class="cm">// var ise kaldır, yok ise ekle</span>
+btn.classList.<span class="fn">contains</span>(<span class="str">'aktif'</span>); <span class="ok-t">// true/false</span>
+btn.classList.<span class="fn">replace</span>(<span class="str">'eski'</span>, <span class="str">'yeni'</span>);
+
+<span class="cm">// Inline stil — çok kullanmayın (CSS'te tutun)</span>
+btn.style.backgroundColor = <span class="str">'#1E2761'</span>;
+btn.style.display          = <span class="str">'none'</span>;
+btn.style.fontSize         = <span class="str">'16px'</span>;
+
+<span class="cm">// Hesaplanmış stil (salt okunur)</span>
+<span class="kw">const</span> styles = <span class="fn">getComputedStyle</span>(btn);
+styles.marginTop; <span class="ok-t">// '16px'</span></code></pre>
+</div>
+
+<h2 id="b4-4" data-n="4.4">Element Oluşturma ve Ekleme</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Yeni element oluştur</span>
+<span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+li.textContent = <span class="str">'Yeni Öğe'</span>;
+li.classList.<span class="fn">add</span>(<span class="str">'liste-item'</span>);
+li.dataset.id = <span class="str">'42'</span>;
+
+<span class="cm">// Ekleme yöntemleri</span>
+<span class="kw">const</span> ul = document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>);
+ul.<span class="fn">appendChild</span>(li);         <span class="cm">// sona ekle</span>
+ul.<span class="fn">prepend</span>(li);             <span class="cm">// başa ekle</span>
+ul.<span class="fn">insertBefore</span>(li, hedef); <span class="cm">// hedeften önce</span>
+ul.<span class="fn">replaceChild</span>(yeni, eski); <span class="cm">// değiştir</span>
+
+<span class="cm">// Modern: insertAdjacentHTML</span>
+ul.<span class="fn">insertAdjacentHTML</span>(<span class="str">'beforeend'</span>, <span class="str">'&lt;li&gt;Hızlı yol&lt;/li&gt;'</span>);
+
+<span class="cm">// Silme</span>
+li.<span class="fn">remove</span>();                 <span class="cm">// elementi sil</span>
+ul.<span class="fn">removeChild</span>(li);         <span class="cm">// eski yöntem</span></code></pre>
+</div>
+
+<h2 id="b4-5" data-n="4.5">Event Delegation</h2>
+<p>Her elemente ayrı listener eklemek yerine ortak bir ataya tek listener bağla, <code>event.target</code> ile olayı başlatanı bul:</p>
+
+<div class="cmp">
+  <div class="cmp-card">
+    <div class="cmp-head" style="background:var(--red-bg);color:var(--red);">✕  Yanlış — N listener</div>
+    <div class="cb" style="margin:8px;border-radius:6px;"><pre style="padding:12px;font-size:12px;"><code><span class="cm">// 100 ürün = 100 listener</span>
+document.<span class="fn">querySelectorAll</span>(<span class="str">'.sil'</span>)
+  .<span class="fn">forEach</span>(btn =>
+    btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, sil)
+  );
+<span class="cm">// Dinamik eklenenler çalışmaz!</span></code></pre></div>
+  </div>
+  <div class="cmp-card">
+    <div class="cmp-head" style="background:var(--grn-bg);color:var(--grn);">✓  Doğru — 1 listener</div>
+    <div class="cb" style="margin:8px;border-radius:6px;"><pre style="padding:12px;font-size:12px;"><code>liste.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, e => {
+  <span class="kw">if</span> (!e.target.<span class="fn">matches</span>(<span class="str">'.sil'</span>))
+    <span class="kw">return</span>;
+  <span class="kw">const</span> id = e.target.dataset.id;
+  <span class="fn">urunSil</span>(id);
+});
+<span class="cm">// Dinamik eklenenler de çalışır!</span></code></pre></div>
+  </div>
+</div>
+
+<h2 id="b4-6" data-n="4.6">DocumentFragment — Performanslı DOM</h2>
+<p>Her <code>appendChild</code> çağrısı tarayıcıda bir reflow tetikler. 100 eleman ekleyecekseniz 100 reflow yerine tek reflow:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> urunler = [<span class="cm">/* 1000 ürün */</span>];
+<span class="kw">const</span> liste   = document.<span class="fn">querySelector</span>(<span class="str">'#urun-listesi'</span>);
+
+<span class="cm">// Yavaş — her appendChild reflow tetikler</span>
+urunler.<span class="fn">forEach</span>(u => {
+  <span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+  li.textContent = u.ad;
+  liste.<span class="fn">appendChild</span>(li); <span class="er">// 1000 reflow!</span>
+});
+
+<span class="cm">// Hızlı — DocumentFragment (DOM dışı tampon)</span>
+<span class="kw">const</span> frag = document.<span class="fn">createDocumentFragment</span>();
+urunler.<span class="fn">forEach</span>(u => {
+  <span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+  li.textContent = u.ad;
+  frag.<span class="fn">appendChild</span>(li); <span class="cm">// DOM'a dokunmaz</span>
+});
+liste.<span class="fn">appendChild</span>(frag); <span class="ok-t">// tek reflow ✓</span></code></pre>
+</div>
+</section>
+
+<!-- ══ BÖLÜM 5 — AJAX ══ -->
+<section class="cs" id="b5">
+<span class="cnum">Bölüm 05</span>
+<h2 class="ctitle">AJAX ve fetch API</h2>
+<p class="clead">Sayfa yenilemeden sunucuyla konuşmak. 1999'daki XMLHttpRequest'ten 2015'teki fetch API'ye uzanan yolculuk.</p>
+
+<div class="call hist">
+  <span class="ic">📜</span>
+  <div><strong>AJAX'ın Tarihi</strong>
+  <p><strong>1999</strong> — Microsoft, Outlook Web Access için <code>XMLHttpRequest</code>'i geliştirdi. <strong>2004</strong> — Google Maps ve Gmail, XHR'ı geniş kitlelere tanıttı ve "web uygulaması" kavramını doğurdu. <strong>2005</strong> — Jesse James Garrett bu tekniğe "AJAX" (Asynchronous JavaScript and XML) adını koydu. <strong>2015</strong> — ES6 ile <code>fetch</code> API geldi, Promise tabanlı modern standart. <strong>2017</strong> — <code>async/await</code> fetch'i daha da okunabilir kıldı.</p></div>
+</div>
+
+<h2 id="b5-1" data-n="5.1">XMLHttpRequest — Tarihsel Bağlam</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript — Eski Yöntem</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// XHR — artık kullanmıyoruz, ama nasıl çalıştığını bilin</span>
+<span class="kw">const</span> xhr = <span class="kw">new</span> XMLHttpRequest();
+xhr.<span class="fn">open</span>(<span class="str">'GET'</span>, <span class="str">'https://api.example.com/users'</span>);
+xhr.responseType = <span class="str">'json'</span>;
+
+xhr.onload = <span class="kw">function</span>() {
+  <span class="kw">if</span> (xhr.status === <span class="num">200</span>) {
+    <span class="fn">console</span>.log(xhr.response);
+  } <span class="kw">else</span> {
+    <span class="fn">console</span>.error(<span class="str">'Hata:'</span>, xhr.status);
+  }
+};
+xhr.onerror = () => <span class="fn">console</span>.error(<span class="str">'Ağ hatası'</span>);
+xhr.<span class="fn">send</span>();
+
+<span class="cm">// Sorunlar: callback hell, hata yönetimi zorlu,</span>
+<span class="cm">// Promise desteği yok, sözdizimi karmaşık</span></code></pre>
+</div>
+
+<h2 id="b5-2" data-n="5.2">fetch API — Modern Standart</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Temel fetch — Promise zinciri</span>
+<span class="fn">fetch</span>(<span class="str">'https://jsonplaceholder.typicode.com/users'</span>)
+  .<span class="fn">then</span>(yanit => {
+    <span class="kw">if</span> (!yanit.ok) <span class="kw">throw new</span> Error(<span class="str">`HTTP ${yanit.status}`</span>);
+    <span class="kw">return</span> yanit.<span class="fn">json</span>();
+  })
+  .<span class="fn">then</span>(kullanicilar => <span class="fn">console</span>.log(kullanicilar))
+  .<span class="fn">catch</span>(hata => <span class="fn">console</span>.error(hata));
+
+<span class="cm">// async/await — tercih edilen</span>
+<span class="kw">async function</span> <span class="fn">kullanicilariGetir</span>() {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/users'</span>);
+    <span class="kw">if</span> (!yanit.ok) <span class="kw">throw new</span> Error(<span class="str">`HTTP ${yanit.status}`</span>);
+    <span class="kw">const</span> veri  = <span class="kw">await</span> yanit.<span class="fn">json</span>();
+    <span class="kw">return</span> veri;
+  } <span class="kw">catch</span> (e) {
+    <span class="fn">console</span>.error(<span class="str">'Hata:'</span>, e.message);
+  }
+}
+
+<span class="cm">// Diğer response metodları</span>
+yanit.<span class="fn">text</span>();   <span class="cm">// düz metin</span>
+yanit.<span class="fn">blob</span>();   <span class="cm">// ikili veri (resim vb.)</span>
+yanit.headers.get(<span class="str">'Content-Type'</span>);</code></pre>
+</div>
+
+<div class="call warn">
+  <span class="ic">⚠</span>
+  <div><strong>fetch Hata Yakalamaz!</strong>
+  <p>fetch, 404 veya 500 yanıtlarında <strong>reject etmez</strong> — sadece ağ hatalarında reject eder. Bu yüzden <code>if (!yanit.ok) throw new Error(...)</code> kontrolü şarttır. Bu, XHR'dan gelen en önemli fark ve en sık yapılan hatadır.</p></div>
+</div>
+
+<h2 id="b5-3" data-n="5.3">POST, PUT, DELETE İstekleri</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// POST — yeni kayıt oluştur</span>
+<span class="kw">async function</span> <span class="fn">kullaniciekle</span>(kullanici) {
+  <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/users'</span>, {
+    method:  <span class="str">'POST'</span>,
+    headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+    body:    JSON.<span class="fn">stringify</span>(kullanici),
+  });
+  <span class="kw">return</span> yanit.<span class="fn">json</span>();
+}
+
+<span class="cm">// PUT — kaydı güncelle</span>
+<span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/users/${id}`</span>, {
+  method:  <span class="str">'PUT'</span>,
+  headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+  body:    JSON.<span class="fn">stringify</span>({ ad: <span class="str">'Yeni Ad'</span> }),
+});
+
+<span class="cm">// DELETE — kaydı sil</span>
+<span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/users/${id}`</span>, { method: <span class="str">'DELETE'</span> });
+
+<span class="cm">// Authorization header</span>
+<span class="kw">const</span> headers = {
+  <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>,
+  <span class="str">'Authorization'</span>: <span class="str">`Bearer ${token}`</span>,
+};</code></pre>
+</div>
+
+<h2 id="b5-4" data-n="5.4">Hata Yönetimi — Katmanlı Yaklaşım</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Genel fetch wrapper — tüm projelerde kullanılabilir</span>
+<span class="kw">async function</span> <span class="fn">apiFetch</span>(url, options = {}) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(url, options);
+
+    <span class="kw">if</span> (yanit.status === <span class="num">401</span>) <span class="kw">throw new</span> Error(<span class="str">'Oturum açın'</span>);
+    <span class="kw">if</span> (yanit.status === <span class="num">403</span>) <span class="kw">throw new</span> Error(<span class="str">'Yetki yok'</span>);
+    <span class="kw">if</span> (yanit.status === <span class="num">404</span>) <span class="kw">throw new</span> Error(<span class="str">'Bulunamadı'</span>);
+    <span class="kw">if</span> (!yanit.ok)             <span class="kw">throw new</span> Error(<span class="str">`HTTP ${yanit.status}`</span>);
+
+    <span class="kw">return</span> yanit.<span class="fn">json</span>();
+  } <span class="kw">catch</span> (e) {
+    <span class="kw">if</span> (e.name === <span class="str">'TypeError'</span>) <span class="cm">// ağ hatası</span>
+      <span class="kw">throw new</span> Error(<span class="str">'Sunucuya ulaşılamadı'</span>);
+    <span class="kw">throw</span> e; <span class="cm">// diğer hataları ilet</span>
+  }
+}</code></pre>
+</div>
+
+<h2 id="b5-5" data-n="5.5">Paralel İstekler — Promise.all</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Sıralı — yavaş (toplam bekleme = a + b + c süresi)</span>
+<span class="kw">const</span> kullanici  = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/users/1'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+<span class="kw">const</span> siparisler = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/orders'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+<span class="kw">const</span> urunler    = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/products'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+
+<span class="cm">// Paralel — hızlı (bekleme = max(a,b,c) süresi)</span>
+<span class="kw">const</span> [kullanici, siparisler, urunler] = <span class="kw">await</span> Promise.<span class="fn">all</span>([
+  <span class="fn">fetch</span>(<span class="str">'/api/users/1'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+  <span class="fn">fetch</span>(<span class="str">'/api/orders'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+  <span class="fn">fetch</span>(<span class="str">'/api/products'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+]);
+<span class="cm">// Biri başarısız olursa tümü hata verir</span>
+
+<span class="cm">// Promise.allSettled — hata olsa bile devam et</span>
+<span class="kw">const</span> sonuclar = <span class="kw">await</span> Promise.<span class="fn">allSettled</span>([...]);
+sonuclar.<span class="fn">forEach</span>(({ status, value, reason }) => {
+  <span class="kw">if</span> (status === <span class="str">'fulfilled'</span>) <span class="fn">isle</span>(value);
+  <span class="kw">else</span> <span class="fn">console</span>.error(reason);
+});</code></pre>
+</div>
+
+<h2 id="b5-6" data-n="5.6">Tam Örnek — fetch + DOM + Array Metodları</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript — Kullanıcı Listesi Uygulaması</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// jsonplaceholder.typicode.com — ücretsiz test API</span>
+<span class="kw">async function</span> <span class="fn">uygulamaBaslat</span>() {
+  <span class="kw">const</span> liste = document.<span class="fn">querySelector</span>(<span class="str">'#kullanici-listesi'</span>);
+  <span class="kw">const</span> arama = document.<span class="fn">querySelector</span>(<span class="str">'#arama'</span>);
+
+  <span class="cm">// 1. Veriyi çek</span>
+  <span class="kw">const</span> kullanicilar = <span class="kw">await</span> <span class="fn">fetch</span>(
+    <span class="str">'https://jsonplaceholder.typicode.com/users'</span>
+  ).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+
+  <span class="cm">// 2. DOM'a yaz (array metod + DocumentFragment)</span>
+  <span class="kw">function</span> <span class="fn">listeyiRender</span>(liste_verisi) {
+    <span class="kw">const</span> frag = document.<span class="fn">createDocumentFragment</span>();
+    liste_verisi.<span class="fn">forEach</span>(k => {
+      <span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+      li.innerHTML = <span class="str">`&lt;strong&gt;${k.name}&lt;/strong&gt; — ${k.email}`</span>;
+      li.dataset.id = k.id;
+      frag.<span class="fn">appendChild</span>(li);
+    });
+    liste.innerHTML = <span class="str">''</span>;
+    liste.<span class="fn">appendChild</span>(frag);
+  }
+
+  <span class="fn">listeyiRender</span>(kullanicilar);
+
+  <span class="cm">// 3. Arama — filter + render</span>
+  arama.<span class="fn">addEventListener</span>(<span class="str">'input'</span>, () => {
+    <span class="kw">const</span> q = arama.value.<span class="fn">toLowerCase</span>();
+    <span class="kw">const</span> filtrelendi = kullanicilar.<span class="fn">filter</span>(k =>
+      k.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(q) ||
+      k.email.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(q)
+    );
+    <span class="fn">listeyiRender</span>(filtrelendi);
+  });
+
+  <span class="cm">// 4. Event delegation — tüm satırlara tek listener</span>
+  liste.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, async (e) => {
+    <span class="kw">const</span> li = e.target.<span class="fn">closest</span>(<span class="str">'li'</span>);
+    <span class="kw">if</span> (!li) <span class="kw">return</span>;
+    <span class="kw">const</span> id = li.dataset.id;
+    <span class="kw">const</span> detay = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/users/${id}`</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+    <span class="fn">console</span>.log(detay);
+  });
+}
+
+<span class="fn">uygulamaBaslat</span>();</code></pre>
+</div>
+</section>
+
+<!-- ══ BÖLÜM 6 — EGZERSİZLER ══ -->
+<section class="cs" id="b6">
+<span class="cnum">Bölüm 06</span>
+<h2 class="ctitle">Pratik Egzersizler ve Sık Hatalar</h2>
+<p class="clead">Teoriyi pekiştirmenin tek yolu pratiktir. Egzersizleri önce kendiniz deneyin, sonra çözüme bakın.</p>
+
+<h2 id="b6-1" data-n="6.1">Array Egzersizleri</h2>
+
+<h3>Egzersiz 1.1 — Ürün Analizi</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">Egzersiz</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> urunler = [
+  { ad: <span class="str">'Laptop'</span>,  fiyat: <span class="num">15000</span>, kategori: <span class="str">'Elektronik'</span>, stok: <span class="num">5</span>  },
+  { ad: <span class="str">'Telefon'</span>, fiyat: <span class="num">8000</span>,  kategori: <span class="str">'Elektronik'</span>, stok: <span class="num">0</span>  },
+  { ad: <span class="str">'Gömlek'</span>,  fiyat: <span class="num">200</span>,   kategori: <span class="str">'Giyim'</span>,       stok: <span class="num">50</span> },
+  { ad: <span class="str">'Kitap'</span>,   fiyat: <span class="num">50</span>,    kategori: <span class="str">'Eğitim'</span>,      stok: <span class="num">30</span> },
+];
+
+<span class="cm">// 1. Stokta olan ürünlerin adları</span>
+<span class="cm">// 2. Elektronik kategorisinin toplam değeri</span>
+<span class="cm">// 3. Fiyata göre büyükten küçüğe sıralı adlar</span>
+<span class="cm">// 4. Kategori bazında ürün sayısı {Elektronik:2, Giyim:1, ...}</span>
+
+<span class="cm">// Cevaplar:</span>
+<span class="ok-t">// 1: ['Laptop', 'Gömlek', 'Kitap']</span>
+<span class="ok-t">// 2: 23000</span>
+<span class="ok-t">// 3: ['Laptop', 'Telefon', 'Gömlek', 'Kitap']</span>
+<span class="ok-t">// 4: { Elektronik: 2, Giyim: 1, Eğitim: 1 }</span></code></pre>
+</div>
+
+<h2 id="b6-2" data-n="6.2">Object ve Destructuring Egzersizleri</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">Egzersiz 2.1</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Nesne birleştirme — hangi değer kazanır?</span>
+<span class="kw">const</span> a = { x: <span class="num">1</span>, y: <span class="num">2</span>, z: <span class="num">3</span> };
+<span class="kw">const</span> b = { y: <span class="num">10</span>, w: <span class="num">4</span> };
+<span class="kw">const</span> c = { ...a, ...b };
+<span class="cm">// c = ?</span>
+<span class="ok-t">// { x:1, y:10, z:3, w:4 }  — b'nin y'si a'yı ezer</span>
+
+<span class="cm">// Fonksiyon parametresi destructuring</span>
+<span class="kw">function</span> <span class="fn">siparisOzetle</span>({ kullanici: { ad }, urunler, toplam = <span class="num">0</span> }) {
+  <span class="kw">return</span> <span class="str">`${ad}: ${urunler.length} ürün, ${toplam} TL`</span>;
+}
+<span class="fn">siparisOzetle</span>({
+  kullanici: { ad: <span class="str">'Ahmet'</span> },
+  urunler: [<span class="str">'Laptop'</span>, <span class="str">'Klavye'</span>],
+});
+<span class="ok-t">// 'Ahmet: 2 ürün, 0 TL'</span></code></pre>
+</div>
+
+<h2 id="b6-3" data-n="6.3">DOM + fetch Egzersizi</h2>
+<p>Aşağıdaki HTML yapısı için çalışan bir uygulama yazın:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">Görev</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">&lt;!-- HTML --&gt;</span>
+<span class="str">&lt;input id="arama" placeholder="Kullanıcı ara..."&gt;</span>
+<span class="str">&lt;ul id="liste"&gt;&lt;/ul&gt;</span>
+
+<span class="cm">// Yapmanız gerekenler:</span>
+<span class="cm">// 1. Sayfa açılınca jsonplaceholder'dan kullanıcıları çek</span>
+<span class="cm">// 2. Her kullanıcıyı &lt;li&gt; olarak listele (DocumentFragment)</span>
+<span class="cm">// 3. Arama inputu değişince filter ile listele</span>
+<span class="cm">// 4. Bir &lt;li&gt;'ya tıklanınca konsolda id'yi yaz (delegation)</span>
+<span class="cm">// 5. fetch hata yönetimi ekle</span></code></pre>
+</div>
+
+<h2 id="b6-4" data-n="6.4">Sık Yapılan Hatalar</h2>
+
+<h3>Hata 1: map'te return Unutmak</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// HATALI — curly brace açıldığında implicit return kalkar</span>
+<span class="kw">const</span> kareler = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>].<span class="fn">map</span>(x => {
+  x * x; <span class="er">// return yok → undefined döner!</span>
+});
+<span class="ok-t">// [undefined, undefined, undefined]</span>
+
+<span class="cm">// DOĞRU</span>
+<span class="kw">const</span> kareler = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>].<span class="fn">map</span>(x => x * x);       <span class="cm">// implicit return</span>
+<span class="kw">const</span> kareler = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>].<span class="fn">map</span>(x => { <span class="kw">return</span> x * x; }); <span class="cm">// explicit</span></code></pre>
+</div>
+
+<h3>Hata 2: fetch'te yanit.ok Kontrolü Atlamak</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// HATALI — 404 veya 500'de sessizce devam eder</span>
+<span class="kw">const</span> veri = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/missing'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+<span class="cm">// veri = { error: 'Not Found' } — hata yutuldu!</span>
+
+<span class="cm">// DOĞRU</span>
+<span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/missing'</span>);
+<span class="kw">if</span> (!yanit.ok) <span class="kw">throw new</span> Error(<span class="str">`HTTP ${yanit.status}`</span>);
+<span class="kw">const</span> veri = <span class="kw">await</span> yanit.<span class="fn">json</span>();</code></pre>
+</div>
+
+<h3>Hata 3: innerHTML ve XSS</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// HATALI — XSS açığı</span>
+<span class="kw">const</span> girdi = <span class="er">'&lt;img src=x onerror="alert(1)"&gt;'</span>;
+el.innerHTML = girdi; <span class="er">// JS çalıştırır!</span>
+
+<span class="cm">// DOĞRU — kullanıcı verisi için textContent</span>
+el.textContent = girdi; <span class="ok-t">// güvenle gösterir, çalıştırmaz</span></code></pre>
+</div>
+
+<div class="call tip">
+  <span class="ic">📌</span>
+  <div><strong>Bu Haftanın Özet Kuralları</strong>
+  <p>
+    <code>map</code> → dönüştür · <code>filter</code> → süz · <code>reduce</code> → birleştir ·
+    Spread → sığ kopyala · <code>Object.entries</code> → nesneyi döngüde gez ·
+    <code>querySelector</code> → CSS seçici ile element bul ·
+    Event delegation → üst elemente tek listener ·
+    <code>DocumentFragment</code> → tek reflow ·
+    <code>fetch</code> → her zaman <code>yanit.ok</code> kontrol et
+  </p>
+  </div>
+</div>
+
+<div class="send">— Bölüm Sonu —</div>
+</section>
+
+</div></main>
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  document.getElementById('pb').style.width=(d.scrollTop/(d.scrollHeight-d.clientHeight)*100)+'%';
+});
+const sects=document.querySelectorAll('[id]');
+const links=document.querySelectorAll('nav a');
+const obs=new IntersectionObserver(e=>{
+  e.forEach(en=>{if(en.isIntersecting) links.forEach(a=>{
+    a.classList.toggle('active',a.getAttribute('href')==='#'+en.target.id);
+  });});
+},{rootMargin:'-20% 0px -70% 0px'});
+sects.forEach(s=>obs.observe(s));
+const ro=new IntersectionObserver(e=>{
+  e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('visible');ro.unobserve(en.target);}});
+},{threshold:0.05});
+document.querySelectorAll('.cs').forEach(s=>ro.observe(s));
+function copyCode(btn){
+  navigator.clipboard.writeText(btn.closest('.cb').querySelector('pre').innerText).then(()=>{
+    btn.textContent='Kopyalandı!';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='Kopyala';btn.classList.remove('ok');},2000);
+  });
+}
+let fm=0;
+function toggleFont(){
+  fm=(fm+1)%3;
+  const fonts=[null,'var(--ui)','var(--code)'];
+  const labels=['Aa','Sf','Cd'];
+  document.querySelectorAll('p,li,.clead').forEach(el=>el.style.fontFamily=fonts[fm]||'');
+  document.querySelector('[onclick="toggleFont()"]').textContent=labels[fm];
+}
+function filterNav(q){
+  const t=q.toLowerCase();
+  document.querySelectorAll('nav li').forEach(li=>{
+    li.style.display=(!t||li.textContent.toLowerCase().includes(t))?'':'none';
+  });
+}
+</script>
+</body>
+</html>
