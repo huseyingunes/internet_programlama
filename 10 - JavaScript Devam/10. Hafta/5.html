@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tiklandi{
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <button id="gonder">Gönder</button>
+    <script>
+        const btn = document.querySelector('#gonder');
+
+        // function ile — this = tıklanan buton
+        btn.addEventListener('click', function(e) {
+        console.log(this === btn); // true
+        this.classList.add('tiklandi');
+        });
+
+    </script>
+</body>
+</html>

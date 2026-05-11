@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+</head>
+<body>
+    <script>
+let x = 'global';
+function dis() {
+  let x = 'dış';
+  function ic() {
+    // ic, tanımlandığı dis() kapsamına erişir
+    console.log(x); // 'dış' — lexical scope
+  }
+  ic();
+}
+dis(); // 'dış'
+
+    </script>
+</body>
+</html>

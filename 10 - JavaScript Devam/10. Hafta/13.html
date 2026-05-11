@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+</head>
+<body>
+    <script>
+console.log('1 — senkron');
+setTimeout(() => {
+  console.log('4 — macro task');
+}, 0);
+Promise.resolve()
+  .then(() => {
+    console.log('3 — microtask');
+  });
+queueMicrotask(() => {
+  console.log('3b — microtask 2');
+});
+console.log('2 — senkron');
+// Çıktı: 1 → 2 → 3 → 3b → 4
+// Senkron → Microtask → Macro Task
+
+    </script>
+</body>
+</html>

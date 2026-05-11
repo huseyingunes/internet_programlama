@@ -1,0 +1,41 @@
+<!--
+Bir tc kimlik numarası girilen input koyun
+bir tane de düğme yerleştirin
+bu düpğmeye tıklanınca TC nin geçerli 
+bir TC olup olmadığını kontrol etsin
+Geçersizse TC girilen yerin yazı rengi kırmızı olsun
+Tekrar giriş yapılmaya başlanınca
+eski rengine dönsün
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+    <style>
+        .gecersiz {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    TC No: <input type="text" id="tc" placeholder="TC Kimlik No">
+    <button id="kontrol">Kontrol Et</button>
+    <script>
+        const dugme =document.querySelector('#kontrol');
+        const tcInput = document.querySelector('#tc');
+        dugme.addEventListener('click', function(){
+            let tcNo = tcInput.value;
+            if (tcNo.length == 11)
+            {
+                tcInput.classList.remove('gecersiz');
+            }
+            else
+            {
+                tcInput.classList.add('gecersiz');
+            }
+        });
+    </script>
+</body>
+</html>

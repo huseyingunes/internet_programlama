@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+</head>
+<body>
+    <script>
+        // Spread operatörünün nesnelerle kullanımı
+const a = { x: 1, y: 2 };
+const b = { ...a, z: 3 };
+console.log(a);
+console.log(b);
+const c = { ...a, x: 55 };
+console.log(c);
+
+const dizi = [1, 2, 3];
+const yeniDizi = [...dizi, 4, 5];
+console.log(dizi);
+console.log(yeniDizi);
+    </script>
+</body>
+</html>

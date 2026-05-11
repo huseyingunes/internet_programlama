@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        console.log([1, 2, 3].map(x => x * x))
+
+        const kullanicilar = [
+            {ad: 'Ahmet', yas: 30, aktif:false},
+            {ad: 'Mehmet', yas: 25, aktif:true},
+            {ad: 'Ayşe', yas: 15, aktif:true}
+        ]
+        const isimler = kullanicilar.map(k => k.ad)
+        console.log(isimler)
+
+        const urunler = [
+            {id: 1, ad: 'Laptop', fiyat: 5000, stok: 10},
+            {id: 2, ad: 'Telefon', fiyat: 3000, stok: 0},
+            {id: 3, ad: 'Tablet', fiyat: 2000, stok: 5}
+        ]
+
+        const ozetler = urunler.map(u => ({
+        id:    u.id,
+        ad:    u.ad,
+        kdvli: u.fiyat * 1.18,
+        stokta: u.stok > 0,
+        }));
+        console.log(ozetler)
+
+        console.log([1, 2, 3, 4, 5].filter(x => x % 2 === 0))
+
+        const stokta = urunler.filter(u => u.stok > 0);
+        console.log(stokta)
+
+        const aktifIsimler = kullanicilar
+            .filter(k => k.aktif && k.yas >= 18)
+            .map(k => k.ad.toUpperCase());
+
+        console.log(aktifIsimler); 
+        
+        const toplam = [1, 2, 3, 4, 5].reduce((acc, x) => acc + x, 0);
+        console.log(toplam)
+
+        const düzleştirilmiş = [[1, 2], [3, [4, 5]]].flat(Infinity);
+        console.log(düzleştirilmiş);
+    </script>
+</body>
+</html>

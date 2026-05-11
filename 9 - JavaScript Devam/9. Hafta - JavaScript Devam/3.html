@@ -1,0 +1,26 @@
+<!--
+Üzerine gelinirken ekranın rastgele 
+başka bir tarafına kaçn düğme yapınız.
+düğmede Tıklayamazsın ki! yazsın.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button id="kacak">Tıklayamazsın ki!</button>
+    <script>
+        const button = document.getElementById("kacak");
+        button.addEventListener("mouseover", () => {
+            const x = Math.random() * (window.innerWidth - button.offsetWidth);
+            const y = Math.random() * (window.innerHeight - button.offsetHeight);
+            button.style.position = "absolute";
+            button.style.left = `${x}px`;
+            button.style.top = `${y}px`;
+        });
+    </script>
+</body>
+</html>
