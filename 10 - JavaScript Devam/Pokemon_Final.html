@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Pokemon Kartları — Final</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      background: #f3f4f6;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #1e2761;
+      border-bottom: 3px solid #fbb13c;
+      padding-bottom: 10px;
+    }
+    #form {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    #form input {
+      padding: 10px;
+      font-size: 16px;
+      width: 400px;
+      max-width: 100%;
+      border: 2px solid #d1d5db;
+      border-radius: 6px;
+    }
+    #form input:focus {
+      outline: none;
+      border-color: #1e2761;
+    }
+    #form button {
+      padding: 10px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #1e2761;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    #form button:hover { background: #2a3a8a; }
+    #form button:disabled { background: #9ca3af; cursor: not-allowed; }
+    #durum {
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    #kartlar {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .kart {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      transition: transform .2s;
+      cursor: pointer;
+    }
+    .kart:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,.15); }
+    .kart img { width: 140px; height: 140px; }
+    .kart h3 {
+      margin: 8px 0;
+      text-transform: capitalize;
+      color: #1e2761;
+    }
+    .kart .id { color: #6b7280; font-size: 14px; }
+    .kart .tipler {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+    .tip {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize;
+      color: white;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .stat { color: #4b5563; }
+    .stat strong { color: #1e2761; }
+    .yukleniyor {
+      color: #6b7280;
+      font-style: italic;
+    }
+    .hata {
+      color: #dc2626;
+      background: #fef2f2;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      border-left: 4px solid #dc2626;
+    }
+    .basarili {
+      color: #166534;
+      background: #f0fdf4;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border-left: 4px solid #16a34a;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ Pokemon Kartları</h1>
+  <p style="color:#6b7280">PokéAPI üzerinden paralel veri çekme uygulaması</p>
+
+  <div id="form">
+    <input id="isimler" placeholder="pikachu, charizard, bulbasaur, mewtwo, snorlax" value="pikachu, charizard, bulbasaur, mewtwo, snorlax">
+    <button id="getir">Getir</button>
+  </div>
+  <div id="durum"></div>
+  <div id="kartlar"></div>
+
+  <script>
+    // ═══════════════════════════════════════════════
+    // POKEMON KARTLARI — FİNAL VERSİYON
+    // Promise.allSettled ile hataya toleranslı
+    // ═══════════════════════════════════════════════
+
+    // Tip renkleri (her Pokemon türü için renk)
+    const tipRenkleri = {
+      normal:   '#A8A878',
+      fire:     '#F08030',
+      water:    '#6890F0',
+      electric: '#F8D030',
+      grass:    '#78C850',
+      ice:      '#98D8D8',
+      fighting: '#C03028',
+      poison:   '#A040A0',
+      ground:   '#E0C068',
+      flying:   '#A890F0',
+      psychic:  '#F85888',
+      bug:      '#A8B820',
+      rock:     '#B8A038',
+      ghost:    '#705898',
+      dragon:   '#7038F8',
+      dark:     '#705848',
+      steel:    '#B8B8D0',
+      fairy:    '#EE99AC',
+    };
+
+    // ── Adım 2: Tek Pokemon çekme ─────────────────
+    async function pokemonGetir(isim) {
+      const url = 'https://pokeapi.co/api/v2/pokemon/' + isim.toLowerCase().trim();
+      const yanit = await fetch(url);
+
+      if (!yanit.ok) {
+        throw new Error(`'${isim}' bulunamadı (HTTP ${yanit.status})`);
+      }
+
+      const veri = await yanit.json();
+      return {
+        id:      veri.id,
+        isim:    veri.name,
+        resim:   veri.sprites.other['official-artwork'].front_default,
+        tipler:  veri.types.map(t => t.type.name),
+        hp:      veri.stats.find(s => s.stat.name === 'hp').base_stat,
+        saldiri: veri.stats.find(s => s.stat.name === 'attack').base_stat,
+      };
+    }
+
+    // ── Adım 3: Kart oluşturma ────────────────────
+    function kartOlustur(pokemon) {
+      const kart = document.createElement('div');
+      kart.className = 'kart';
+
+      // Tip rengine göre arkaplan
+      const anaTip = pokemon.tipler[0];
+      const renk = tipRenkleri[anaTip] || '#9ca3af';
+      kart.style.background = `linear-gradient(135deg, ${renk}33, white)`;
+
+      const tipEtiketleri = pokemon.tipler.map(t => {
+        const c = tipRenkleri[t] || '#9ca3af';
+        return `<span class="tip" style="background:${c}">${t}</span>`;
+      }).join('');
+
+      kart.innerHTML = `
+        <img src="${pokemon.resim}" alt="${pokemon.isim}">
+        <div class="id">#${String(pokemon.id).padStart(3, '0')}</div>
+        <h3>${pokemon.isim}</h3>
+        <div class="tipler">${tipEtiketleri}</div>
+        <div class="stats">
+          <span class="stat">HP <strong>${pokemon.hp}</strong></span>
+          <span class="stat">ATK <strong>${pokemon.saldiri}</strong></span>
+        </div>
+      `;
+      return kart;
+    }
+
+    // ── Adım 5: Hataya toleranslı yükleme ─────────
+    const getirBtn = document.getElementById('getir');
+    const isimlerInput = document.getElementById('isimler');
+    const kartlarDiv = document.getElementById('kartlar');
+    const durumDiv = document.getElementById('durum');
+
+    getirBtn.addEventListener('click', async () => {
+      const isimler = isimlerInput.value
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      if (isimler.length === 0) {
+        durumDiv.innerHTML = '<div class="hata">En az bir Pokemon ismi girin</div>';
+        return;
+      }
+
+      kartlarDiv.innerHTML = '';
+      durumDiv.innerHTML = '<p class="yukleniyor">⏳ Yükleniyor...</p>';
+      getirBtn.disabled = true;
+
+      const baslangic = Date.now();
+
+      // PARALEL + TOLERANSLI
+      const sonuclar = await Promise.allSettled(
+        isimler.map(isim => pokemonGetir(isim))
+      );
+
+      const sure = Date.now() - baslangic;
+
+      let basariSayisi = 0;
+      const hatalar = [];
+
+      sonuclar.forEach((sonuc, i) => {
+        if (sonuc.status === 'fulfilled') {
+          kartlarDiv.appendChild(kartOlustur(sonuc.value));
+          basariSayisi++;
+        } else {
+          hatalar.push(`'${isimler[i]}': ${sonuc.reason.message}`);
+        }
+      });
+
+      // Durum mesajı
+      let html = `<div class="basarili">✓ ${basariSayisi}/${isimler.length} Pokemon yüklendi (${sure}ms)</div>`;
+      if (hatalar.length > 0) {
+        html += `<div class="hata">⚠ Yüklenemeyenler:<br>${hatalar.join('<br>')}</div>`;
+      }
+      durumDiv.innerHTML = html;
+      getirBtn.disabled = false;
+    });
+
+    // Karta tıklanınca detay (bonus)
+    kartlarDiv.addEventListener('click', (e) => {
+      const kart = e.target.closest('.kart');
+      if (!kart) return;
+      const isim = kart.querySelector('h3').textContent;
+      console.log('Tıklanan Pokemon:', isim);
+    });
+
+    // Enter ile gönder
+    isimlerInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') getirBtn.click();
+    });
+  </script>
+</body>
+</html>

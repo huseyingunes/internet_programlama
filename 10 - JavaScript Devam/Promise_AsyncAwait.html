@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promise ve async/await — BAÜ İnternet Programlama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0c0e14;
+  --surf:    #131720;
+  --surf2:   #1a2030;
+  --bdr:     #212840;
+  --bdr2:    #2d3a55;
+  --text:    #d8dff0;
+  --muted:   #6b7a9e;
+  --dim:     #8494bc;
+  --acc:     #4f9eff;
+  --acc2:    #7ec8ff;
+  --acc-bg:  rgba(79,158,255,.08);
+  --grn:     #4ade80;
+  --grn-bg:  rgba(74,222,128,.08);
+  --amb:     #f59e0b;
+  --amb-bg:  rgba(245,158,11,.08);
+  --red:     #f87171;
+  --red-bg:  rgba(248,113,113,.08);
+  --pur:     #c084fc;
+  --pur-bg:  rgba(192,132,252,.08);
+  --r:       10px;
+  --sw:      272px;
+  --cw:      820px;
+  --body:    'Literata', Georgia, serif;
+  --ui:      'Sora', system-ui, sans-serif;
+  --code:    'Fira Code', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.85;min-height:100vh;}
+
+#pb{position:fixed;top:0;left:0;z-index:1000;height:3px;background:linear-gradient(90deg,var(--acc),var(--pur));width:0%;transition:width .1s;box-shadow:0 0 12px var(--acc);}
+
+header{position:fixed;top:3px;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:54px;background:rgba(12,14,20,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);}
+.hb{display:flex;align-items:center;gap:12px;font-family:var(--ui);font-size:13px;color:var(--muted);}
+.badge{background:var(--acc-bg);color:var(--acc);border:1px solid rgba(79,158,255,.25);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.04em;}
+.ha{display:flex;gap:8px;}
+.bi{background:var(--surf2);border:1px solid var(--bdr);color:var(--muted);border-radius:8px;width:34px;height:34px;display:grid;place-items:center;cursor:pointer;font-size:15px;transition:all .2s;}
+.bi:hover{border-color:var(--acc);color:var(--acc);}
+
+.layout{display:flex;padding-top:57px;min-height:100vh;}
+
+aside{position:fixed;top:57px;left:0;width:var(--sw);height:calc(100vh - 57px);overflow-y:auto;padding:20px 0 40px;border-right:1px solid var(--bdr);background:var(--bg);scrollbar-width:thin;scrollbar-color:var(--bdr2) transparent;}
+.st{font-family:var(--ui);font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:0 20px 8px;}
+.sw{padding:0 16px 14px;}
+.si{width:100%;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--ui);font-size:12.5px;outline:none;transition:border-color .2s;}
+.si:focus{border-color:var(--acc);}
+.si::placeholder{color:var(--muted);}
+nav ul{list-style:none;}
+nav a{display:block;padding:5px 20px;font-family:var(--ui);font-size:12.5px;color:var(--muted);text-decoration:none;border-left:2px solid transparent;transition:all .15s;line-height:1.4;}
+nav a:hover{color:var(--acc);background:var(--acc-bg);}
+nav a.active{color:var(--acc2);border-left-color:var(--acc);background:var(--acc-bg);}
+.h1-item>a{font-weight:600;font-size:13px;color:var(--dim);padding-top:9px;}
+.h2-item>a{padding-left:32px;}
+.h3-item>a{padding-left:44px;font-size:12px;}
+
+main{margin-left:var(--sw);flex:1;padding:48px 60px 96px;max-width:calc(var(--sw) + var(--cw) + 120px);}
+.ci{max-width:var(--cw);}
+
+.cover{padding:64px 0 80px;border-bottom:1px solid var(--bdr);margin-bottom:72px;}
+.cmeta{font-family:var(--ui);font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+.cmeta::before{content:'';display:inline-block;width:28px;height:2px;background:var(--acc);}
+.cover h1{font-family:var(--ui);font-size:clamp(28px,4vw,42px);font-weight:700;line-height:1.15;color:#fff;margin-bottom:16px;letter-spacing:-.02em;}
+.cover h1 span{color:var(--acc);}
+.csub{font-size:16px;color:var(--muted);font-style:italic;margin-bottom:32px;line-height:1.6;}
+.ctags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{font-family:var(--ui);font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;background:var(--surf2);border:1px solid var(--bdr2);color:var(--dim);}
+.tag.a{background:var(--acc-bg);border-color:rgba(79,158,255,.3);color:var(--acc);}
+.tag.g{background:var(--grn-bg);border-color:rgba(74,222,128,.3);color:var(--grn);}
+.tag.p{background:var(--pur-bg);border-color:rgba(192,132,252,.3);color:var(--pur);}
+.tag.o{background:var(--amb-bg);border-color:rgba(245,158,11,.3);color:var(--amb);}
+
+.cs{margin-bottom:80px;opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s;}
+.cs.visible{opacity:1;transform:none;}
+.cover{opacity:1;transform:none;}
+.cnum{font-family:var(--ui);font-size:11px;font-weight:600;color:var(--acc);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:8px;}
+.ctitle{font-family:var(--ui);font-size:clamp(22px,3vw,30px);font-weight:700;color:#fff;margin:0 0 10px;line-height:1.2;letter-spacing:-.02em;}
+.clead{font-size:15.5px;color:var(--muted);font-style:italic;margin-bottom:8px;line-height:1.8;padding-bottom:24px;border-bottom:1px solid var(--bdr);}
+h2{font-family:var(--ui);font-size:21px;font-weight:700;color:#fff;margin:52px 0 18px;letter-spacing:-.01em;}
+h2::before{content:attr(data-n);font-size:11px;font-weight:600;color:var(--acc);letter-spacing:.08em;display:block;margin-bottom:6px;font-family:var(--ui);}
+h3{font-family:var(--ui);font-size:16px;font-weight:600;color:var(--text);margin:36px 0 12px;}
+h3::before{content:'↳ ';color:var(--acc);font-size:14px;}
+p{font-size:15.5px;line-height:1.9;color:var(--text);margin-bottom:18px;}
+code{font-family:var(--code);font-size:13.5px;background:var(--surf2);color:var(--amb);padding:1px 6px;border-radius:4px;border:1px solid var(--bdr);}
+strong{color:#fff;font-weight:600;}
+
+.cb{position:relative;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin:20px 0 28px;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surf2);border-bottom:1px solid var(--bdr);}
+.dots{display:flex;gap:6px;}
+.dots span{width:10px;height:10px;border-radius:50%;}
+.dots span:nth-child(1){background:#ff5f57;}
+.dots span:nth-child(2){background:#febc2e;}
+.dots span:nth-child(3){background:#28c840;}
+.cl{font-family:var(--ui);font-size:11px;color:var(--muted);letter-spacing:.05em;}
+.cbtn{background:none;border:1px solid var(--bdr);color:var(--muted);font-family:var(--ui);font-size:11px;padding:3px 10px;border-radius:5px;cursor:pointer;transition:all .2s;}
+.cbtn:hover{border-color:var(--acc);color:var(--acc);}
+.cbtn.ok{border-color:var(--grn);color:var(--grn);}
+pre{margin:0;padding:20px;overflow-x:auto;font-size:13.5px;line-height:1.7;tab-size:2;}
+pre code{background:none;border:none;padding:0;color:var(--text);font-size:inherit;}
+.kw{color:#c084fc;font-weight:500;}.str{color:#86efac;}.num{color:#fbbf24;}
+.cm{color:#4b5a7a;font-style:italic;}.fn{color:#60a5fa;}.ok-t{color:#4ade80;}.er{color:#f87171;}.or{color:#fb923c;}
+
+.call{border-radius:var(--r);padding:16px 20px;margin:20px 0 28px;display:flex;gap:14px;align-items:flex-start;border:1px solid;font-size:14.5px;line-height:1.75;}
+.call .ic{font-size:18px;flex-shrink:0;margin-top:1px;}
+.call strong{font-family:var(--ui);font-size:13px;display:block;margin-bottom:4px;}
+.call p{margin:0;font-size:14px;}
+.call.info{background:var(--acc-bg);border-color:rgba(79,158,255,.3);}
+.call.info strong{color:var(--acc);}
+.call.warn{background:var(--amb-bg);border-color:rgba(245,158,11,.3);}
+.call.warn strong{color:var(--amb);}
+.call.danger{background:var(--red-bg);border-color:rgba(248,113,113,.3);}
+.call.danger strong{color:var(--red);}
+.call.tip{background:var(--grn-bg);border-color:rgba(74,222,128,.3);}
+.call.tip strong{color:var(--grn);}
+.call.hist{background:var(--pur-bg);border-color:rgba(192,132,252,.3);}
+.call.hist strong{color:var(--pur);}
+.call.step{background:linear-gradient(135deg,var(--acc-bg) 0%,var(--pur-bg) 100%);border-color:var(--acc);}
+.call.step strong{color:var(--acc);}
+
+.tw{overflow-x:auto;margin:20px 0 28px;border:1px solid var(--bdr);border-radius:var(--r);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+thead tr{background:var(--surf2);}
+thead th{padding:12px 16px;text-align:left;font-family:var(--ui);font-size:12px;font-weight:600;color:var(--acc2);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--bdr);}
+tbody tr{border-bottom:1px solid var(--bdr);}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:nth-child(even){background:rgba(255,255,255,.02);}
+tbody tr:hover{background:var(--acc-bg);}
+tbody td{padding:10px 16px;color:var(--dim);font-size:13px;vertical-align:top;}
+tbody td:first-child{color:var(--acc2);font-weight:600;font-family:var(--code);}
+
+ul.cl,ol.cl{margin:12px 0 20px;padding-left:0;list-style:none;}
+ul.cl li,ol.cl li{padding:5px 0 5px 28px;position:relative;font-size:15px;line-height:1.8;}
+ul.cl li::before{content:'▸';position:absolute;left:6px;color:var(--acc);font-size:11px;top:9px;}
+ol.cl{counter-reset:oc;}
+ol.cl li{counter-increment:oc;}
+ol.cl li::before{content:counter(oc)'.';position:absolute;left:0;color:var(--acc);font-family:var(--ui);font-size:12px;font-weight:700;top:8px;}
+
+/* Step badge */
+.step-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--acc),var(--pur));color:white;padding:6px 14px;border-radius:20px;font-family:var(--ui);font-size:12px;font-weight:600;letter-spacing:.04em;margin-bottom:12px;}
+.step-badge .num{background:rgba(255,255,255,.25);width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;}
+
+/* Promise state pills */
+.pstates{display:flex;gap:12px;margin:24px 0;flex-wrap:wrap;}
+.pstate{flex:1;min-width:200px;background:var(--surf);border:2px solid;border-radius:var(--r);padding:16px;text-align:center;}
+.pstate.pending{border-color:var(--amb);background:rgba(245,158,11,.05);}
+.pstate.fulfilled{border-color:var(--grn);background:rgba(74,222,128,.05);}
+.pstate.rejected{border-color:var(--red);background:rgba(248,113,113,.05);}
+.pstate-name{font-family:var(--code);font-size:18px;font-weight:600;margin-bottom:8px;}
+.pstate.pending .pstate-name{color:var(--amb);}
+.pstate.fulfilled .pstate-name{color:var(--grn);}
+.pstate.rejected .pstate-name{color:var(--red);}
+.pstate-desc{font-size:13px;color:var(--muted);}
+
+.send{text-align:center;padding:60px 0 20px;color:var(--muted);font-style:italic;font-size:14px;}
+.send::before{content:'';display:block;width:40px;height:1px;background:var(--bdr2);margin:0 auto 20px;}
+
+@media(max-width:900px){aside{display:none;}main{margin-left:0;padding:32px 24px 80px;}}
+@media print{aside,header,#pb{display:none!important;}main{margin:0;padding:20px;}body{background:white;color:black;}}
+</style>
+</head>
+<body>
+<div id="pb"></div>
+<header>
+  <div class="hb">
+    <span class="badge">Async JS</span>
+    <span>BAÜ · Bilgisayar Mühendisliği · İnternet Programlama</span>
+  </div>
+  <div class="ha">
+    <button class="bi" onclick="toggleFont()" title="Yazı tipi">Aa</button>
+    <button class="bi" onclick="window.print()" title="Yazdır">⎙</button>
+  </div>
+</header>
+
+<div class="layout">
+<aside>
+  <div class="sw"><input type="text" class="si" placeholder="Ara…" oninput="filterNav(this.value)"></div>
+  <p class="st">İçindekiler</p>
+  <nav><ul id="toc">
+    <li class="h1-item"><a href="#b1">Bölüm 1 — Neden Promise?</a></li>
+    <li class="h2-item"><a href="#b1-1">1.1 Callback Hell</a></li>
+    <li class="h2-item"><a href="#b1-2">1.2 Promise ile Aynı Kod</a></li>
+    <li class="h1-item"><a href="#b2">Bölüm 2 — Promise Temelleri</a></li>
+    <li class="h2-item"><a href="#b2-1">2.1 Üç Durum</a></li>
+    <li class="h2-item"><a href="#b2-2">2.2 .then / .catch / .finally</a></li>
+    <li class="h2-item"><a href="#b2-3">2.3 Promise Zinciri</a></li>
+    <li class="h2-item"><a href="#b2-4">2.4 Promise Oluşturmak</a></li>
+    <li class="h1-item"><a href="#b3">Bölüm 3 — async/await</a></li>
+    <li class="h2-item"><a href="#b3-1">3.1 async Fonksiyon</a></li>
+    <li class="h2-item"><a href="#b3-2">3.2 await</a></li>
+    <li class="h2-item"><a href="#b3-3">3.3 try / catch</a></li>
+    <li class="h2-item"><a href="#b3-4">3.4 Sıralı vs Paralel</a></li>
+    <li class="h1-item"><a href="#b4">Bölüm 4 — Kombinatörler</a></li>
+    <li class="h2-item"><a href="#b4-1">4.1 Promise.all</a></li>
+    <li class="h2-item"><a href="#b4-2">4.2 Promise.allSettled</a></li>
+    <li class="h2-item"><a href="#b4-3">4.3 Promise.race</a></li>
+    <li class="h2-item"><a href="#b4-4">4.4 Promise.any</a></li>
+    <li class="h2-item"><a href="#b4-5">4.5 Karşılaştırma</a></li>
+    <li class="h1-item"><a href="#b5">Bölüm 5 — Sık Hatalar</a></li>
+    <li class="h2-item"><a href="#b5-1">5.1 await Unutmak</a></li>
+    <li class="h2-item"><a href="#b5-2">5.2 forEach + async</a></li>
+    <li class="h2-item"><a href="#b5-3">5.3 fetch 404</a></li>
+    <li class="h1-item"><a href="#b6">Bölüm 6 — Pokemon Kartları</a></li>
+    <li class="h2-item"><a href="#b6-api">PokéAPI Şeması</a></li>
+    <li class="h2-item"><a href="#b6-1">Adım 1 — HTML İskelet</a></li>
+    <li class="h2-item"><a href="#b6-2">Adım 2 — Tek Pokemon</a></li>
+    <li class="h2-item"><a href="#b6-3">Adım 3 — Sıralı Yükleme</a></li>
+    <li class="h2-item"><a href="#b6-4">Adım 4 — Paralel</a></li>
+    <li class="h2-item"><a href="#b6-5">Adım 5 — Toleranslı</a></li>
+    <li class="h2-item"><a href="#b6-bonus">Bonus Geliştirmeler</a></li>
+  </ul></nav>
+</aside>
+
+<main><div class="ci">
+
+<div class="cover">
+  <p class="cmeta">Balıkesir Üniversitesi · Bilgisayar Mühendisliği · Asenkron JS</p>
+  <h1>Promise ve<br><span>async/await</span></h1>
+  <p class="csub">Asenkron JavaScript'in Modern Yüzü  ·  Pokemon Kartları Uygulaması<br>
+  45 dakikalık konu anlatımı + adım adım canlı uygulama rehberi.</p>
+  <div class="ctags">
+    <span class="tag a">ES6+</span>
+    <span class="tag g">Promise</span>
+    <span class="tag p">async/await</span>
+    <span class="tag o">PokéAPI</span>
+    <span class="tag a">Canlı Uygulama</span>
+  </div>
+</div>
+
+<!-- ══ BÖLÜM 1 ══ -->
+<section class="cs" id="b1">
+<span class="cnum">Bölüm 01</span>
+<h2 class="ctitle">Neden Promise ve async/await?</h2>
+<p class="clead">Hafta 7'de callback'leri ve Event Loop'u öğrendik. Asenkron işlemlerin neden gerekli olduğunu biliyoruz. Ama callback'lerin sınırına geldik — buradan modern bir çözüme geçiyoruz.</p>
+
+<h2 id="b1-1" data-n="1.1">Callback Hell'i Hatırlayalım</h2>
+<p>Üç API çağrısının birbirine bağımlı olduğu bir senaryoda callback'ler iç içe geçer:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript — Eski Yöntem</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="fn">kullaniciyiGetir</span>(id, (kullanici, hata) => {
+  <span class="kw">if</span> (hata) { <span class="fn">hataGoster</span>(hata); <span class="kw">return</span>; }
+
+  <span class="fn">siparisleriGetir</span>(kullanici.id, (siparisler, hata) => {
+    <span class="kw">if</span> (hata) { <span class="fn">hataGoster</span>(hata); <span class="kw">return</span>; }
+
+    <span class="fn">urunleriGetir</span>(siparisler[<span class="num">0</span>].id, (urunler, hata) => {
+      <span class="kw">if</span> (hata) { <span class="fn">hataGoster</span>(hata); <span class="kw">return</span>; }
+      <span class="fn">ekrandaGoster</span>(kullanici, siparisler, urunler);
+    });
+  });
+});</code></pre>
+</div>
+
+<ul class="cl">
+  <li><strong>Görsel piramidleşme:</strong> her yeni adım sağa kayıyor, kod okunmuyor.</li>
+  <li><strong>Hata yönetimi tekrarı:</strong> her seviyede aynı <code>if (hata)</code> kontrolü.</li>
+  <li><strong>Akış takibi zor:</strong> kod yukarıdan aşağıya akmıyor, içe doğru gidiyor.</li>
+  <li><strong>Test zorluğu:</strong> iç içe callback'leri mock'lamak karmaşık.</li>
+</ul>
+
+<div class="call hist">
+  <span class="ic">📜</span>
+  <div><strong>Promise'in Tarihçesi</strong>
+  <p>Promise kavramı 1976'da MIT'de Daniel Friedman ve David Wise tarafından geliştirildi. Argus dilinde (1988) ve E dilinde (1997) yaygınlaştı. JavaScript'e gelmesi uzun sürdü: 2010'larda jQuery'nin Deferred objesi ve Q kütüphanesi öncülük etti. ES6 (2015) ile dil seviyesinde standartlaştı. async/await ise 2012'de C# 5.0'da popülerleşti; 2017'de JavaScript'e ES2017 standardı olarak kazandırıldı.</p></div>
+</div>
+
+<h2 id="b1-2" data-n="1.2">Promise ile Aynı Kod</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">Promise zinciri</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="fn">kullaniciyiGetir</span>(id)
+  .<span class="fn">then</span>(kullanici => <span class="fn">siparisleriGetir</span>(kullanici.id))
+  .<span class="fn">then</span>(siparisler => <span class="fn">urunleriGetir</span>(siparisler[<span class="num">0</span>].id))
+  .<span class="fn">then</span>(urunler => <span class="fn">ekrandaGoster</span>(urunler))
+  .<span class="fn">catch</span>(hata => <span class="fn">hataGoster</span>(hata));
+<span class="cm">// Tek catch — tüm zincirdeki hataları yakalar</span></code></pre>
+</div>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">async/await</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">async function</span> <span class="fn">yukle</span>(id) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> kullanici  = <span class="kw">await</span> <span class="fn">kullaniciyiGetir</span>(id);
+    <span class="kw">const</span> siparisler = <span class="kw">await</span> <span class="fn">siparisleriGetir</span>(kullanici.id);
+    <span class="kw">const</span> urunler    = <span class="kw">await</span> <span class="fn">urunleriGetir</span>(siparisler[<span class="num">0</span>].id);
+    <span class="fn">ekrandaGoster</span>(urunler);
+  } <span class="kw">catch</span> (hata) {
+    <span class="fn">hataGoster</span>(hata);
+  }
+}</code></pre>
+</div>
+
+<div class="call tip">
+  <span class="ic">✦</span>
+  <div><strong>Bu Bölümde Ne Öğreneceğiz?</strong>
+  <p>Promise'in üç durumunu, zincirleme kullanımını, async/await sözdizimini, Promise.all gibi kombinatörleri ve sık yapılan hataları öğreneceğiz. Bölüm sonunda <strong>PokéAPI ile gerçek bir Pokemon Kartları uygulaması</strong> yapacağız — adım adım, derste birlikte yazılabilecek şekilde.</p></div>
+</div>
+</section>
+
+<!-- ══ BÖLÜM 2 ══ -->
+<section class="cs" id="b2">
+<span class="cnum">Bölüm 02</span>
+<h2 class="ctitle">Promise Temelleri</h2>
+<p class="clead"><strong>Promise</strong>, asenkron bir işlemin nihai sonucunu (ya da hatasını) temsil eden bir nesnedir. "Şu an cevabım yok ama gelecekte ya değer döndüreceğim ya da hata fırlatacağım" sözü gibi düşünün.</p>
+
+<h2 id="b2-1" data-n="2.1">Üç Durum</h2>
+<p>Bir Promise nesnesinin üç durumu vardır:</p>
+
+<div class="pstates">
+  <div class="pstate pending">
+    <div class="pstate-name">pending</div>
+    <div class="pstate-desc">Beklemede<br>İşlem devam ediyor</div>
+  </div>
+  <div class="pstate fulfilled">
+    <div class="pstate-name">fulfilled</div>
+    <div class="pstate-desc">Başarılı<br>Bir değer döndürdü</div>
+  </div>
+  <div class="pstate rejected">
+    <div class="pstate-name">rejected</div>
+    <div class="pstate-desc">Reddedildi<br>Bir hata oluştu</div>
+  </div>
+</div>
+
+<p>Bir Promise <code>pending</code>'den <code>fulfilled</code> veya <code>rejected</code> durumuna geçer. Bu geçiş <strong>tek yönlüdür</strong> — fulfilled olduktan sonra rejected olamaz, ya da tersi.</p>
+
+<h2 id="b2-2" data-n="2.2">.then() · .catch() · .finally()</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// fetch() bir Promise döner</span>
+<span class="fn">fetch</span>(<span class="str">'https://api.example.com/data'</span>)
+  .<span class="fn">then</span>(yanit => {
+    <span class="fn">console</span>.log(<span class="str">'Yanıt geldi:'</span>, yanit.status);
+    <span class="kw">return</span> yanit.<span class="fn">json</span>();   <span class="cm">// Bu da bir Promise döner</span>
+  })
+  .<span class="fn">then</span>(veri => {
+    <span class="fn">console</span>.log(<span class="str">'Veri:'</span>, veri);
+  })
+  .<span class="fn">catch</span>(hata => {
+    <span class="fn">console</span>.error(<span class="str">'Bir şey ters gitti:'</span>, hata);
+  })
+  .<span class="fn">finally</span>(() => {
+    <span class="fn">console</span>.log(<span class="str">'İster başarılı, ister başarısız — bu çalışır'</span>);
+  });</code></pre>
+</div>
+
+<div class="call info">
+  <span class="ic">ℹ</span>
+  <div><strong>then, catch, finally</strong>
+  <p><code>.then(onFulfilled)</code> — Promise başarılı olursa çalışır. <code>.catch(onRejected)</code> — Promise hata verirse çalışır. <code>.finally(callback)</code> — sonuç ne olursa olsun çalışır (loading state'i kapatmak için ideal).</p></div>
+</div>
+
+<h2 id="b2-3" data-n="2.3">Promise Zinciri</h2>
+<p><code>.then()</code> içinde <strong>yeni bir Promise döndürürseniz</strong>, zincir devam eder. Her .then() bir sonrakine değer geçirir:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="fn">fetch</span>(<span class="str">'/api/kullanici/1'</span>)
+  .<span class="fn">then</span>(yanit => yanit.<span class="fn">json</span>())          <span class="cm">// Promise döner</span>
+  .<span class="fn">then</span>(kullanici => {
+    <span class="fn">console</span>.log(<span class="str">'Kullanıcı:'</span>, kullanici.ad);
+    <span class="kw">return</span> <span class="fn">fetch</span>(<span class="str">'/api/siparisler/'</span> + kullanici.id);
+  })                                     <span class="cm">// Promise döner</span>
+  .<span class="fn">then</span>(yanit => yanit.<span class="fn">json</span>())
+  .<span class="fn">then</span>(siparisler => {
+    <span class="fn">console</span>.log(<span class="str">'Siparişler:'</span>, siparisler.length);
+  })
+  .<span class="fn">catch</span>(hata => <span class="fn">console</span>.error(hata));
+<span class="cm">// Zincirin herhangi bir yerindeki hata tek catch'e düşer</span></code></pre>
+</div>
+
+<h2 id="b2-4" data-n="2.4">Promise Oluşturmak</h2>
+<p>Çoğu zaman hazır Promise'leri tüketirsiniz. Ama kendi Promise'inizi yaratmanız gerekirse:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">gecikme</span>(ms) {
+  <span class="kw">return new</span> <span class="fn">Promise</span>((resolve, reject) => {
+    <span class="kw">if</span> (ms &lt; <span class="num">0</span>) {
+      <span class="fn">reject</span>(<span class="kw">new</span> Error(<span class="str">'Negatif süre olamaz'</span>));
+      <span class="kw">return</span>;
+    }
+    <span class="fn">setTimeout</span>(() => {
+      <span class="fn">resolve</span>(<span class="str">'Tamam, '</span> + ms + <span class="str">'ms bekledim'</span>);
+    }, ms);
+  });
+}
+
+<span class="fn">gecikme</span>(<span class="num">1000</span>)
+  .<span class="fn">then</span>(mesaj => <span class="fn">console</span>.log(mesaj))   <span class="ok-t">// 'Tamam, 1000ms bekledim'</span>
+  .<span class="fn">catch</span>(hata => <span class="fn">console</span>.error(hata));
+
+<span class="fn">gecikme</span>(-<span class="num">100</span>)
+  .<span class="fn">catch</span>(hata => <span class="fn">console</span>.error(hata.message));  <span class="ok-t">// 'Negatif süre olamaz'</span></code></pre>
+</div>
+
+<ul class="cl">
+  <li><code>resolve(deger)</code> — Promise'i fulfilled durumuna geçirir, <code>.then()</code>'e değer iletir.</li>
+  <li><code>reject(hata)</code> — Promise'i rejected durumuna geçirir, <code>.catch()</code>'e hata iletir.</li>
+</ul>
+</section>
+
+<!-- ══ BÖLÜM 3 ══ -->
+<section class="cs" id="b3">
+<span class="cnum">Bölüm 03</span>
+<h2 class="ctitle">async/await — Senkron Görünümlü Asenkron</h2>
+<p class="clead">ES2017 ile gelen <code>async/await</code> sözdizimi, Promise tabanlı kodu <strong>senkron kod gibi yazmamızı</strong> sağlar.</p>
+
+<h2 id="b3-1" data-n="3.1">async Fonksiyon</h2>
+<p>Bir fonksiyonun önüne <code>async</code> yazarsanız iki şey olur:</p>
+<ol class="cl">
+  <li>Fonksiyon <strong>her zaman bir Promise döndürür</strong> — siz ne döndürürseniz döndürün, otomatik olarak Promise'e sarılır.</li>
+  <li>Fonksiyon içinde <code>await</code> kullanabilirsiniz.</li>
+</ol>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// async olmayan normal fonksiyon</span>
+<span class="kw">function</span> <span class="fn">selamla</span>() { <span class="kw">return</span> <span class="str">'Merhaba'</span>; }
+<span class="fn">selamla</span>(); <span class="ok-t">// 'Merhaba' — düz string</span>
+
+<span class="cm">// async fonksiyon</span>
+<span class="kw">async function</span> <span class="fn">asyncSelamla</span>() { <span class="kw">return</span> <span class="str">'Merhaba'</span>; }
+<span class="fn">asyncSelamla</span>(); <span class="ok-t">// Promise { 'Merhaba' } — Promise!</span>
+<span class="fn">asyncSelamla</span>().<span class="fn">then</span>(s => <span class="fn">console</span>.log(s)); <span class="ok-t">// 'Merhaba'</span></code></pre>
+</div>
+
+<h2 id="b3-2" data-n="3.2">await Anahtar Kelimesi</h2>
+<p><code>await</code>, bir Promise'in çözülmesini bekler ve <strong>Promise'in değerini</strong> döndürür. Promise hata verirse, <code>await</code> <strong>hata fırlatır</strong> (try/catch ile yakalayabilirsiniz).</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Promise zinciri ile</span>
+<span class="kw">function</span> <span class="fn">eskiUsul</span>() {
+  <span class="kw">return</span> <span class="fn">fetch</span>(<span class="str">'/api/users/1'</span>)
+    .<span class="fn">then</span>(r => r.<span class="fn">json</span>())
+    .<span class="fn">then</span>(u => u.name);
+}
+
+<span class="cm">// async/await ile — aynı işlem</span>
+<span class="kw">async function</span> <span class="fn">modernUsul</span>() {
+  <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/users/1'</span>);
+  <span class="kw">const</span> kullanici = <span class="kw">await</span> yanit.<span class="fn">json</span>();
+  <span class="kw">return</span> kullanici.name;
+}
+
+<span class="cm">// İkisi de aynı şekilde kullanılır:</span>
+<span class="fn">modernUsul</span>().<span class="fn">then</span>(ad => <span class="fn">console</span>.log(ad));</code></pre>
+</div>
+
+<div class="call info">
+  <span class="ic">ℹ</span>
+  <div><strong>await Sadece async İçinde</strong>
+  <p><code>await</code> yalnızca async fonksiyon içinde kullanılabilir. Modül üst seviyesinde (top-level await) ES2022'den sonra destekleniyor ama sınıf metodları ve normal fonksiyonlarda async olmadan kullanılamaz. SyntaxError alırsanız ilk kontrol edilecek şey budur.</p></div>
+</div>
+
+<h2 id="b3-3" data-n="3.3">Hata Yönetimi: try / catch</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">async function</span> <span class="fn">veriGetir</span>(id) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/users/'</span> + id);
+    <span class="kw">if</span> (!yanit.ok) {
+      <span class="kw">throw new</span> Error(<span class="str">'HTTP '</span> + yanit.status);
+    }
+    <span class="kw">const</span> kullanici = <span class="kw">await</span> yanit.<span class="fn">json</span>();
+    <span class="kw">return</span> kullanici;
+  } <span class="kw">catch</span> (hata) {
+    <span class="fn">console</span>.error(<span class="str">'Yükleme başarısız:'</span>, hata.message);
+    <span class="kw">return</span> <span class="kw">null</span>;
+  } <span class="kw">finally</span> {
+    <span class="fn">console</span>.log(<span class="str">'Yükleme bitti'</span>);
+  }
+}</code></pre>
+</div>
+
+<div class="call warn">
+  <span class="ic">⚠</span>
+  <div><strong>await Unutmaya Dikkat</strong>
+  <p><code>await</code> yazmayı unutursanız, Promise nesnesinin kendisi değişkene atanır — gerçek değer değil. <code>const veri = fetch(...)</code> → veri Promise. <code>const veri = await fetch(...)</code> → veri Response objesi. Bu en yaygın yeni başlayan hatasıdır.</p></div>
+</div>
+
+<h2 id="b3-4" data-n="3.4">Sıralı vs Paralel Bekleme</h2>
+<p>await'i nasıl kullandığınız <strong>performansı dramatik etkiler</strong>:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">YAVAŞ — Sıralı</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">async function</span> <span class="fn">yavasYukle</span>() {
+  <span class="kw">const</span> kullanici  = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/users/1'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+  <span class="kw">const</span> siparis    = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/orders'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+  <span class="kw">const</span> urunler    = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/products'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+  <span class="kw">return</span> { kullanici, siparis, urunler };
+}
+<span class="er">// 3 istek × 100ms = 300ms toplam</span></code></pre>
+</div>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">HIZLI — Paralel</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">async function</span> <span class="fn">hizliYukle</span>() {
+  <span class="kw">const</span> [kullanici, siparis, urunler] = <span class="kw">await</span> Promise.<span class="fn">all</span>([
+    <span class="fn">fetch</span>(<span class="str">'/api/users/1'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+    <span class="fn">fetch</span>(<span class="str">'/api/orders'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+    <span class="fn">fetch</span>(<span class="str">'/api/products'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+  ]);
+  <span class="kw">return</span> { kullanici, siparis, urunler };
+}
+<span class="ok-t">// 3 istek paralel × max 100ms = 100ms toplam</span></code></pre>
+</div>
+
+<div class="call tip">
+  <span class="ic">✦</span>
+  <div><strong>Sıralı mı Paralel mi?</strong>
+  <p>Bir istek diğerinin sonucuna ihtiyaç duyuyorsa <strong>sıralı await zorunludur</strong> (önce kullanıcıyı çek, sonra ID'siyle siparişlerini çek). Bağımsız isteklerde <strong>Promise.all kullanın</strong> — performans 3-5 kat artar.</p></div>
+</div>
+</section>
+
+<!-- ══ BÖLÜM 4 ══ -->
+<section class="cs" id="b4">
+<span class="cnum">Bölüm 04</span>
+<h2 class="ctitle">Promise Kombinatörleri</h2>
+<p class="clead">Birden fazla Promise'i bir arada yönetmek için JavaScript bize dört statik metod sunar. Her birinin davranışı farklı, hangisini ne zaman kullanacağınızı bilmek kritik.</p>
+
+<h2 id="b4-1" data-n="4.1">Promise.all — Hepsi Başarılı Olmalı</h2>
+<p><strong>Tüm Promise'leri bekler.</strong> Hepsi başarılı olursa sonuçların dizisini döndürür. <strong>Biri başarısız olursa tümü reject edilir</strong> ("all or nothing"):</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> [kullanici, siparisler, mesajlar] = <span class="kw">await</span> Promise.<span class="fn">all</span>([
+  <span class="fn">fetch</span>(<span class="str">'/api/users/1'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+  <span class="fn">fetch</span>(<span class="str">'/api/orders'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+  <span class="fn">fetch</span>(<span class="str">'/api/messages'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+]);
+
+<span class="cm">// Sonuçlar dizi olarak gelir — sıra korunur</span>
+<span class="cm">// Herhangi biri hata verirse hepsi reject olur:</span>
+<span class="kw">try</span> {
+  <span class="kw">const</span> sonuclar = <span class="kw">await</span> Promise.<span class="fn">all</span>([...]);
+} <span class="kw">catch</span> (hata) {
+  <span class="cm">// İlk reject'in hatası buraya düşer</span>
+}</code></pre>
+</div>
+
+<h2 id="b4-2" data-n="4.2">Promise.allSettled — Hepsini Bekle</h2>
+<p>Tüm Promise'leri bekler ama <strong>hata olsa bile reject olmaz</strong>. Her birinin sonucunu ayrı ayrı verir:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> sonuclar = <span class="kw">await</span> Promise.<span class="fn">allSettled</span>([
+  <span class="fn">fetch</span>(<span class="str">'/api/users'</span>),
+  <span class="fn">fetch</span>(<span class="str">'/api/products'</span>),
+  <span class="fn">fetch</span>(<span class="str">'/api/messages'</span>),
+]);
+
+sonuclar.<span class="fn">forEach</span>((sonuc, i) => {
+  <span class="kw">if</span> (sonuc.status === <span class="str">'fulfilled'</span>) {
+    <span class="fn">console</span>.log(<span class="str">'Servis '</span> + i + <span class="str">' OK:'</span>, sonuc.value);
+  } <span class="kw">else</span> {
+    <span class="fn">console</span>.warn(<span class="str">'Servis '</span> + i + <span class="str">' başarısız:'</span>, sonuc.reason);
+  }
+});
+
+<span class="cm">// Sonuç şekli:</span>
+<span class="cm">// [{ status: 'fulfilled', value: ... },</span>
+<span class="cm">//  { status: 'rejected', reason: Error },</span>
+<span class="cm">//  { status: 'fulfilled', value: ... }]</span></code></pre>
+</div>
+
+<h2 id="b4-3" data-n="4.3">Promise.race — İlk Biten Kazanır</h2>
+<p>Herhangi bir Promise (fulfilled veya rejected) tamamlandığında o sonucu döndürür. Timeout deseni için yaygındır:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">function</span> <span class="fn">zamanasimi</span>(promise, ms) {
+  <span class="kw">const</span> zamanasimi = <span class="kw">new</span> <span class="fn">Promise</span>((_, reject) =>
+    <span class="fn">setTimeout</span>(() => <span class="fn">reject</span>(<span class="kw">new</span> Error(<span class="str">'Zaman aşımı'</span>)), ms)
+  );
+  <span class="kw">return</span> Promise.<span class="fn">race</span>([promise, zamanasimi]);
+}
+
+<span class="kw">try</span> {
+  <span class="kw">const</span> veri = <span class="kw">await</span> <span class="fn">zamanasimi</span>(
+    <span class="fn">fetch</span>(<span class="str">'/api/yavas-endpoint'</span>).<span class="fn">then</span>(r => r.<span class="fn">json</span>()),
+    <span class="num">5000</span>
+  );
+} <span class="kw">catch</span> (e) {
+  <span class="cm">// 'Zaman aşımı' veya gerçek fetch hatası</span>
+}</code></pre>
+</div>
+
+<h2 id="b4-4" data-n="4.4">Promise.any — İlk Başarılı Olan</h2>
+<p>İlk başarılı Promise'i döndürür. Tümü başarısız olursa <code>AggregateError</code> fırlatır:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">try</span> {
+  <span class="kw">const</span> veri = <span class="kw">await</span> Promise.<span class="fn">any</span>([
+    <span class="fn">fetch</span>(<span class="str">'https://cdn1.example.com/file.json'</span>),
+    <span class="fn">fetch</span>(<span class="str">'https://cdn2.example.com/file.json'</span>),
+    <span class="fn">fetch</span>(<span class="str">'https://cdn3.example.com/file.json'</span>),
+  ]).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+} <span class="kw">catch</span> (hata) {
+  <span class="cm">// hata instanceof AggregateError</span>
+  <span class="cm">// hata.errors → tüm bireysel hatalar dizisi</span>
+}</code></pre>
+</div>
+
+<h2 id="b4-5" data-n="4.5">Karşılaştırma Tablosu</h2>
+
+<div class="tw"><table>
+  <thead><tr><th>Metod</th><th>Tüm sonuçları bekler mi?</th><th>Hata davranışı</th><th>Kullanım</th></tr></thead>
+  <tbody>
+    <tr><td>Promise.all</td><td>Evet</td><td>Biri hata → tümü reject</td><td>Bağımsız zorunlu istekler</td></tr>
+    <tr><td>Promise.allSettled</td><td>Evet</td><td>Asla reject olmaz</td><td>Bağımsız opsiyonel istekler</td></tr>
+    <tr><td>Promise.race</td><td>Hayır — ilki yeter</td><td>İlk biten ne ise</td><td>Timeout, ilk yanıt</td></tr>
+    <tr><td>Promise.any</td><td>Hayır — ilk başarı</td><td>Tümü hata → AggregateError</td><td>Yedek kaynaklar</td></tr>
+  </tbody>
+</table></div>
+</section>
+
+<!-- ══ BÖLÜM 5 ══ -->
+<section class="cs" id="b5">
+<span class="cnum">Bölüm 05</span>
+<h2 class="ctitle">Sık Yapılan Hatalar</h2>
+<p class="clead">async/await ile en yaygın 3 hata. Bu üçünden kaçındığınızda kodun büyük kısmı sorunsuz çalışır.</p>
+
+<h2 id="b5-1" data-n="5.1">await Unutmak</h2>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// HATALI</span>
+<span class="kw">async function</span> <span class="fn">ekle</span>(id) {
+  <span class="kw">const</span> kullanici = <span class="fn">fetch</span>(<span class="str">'/api/users/'</span> + id).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+  <span class="fn">console</span>.log(kullanici.ad);
+  <span class="er">// 'undefined' — kullanici hâlâ Promise objesi, .ad yok</span>
+}
+
+<span class="cm">// DOĞRU</span>
+<span class="kw">async function</span> <span class="fn">ekle</span>(id) {
+  <span class="kw">const</span> kullanici = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/users/'</span> + id).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+  <span class="fn">console</span>.log(kullanici.ad);  <span class="ok-t">// ✓</span>
+}</code></pre>
+</div>
+
+<h2 id="b5-2" data-n="5.2">forEach + async — Klasik Tuzak</h2>
+<p>Bir dizinin her elemanı için asenkron işlem yapmak isterseniz, <code>forEach</code> async fonksiyonu beklemez:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// HATALI — forEach async'i beklemez</span>
+<span class="kw">async function</span> <span class="fn">tumunuYukle</span>(idler) {
+  idler.<span class="fn">forEach</span>(<span class="kw">async</span> (id) => {
+    <span class="kw">const</span> veri = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/'</span> + id).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+    <span class="fn">console</span>.log(veri);
+  });
+  <span class="fn">console</span>.log(<span class="str">'Bitti'</span>); <span class="er">// Hemen yazılır, fetch'ler hâlâ devam ediyor</span>
+}
+
+<span class="cm">// DOĞRU 1 — sıralı: for...of</span>
+<span class="kw">async function</span> <span class="fn">tumunuYukle</span>(idler) {
+  <span class="kw">for</span> (<span class="kw">const</span> id <span class="kw">of</span> idler) {
+    <span class="kw">const</span> veri = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/'</span> + id).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+    <span class="fn">console</span>.log(veri);
+  }
+}
+
+<span class="cm">// DOĞRU 2 — paralel: map + Promise.all</span>
+<span class="kw">async function</span> <span class="fn">tumunuYukle</span>(idler) {
+  <span class="kw">const</span> sonuclar = <span class="kw">await</span> Promise.<span class="fn">all</span>(
+    idler.<span class="fn">map</span>(id => <span class="fn">fetch</span>(<span class="str">'/api/'</span> + id).<span class="fn">then</span>(r => r.<span class="fn">json</span>()))
+  );
+}</code></pre>
+</div>
+
+<div class="call danger">
+  <span class="ic">✕</span>
+  <div><strong>forEach + async = Yarış Durumu</strong>
+  <p><code>forEach</code> async fonksiyonu beklemez. Tüm callback'leri eşzamanlı başlatır ve hemen devam eder. Asenkron iterasyon için <code>for...of</code> (sıralı) veya <code>Promise.all + map</code> (paralel) kullanın.</p></div>
+</div>
+
+<h2 id="b5-3" data-n="5.3">fetch 404 Reject Etmez</h2>
+<p><code>fetch</code>, HTTP hata kodlarında (404, 500) <strong>Promise'i reject etmez</strong>. Sadece <strong>ağ hatalarında</strong> reject eder. Bu yüzden <code>yanit.ok</code> kontrolü her zaman gereklidir:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// EKSİK — 404'te bile devam eder</span>
+<span class="kw">async function</span> <span class="fn">kullaniciGetir</span>(id) {
+  <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/users/'</span> + id);
+  <span class="kw">return</span> yanit.<span class="fn">json</span>();  <span class="er">// 404'te bile parse etmeye çalışır</span>
+}
+
+<span class="cm">// DOĞRU</span>
+<span class="kw">async function</span> <span class="fn">kullaniciGetir</span>(id) {
+  <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/users/'</span> + id);
+  <span class="kw">if</span> (!yanit.ok) {
+    <span class="kw">throw new</span> Error(<span class="str">'HTTP '</span> + yanit.status);
+  }
+  <span class="kw">return</span> yanit.<span class="fn">json</span>();
+}</code></pre>
+</div>
+</section>
+
+<!-- ══ BÖLÜM 6 — UYGULAMA ══ -->
+<section class="cs" id="b6">
+<span class="cnum">Bölüm 06  ·  CANLI UYGULAMA</span>
+<h2 class="ctitle">Pokemon Kartları — Adım Adım</h2>
+<p class="clead">Bu bölümde teorik bilgileri pratiğe dökeceğiz. Kullanıcının girdiği Pokemon isimlerini <strong>PokéAPI</strong>'den paralel çekip her birini renkli kart olarak ekrana basan bir uygulama. Tek HTML dosyası — backend gerekmez.</p>
+
+<div class="call step">
+  <span class="ic">📋</span>
+  <div><strong>Ders Akışı</strong>
+  <p>Uygulamayı <strong>5 adımda</strong> inşa edeceğiz. Her adımda yeni bir async/await kavramını kullanacağız. Adımların sonunda çalışan bir kod parçası elde edeceksiniz — sonraki adımda üzerine ekleyeceksiniz. Toplam süre: yaklaşık 30-40 dakika.</p></div>
+</div>
+
+<h2 id="b6-api" data-n="Hazırlık">PokéAPI Şeması</h2>
+<p><strong>PokéAPI</strong> (<code>pokeapi.co</code>) — ücretsiz, anahtar gerektirmeyen bir REST API. Tek Pokemon için endpoint:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">HTTP İstek</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="or">GET</span> https://pokeapi.co/api/v2/pokemon/pikachu</code></pre>
+</div>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JSON Yanıt (özet)</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code>{
+  <span class="str">"id"</span>: <span class="num">25</span>,
+  <span class="str">"name"</span>: <span class="str">"pikachu"</span>,
+  <span class="str">"sprites"</span>: {
+    <span class="str">"other"</span>: {
+      <span class="str">"official-artwork"</span>: {
+        <span class="str">"front_default"</span>: <span class="str">"https://.../25.png"</span>
+      }
+    }
+  },
+  <span class="str">"types"</span>: [
+    { <span class="str">"type"</span>: { <span class="str">"name"</span>: <span class="str">"electric"</span> } }
+  ],
+  <span class="str">"stats"</span>: [
+    { <span class="str">"base_stat"</span>: <span class="num">35</span>, <span class="str">"stat"</span>: { <span class="str">"name"</span>: <span class="str">"hp"</span> } },
+    { <span class="str">"base_stat"</span>: <span class="num">55</span>, <span class="str">"stat"</span>: { <span class="str">"name"</span>: <span class="str">"attack"</span> } }
+  ]
+}</code></pre>
+</div>
+
+<!-- ADIM 1 -->
+<h2 id="b6-1" data-n="Adım 1">HTML İskeletini Kur</h2>
+<div class="step-badge"><span class="num">1</span>HTML + CSS  ·  ~5 dk</div>
+
+<p>Yeni dosya: <code>pokemon.html</code>. İskeleti yazın:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">pokemon.html</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=<span class="str">"tr"</span>&gt;
+&lt;head&gt;
+  &lt;meta charset=<span class="str">"UTF-8"</span>&gt;
+  &lt;title&gt;Pokemon Kartları&lt;/title&gt;
+  &lt;style&gt;
+    body { font-family: sans-serif; padding: 20px; background: #f3f4f6; }
+    #form { margin-bottom: 20px; }
+    #form input { padding: 8px; font-size: 16px; width: 300px; }
+    #form button { padding: 8px 16px; font-size: 16px; cursor: pointer; }
+    #kartlar { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .kart { background: white; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,.1); }
+    .kart img { width: 140px; height: 140px; }
+    .kart h3 { margin: 8px 0; text-transform: capitalize; }
+    .yukleniyor { color: #6b7280; font-style: italic; }
+    .hata { color: #dc2626; background: #fef2f2; padding: 12px; border-radius: 8px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Pokemon Kartları&lt;/h1&gt;
+  &lt;div id=<span class="str">"form"</span>&gt;
+    &lt;input id=<span class="str">"isimler"</span> placeholder=<span class="str">"pikachu, charizard, bulbasaur"</span>&gt;
+    &lt;button id=<span class="str">"getir"</span>&gt;Getir&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div id=<span class="str">"durum"</span>&gt;&lt;/div&gt;
+  &lt;div id=<span class="str">"kartlar"</span>&gt;&lt;/div&gt;
+
+  &lt;script&gt;
+    <span class="cm">// Kod buraya gelecek</span>
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+
+<div class="call info">
+  <span class="ic">🧪</span>
+  <div><strong>Test</strong>
+  <p>Tarayıcıda açın. Bir input, bir buton ve boş bir alan görmelisiniz. Buton hâlâ bir şey yapmıyor — bir sonraki adımda fonksiyonalite ekleyeceğiz.</p></div>
+</div>
+
+<!-- ADIM 2 -->
+<h2 id="b6-2" data-n="Adım 2">Tek Pokemon Çekme Fonksiyonu</h2>
+<div class="step-badge"><span class="num">2</span>async fonksiyon + fetch  ·  ~7 dk</div>
+
+<p>İlk async fonksiyonumuzu yazalım. Aynı zamanda <code>yanit.ok</code> kontrolünü ve hata yönetimini öğreneceğiz. Script bölümüne ekleyin:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Adım 2: Tek Pokemon getir</span>
+<span class="kw">async function</span> <span class="fn">pokemonGetir</span>(isim) {
+  <span class="kw">const</span> url = <span class="str">'https://pokeapi.co/api/v2/pokemon/'</span> + isim.<span class="fn">toLowerCase</span>().<span class="fn">trim</span>();
+  <span class="kw">const</span> yanit = <span class="kw">await</span> <span class="fn">fetch</span>(url);
+
+  <span class="kw">if</span> (!yanit.ok) {
+    <span class="kw">throw new</span> Error(<span class="str">`'${isim}' bulunamadı (HTTP ${yanit.status})`</span>);
+  }
+
+  <span class="kw">const</span> veri = <span class="kw">await</span> yanit.<span class="fn">json</span>();
+  <span class="kw">return</span> {
+    id:      veri.id,
+    isim:    veri.name,
+    resim:   veri.sprites.other[<span class="str">'official-artwork'</span>].front_default,
+    tipler:  veri.types.<span class="fn">map</span>(t => t.type.name),
+    hp:      veri.stats[<span class="num">0</span>].base_stat,
+    saldiri: veri.stats[<span class="num">1</span>].base_stat,
+  };
+}
+
+<span class="cm">// Test — konsolda çalıştır:</span>
+<span class="fn">pokemonGetir</span>(<span class="str">'pikachu'</span>).<span class="fn">then</span>(p => <span class="fn">console</span>.log(p));</code></pre>
+</div>
+
+<div class="call info">
+  <span class="ic">🧪</span>
+  <div><strong>Test</strong>
+  <p>Sayfayı yenileyin. Konsolu açın (F12). Pikachu'nun bilgilerini görmelisiniz. <code>'pikachuxyz'</code> gibi geçersiz bir isim deneyin — hatayı görmelisiniz.</p></div>
+</div>
+
+<p><strong>Bu adımda öğrenilen:</strong> async fonksiyon, await fetch, yanit.ok kontrolü, hata fırlatma (throw new Error), nesne dönüştürme.</p>
+
+<!-- ADIM 3 -->
+<h2 id="b6-3" data-n="Adım 3">Kartı DOM'a Ekleme + Sıralı Yükleme</h2>
+<div class="step-badge"><span class="num">3</span>DOM + for...of  ·  ~7 dk</div>
+
+<p>Şimdi gelen veriyi ekrana yansıtalım. Önce kart oluşturma fonksiyonu:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Adım 3.1: Pokemon verisinden kart elementi oluştur</span>
+<span class="kw">function</span> <span class="fn">kartOlustur</span>(pokemon) {
+  <span class="kw">const</span> kart = document.<span class="fn">createElement</span>(<span class="str">'div'</span>);
+  kart.className = <span class="str">'kart'</span>;
+  kart.innerHTML = <span class="str">`
+    &lt;img src="${pokemon.resim}" alt="${pokemon.isim}"&gt;
+    &lt;h3&gt;#${pokemon.id} ${pokemon.isim}&lt;/h3&gt;
+    &lt;p&gt;${pokemon.tipler.join(', ')}&lt;/p&gt;
+    &lt;p&gt;HP: ${pokemon.hp} | Atak: ${pokemon.saldiri}&lt;/p&gt;
+  `</span>;
+  <span class="kw">return</span> kart;
+}</code></pre>
+</div>
+
+<p>Şimdi buton tıklamasını yakalayalım — <strong>ilk versiyon, sıralı await ile</strong>:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript — Sıralı (yavaş)</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Adım 3.2: Buton — sıralı versiyon (yavaş!)</span>
+<span class="kw">const</span> getirBtn = document.<span class="fn">getElementById</span>(<span class="str">'getir'</span>);
+<span class="kw">const</span> isimlerInput = document.<span class="fn">getElementById</span>(<span class="str">'isimler'</span>);
+<span class="kw">const</span> kartlarDiv = document.<span class="fn">getElementById</span>(<span class="str">'kartlar'</span>);
+<span class="kw">const</span> durumDiv = document.<span class="fn">getElementById</span>(<span class="str">'durum'</span>);
+
+getirBtn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">async</span> () => {
+  <span class="kw">const</span> isimler = isimlerInput.value.<span class="fn">split</span>(<span class="str">','</span>).<span class="fn">map</span>(s => s.<span class="fn">trim</span>()).<span class="fn">filter</span>(Boolean);
+  <span class="kw">if</span> (isimler.length === <span class="num">0</span>) <span class="kw">return</span>;
+
+  kartlarDiv.innerHTML = <span class="str">''</span>;
+  durumDiv.innerHTML = <span class="str">'&lt;p class="yukleniyor"&gt;Yükleniyor...&lt;/p&gt;'</span>;
+
+  <span class="cm">// SIRALI — her birini sırayla bekle</span>
+  <span class="kw">for</span> (<span class="kw">const</span> isim <span class="kw">of</span> isimler) {
+    <span class="kw">try</span> {
+      <span class="kw">const</span> pokemon = <span class="kw">await</span> <span class="fn">pokemonGetir</span>(isim);
+      kartlarDiv.<span class="fn">appendChild</span>(<span class="fn">kartOlustur</span>(pokemon));
+    } <span class="kw">catch</span> (hata) {
+      <span class="fn">console</span>.error(hata);
+    }
+  }
+
+  durumDiv.innerHTML = <span class="str">''</span>;
+});</code></pre>
+</div>
+
+<div class="call info">
+  <span class="ic">🧪</span>
+  <div><strong>Test</strong>
+  <p>Input'a <code>'pikachu, charizard, bulbasaur, mewtwo, snorlax'</code> yazın. Butona basın. Kartların <strong>TEK TEK (sıralı)</strong> belirdiğini göreceksiniz.</p></div>
+</div>
+
+<div class="call warn">
+  <span class="ic">⚠</span>
+  <div><strong>Performans Sorunu</strong>
+  <p>5 Pokemon × ortalama 300ms = 1.5 saniye toplam. Oysa istekler birbirinden bağımsız — paralel yapılabilir. Bir sonraki adımda bunu <code>Promise.all</code> ile düzelteceğiz.</p></div>
+</div>
+
+<!-- ADIM 4 -->
+<h2 id="b6-4" data-n="Adım 4">Paralel Yükleme (Promise.all)</h2>
+<div class="step-badge"><span class="num">4</span>Promise.all + map  ·  ~6 dk</div>
+
+<p>Sıralı for döngüsünü, <code>Promise.all</code> ile değiştirelim. Tüm Pokemon'lar aynı anda istek atacak:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript — Paralel</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Adım 4: Paralel versiyon</span>
+getirBtn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">async</span> () => {
+  <span class="kw">const</span> isimler = isimlerInput.value.<span class="fn">split</span>(<span class="str">','</span>).<span class="fn">map</span>(s => s.<span class="fn">trim</span>()).<span class="fn">filter</span>(Boolean);
+  <span class="kw">if</span> (isimler.length === <span class="num">0</span>) <span class="kw">return</span>;
+
+  kartlarDiv.innerHTML = <span class="str">''</span>;
+  durumDiv.innerHTML = <span class="str">'&lt;p class="yukleniyor"&gt;Yükleniyor...&lt;/p&gt;'</span>;
+
+  <span class="kw">try</span> {
+    <span class="cm">// PARALEL — hepsini aynı anda başlat</span>
+    <span class="kw">const</span> pokemonlar = <span class="kw">await</span> Promise.<span class="fn">all</span>(
+      isimler.<span class="fn">map</span>(isim => <span class="fn">pokemonGetir</span>(isim))
+    );
+
+    <span class="cm">// Hepsi geldi, kartları oluştur</span>
+    pokemonlar.<span class="fn">forEach</span>(p => kartlarDiv.<span class="fn">appendChild</span>(<span class="fn">kartOlustur</span>(p)));
+    durumDiv.innerHTML = <span class="str">`&lt;p&gt;${pokemonlar.length} Pokemon yüklendi&lt;/p&gt;`</span>;
+  } <span class="kw">catch</span> (hata) {
+    durumDiv.innerHTML = <span class="str">`&lt;div class="hata"&gt;${hata.message}&lt;/div&gt;`</span>;
+  }
+});</code></pre>
+</div>
+
+<div class="call info">
+  <span class="ic">🧪</span>
+  <div><strong>Test</strong>
+  <p>Sayfayı yenileyin. Aynı 5 Pokemon ismini girin. Bu sefer <strong>HEPSİ AYNI ANDA</strong> belirir. Toplam süre yaklaşık 300ms — beş kat hızlandık!</p></div>
+</div>
+
+<div class="call warn">
+  <span class="ic">⚠</span>
+  <div><strong>Promise.all Sorunu</strong>
+  <p>Şu an bir Pokemon ismi yanlış olursa <strong>TÜM ekran hataya düşüyor</strong>. Geçerli olanlar bile gösterilmiyor. Bir sonraki adımda bunu <code>allSettled</code> ile çözeceğiz.</p></div>
+</div>
+
+<!-- ADIM 5 -->
+<h2 id="b6-5" data-n="Adım 5">Hataya Toleranslı (Promise.allSettled)</h2>
+<div class="step-badge"><span class="num">5</span>Promise.allSettled  ·  ~8 dk</div>
+
+<p><code>Promise.allSettled</code>, her Promise'in sonucunu ayrı ayrı verir. Başarısız olanları kart yerine hata mesajı olarak gösterelim:</p>
+
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript — Final</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Adım 5: Hataya toleranslı versiyon — FINAL</span>
+getirBtn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">async</span> () => {
+  <span class="kw">const</span> isimler = isimlerInput.value.<span class="fn">split</span>(<span class="str">','</span>).<span class="fn">map</span>(s => s.<span class="fn">trim</span>()).<span class="fn">filter</span>(Boolean);
+  <span class="kw">if</span> (isimler.length === <span class="num">0</span>) <span class="kw">return</span>;
+
+  kartlarDiv.innerHTML = <span class="str">''</span>;
+  durumDiv.innerHTML = <span class="str">'&lt;p class="yukleniyor"&gt;Yükleniyor...&lt;/p&gt;'</span>;
+
+  <span class="cm">// Her sonucu ayrı ayrı al — bir başarısız diğerlerini bozmaz</span>
+  <span class="kw">const</span> sonuclar = <span class="kw">await</span> Promise.<span class="fn">allSettled</span>(
+    isimler.<span class="fn">map</span>(isim => <span class="fn">pokemonGetir</span>(isim))
+  );
+
+  <span class="kw">let</span> basariSayisi = <span class="num">0</span>;
+  <span class="kw">const</span> hatalar = [];
+
+  sonuclar.<span class="fn">forEach</span>((sonuc, i) => {
+    <span class="kw">if</span> (sonuc.status === <span class="str">'fulfilled'</span>) {
+      kartlarDiv.<span class="fn">appendChild</span>(<span class="fn">kartOlustur</span>(sonuc.value));
+      basariSayisi++;
+    } <span class="kw">else</span> {
+      hatalar.<span class="fn">push</span>(<span class="str">`'${isimler[i]}': ${sonuc.reason.message}`</span>);
+    }
+  });
+
+  <span class="cm">// Durum mesajı</span>
+  <span class="kw">let</span> mesaj = <span class="str">`${basariSayisi}/${isimler.length} Pokemon yüklendi`</span>;
+  <span class="kw">if</span> (hatalar.length &gt; <span class="num">0</span>) {
+    mesaj += <span class="str">`&lt;div class="hata"&gt;${hatalar.join('&lt;br&gt;')}&lt;/div&gt;`</span>;
+  }
+  durumDiv.innerHTML = mesaj;
+});</code></pre>
+</div>
+
+<div class="call tip">
+  <span class="ic">🧪</span>
+  <div><strong>Test — Karışık Senaryo</strong>
+  <p>Input'a <code>'pikachu, charizard, abc123, bulbasaur, xyz'</code> yazın. Butona basın. Geçerli olan <strong>3 Pokemon kartı belirmeli</strong>; geçersiz olanlar için <strong>kırmızı hata mesajı</strong> çıkmalı. İşte aradığımız davranış: kısmi başarı.</p></div>
+</div>
+
+<!-- BONUS -->
+<h2 id="b6-bonus" data-n="Bonus">Bonus Geliştirmeler</h2>
+
+<h3>1. Tip Rengine Göre Kart Arkaplanı</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="kw">const</span> tipRenkleri = {
+  fire:     <span class="str">'#fed7aa'</span>,
+  water:    <span class="str">'#bfdbfe'</span>,
+  grass:    <span class="str">'#bbf7d0'</span>,
+  electric: <span class="str">'#fef08a'</span>,
+  psychic:  <span class="str">'#f5d0fe'</span>,
+  ice:      <span class="str">'#cffafe'</span>,
+  dragon:   <span class="str">'#ddd6fe'</span>,
+  normal:   <span class="str">'#e5e7eb'</span>,
+};
+
+<span class="kw">function</span> <span class="fn">kartOlustur</span>(pokemon) {
+  <span class="kw">const</span> kart = document.<span class="fn">createElement</span>(<span class="str">'div'</span>);
+  kart.className = <span class="str">'kart'</span>;
+  <span class="kw">const</span> renk = tipRenkleri[pokemon.tipler[<span class="num">0</span>]] || <span class="str">'#f3f4f6'</span>;
+  kart.style.background = renk;
+  <span class="cm">// ... geri kalan innerHTML</span>
+  <span class="kw">return</span> kart;
+}</code></pre>
+</div>
+
+<h3>2. Loading Skeleton (Yer Tutucu Kart)</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// İstek atılmadan önce her isim için yer tutucu kart koy</span>
+isimler.<span class="fn">forEach</span>(isim => {
+  <span class="kw">const</span> yer = document.<span class="fn">createElement</span>(<span class="str">'div'</span>);
+  yer.className = <span class="str">'kart yukleniyor'</span>;
+  yer.id = <span class="str">'yer-'</span> + isim;
+  yer.textContent = isim + <span class="str">' yükleniyor...'</span>;
+  kartlarDiv.<span class="fn">appendChild</span>(yer);
+});
+
+<span class="cm">// allSettled sonrası yer tutucuları güncelle</span>
+sonuclar.<span class="fn">forEach</span>((sonuc, i) => {
+  <span class="kw">const</span> yer = document.<span class="fn">getElementById</span>(<span class="str">'yer-'</span> + isimler[i]);
+  <span class="kw">if</span> (sonuc.status === <span class="str">'fulfilled'</span>) {
+    yer.<span class="fn">replaceWith</span>(<span class="fn">kartOlustur</span>(sonuc.value));
+  } <span class="kw">else</span> {
+    yer.className = <span class="str">'hata'</span>;
+    yer.textContent = isimler[i] + <span class="str">': '</span> + sonuc.reason.message;
+  }
+});</code></pre>
+</div>
+
+<h3>3. Karta Tıklayınca Detay</h3>
+<div class="cb">
+  <div class="ch"><div class="dots"><span></span><span></span><span></span></div><span class="cl">JavaScript</span><button class="cbtn" onclick="copyCode(this)">Kopyala</button></div>
+  <pre><code><span class="cm">// Event delegation — tüm kartlar için tek listener</span>
+kartlarDiv.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, (e) => {
+  <span class="kw">const</span> kart = e.target.<span class="fn">closest</span>(<span class="str">'.kart'</span>);
+  <span class="kw">if</span> (!kart) <span class="kw">return</span>;
+  <span class="fn">alert</span>(kart.<span class="fn">querySelector</span>(<span class="str">'h3'</span>).textContent);
+});</code></pre>
+</div>
+
+<div class="call tip">
+  <span class="ic">📚</span>
+  <div><strong>Ev Ödevi</strong>
+  <p>Bu uygulamaya kendi geliştirmelerinizi ekleyin: <strong>arama geçmişi (localStorage)</strong>, iki Pokemon'un istatistiklerini <strong>karşılaştırma</strong>, <strong>favorilere ekleme</strong>, <strong>rastgele Pokemon butonu</strong>. Her geliştirme bir Promise/async kalıbını pekiştirir.</p></div>
+</div>
+
+<h2 data-n="Özet">Bu Uygulamada Öğrenilenler</h2>
+<ul class="cl">
+  <li><strong>async/await:</strong> fetch, json parse, await ile zincirleme</li>
+  <li><strong>Hata yönetimi:</strong> yanit.ok kontrolü, throw new Error, try/catch</li>
+  <li><strong>Promise.all:</strong> paralel istekler, map ile fonksiyon çağırma — 5x hızlanma</li>
+  <li><strong>Promise.allSettled:</strong> hataya tolerans, fulfilled/rejected ayırma</li>
+  <li><strong>DOM:</strong> dinamik element oluşturma, innerHTML ile şablon, appendChild</li>
+</ul>
+
+<div class="send">— Bölüm Sonu —</div>
+</section>
+
+</div></main>
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  document.getElementById('pb').style.width=(d.scrollTop/(d.scrollHeight-d.clientHeight)*100)+'%';
+});
+const sects=document.querySelectorAll('[id]');
+const links=document.querySelectorAll('nav a');
+const obs=new IntersectionObserver(e=>{
+  e.forEach(en=>{if(en.isIntersecting) links.forEach(a=>{
+    a.classList.toggle('active',a.getAttribute('href')==='#'+en.target.id);
+  });});
+},{rootMargin:'-20% 0px -70% 0px'});
+sects.forEach(s=>obs.observe(s));
+const ro=new IntersectionObserver(e=>{
+  e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('visible');ro.unobserve(en.target);}});
+},{threshold:0.05});
+document.querySelectorAll('.cs').forEach(s=>ro.observe(s));
+function copyCode(btn){
+  navigator.clipboard.writeText(btn.closest('.cb').querySelector('pre').innerText).then(()=>{
+    btn.textContent='Kopyalandı!';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='Kopyala';btn.classList.remove('ok');},2000);
+  });
+}
+let fm=0;
+function toggleFont(){
+  fm=(fm+1)%3;
+  const fonts=[null,'var(--ui)','var(--code)'];
+  const labels=['Aa','Sf','Cd'];
+  document.querySelectorAll('p,li,.clead').forEach(el=>el.style.fontFamily=fonts[fm]||'');
+  document.querySelector('[onclick="toggleFont()"]').textContent=labels[fm];
+}
+function filterNav(q){
+  const t=q.toLowerCase();
+  document.querySelectorAll('nav li').forEach(li=>{
+    li.style.display=(!t||li.textContent.toLowerCase().includes(t))?'':'none';
+  });
+}
+</script>
+</body>
+</html>
