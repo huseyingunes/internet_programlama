@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <script>
+        const kullanici = {
+            ad: 'Ahmet',
+            yas: 25,
+            selamla() {
+                console.log(`Merhaba, ${this.ad}!`);
+            },
+            yasArtir() {
+                this.yas++;
+                return this; // method chaining için
+            }
+        };
+const selamla = kullanici.selamla;  // metodu 'kopardık'
+selamla();  // TypeError veya undefined
+// Artık 'kullanici.selamla()' değil, 'selamla()' çağrısı
+// this = window veya undefined (strict)
+
+
+    </script>
+</body>
+</html>

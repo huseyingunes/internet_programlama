@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+</head>
+<body>
+    <script>
+function carpanUret(carpan) {
+  // carpan bu closure'da tutulur
+  return function(sayi) {
+    return sayi * carpan;
+  };
+}
+
+const ikiyle  = carpanUret(2);
+const ucle    = carpanUret(3);
+const onla    = carpanUret(10);
+
+console.log(ikiyle(5));   // 10
+console.log(ucle(4));     // 12
+console.log(onla(7));     // 70
+
+    </script>
+</body>
+</html>

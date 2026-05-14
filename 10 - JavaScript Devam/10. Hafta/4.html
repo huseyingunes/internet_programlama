@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <script>
+    function kullanici(ad, yas){
+            this.ad = ad;
+            this.yas = yas;
+            this.selamla = function() {
+                console.log(`Merhaba, ${this.ad}!`);
+            };
+            this.yasArtir = function() {
+                this.yas++;
+                return this; // method chaining için
+            }
+        };
+        const ahmet = new kullanici('Ahmet', 25);
+        ahmet.selamla(); // Merhaba, Ahmet!
+        
+        </script>
+</body>
+</html>

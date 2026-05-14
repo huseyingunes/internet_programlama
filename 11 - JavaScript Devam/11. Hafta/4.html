@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+</head>
+<body>
+    <script>
+const kullanci = {
+    ad: "Ahmet",
+    soyad: "Yılmaz",
+    yas: 30,
+    sehir: "İstanbul"
+};
+const { ad, soyad, ...diger } = kullanci;
+console.log(ad); // "Ahmet"
+console.log(soyad); // "Yılmaz"
+console.log(diger); // { yas: 30, sehir: "İstanbul" }
+
+function topla(a, b, ...diger) {
+    toplam = a + b;
+    toplam += diger.reduce((acc, val) => acc + val, toplam);
+    return toplam;
+}
+
+console.log(topla(1, 2, 3, 4, 5, 6)); // 21
+    </script>
+</body>
+</html>

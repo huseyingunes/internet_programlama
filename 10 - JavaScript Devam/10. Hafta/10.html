@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+</head>
+<body>
+    <script>
+function memoize(fn) {
+  const cache = new Map(); // closure'da tutulur
+
+  return function(x) {
+    if (cache.has(x)) {
+      console.log('Önbellekten');
+      return cache.get(x);
+    }
+    const sonuc = fn(x);
+    cache.set(x, sonuc);
+    return sonuc;
+  };
+}
+
+// Fibonacci — üstel → doğrusal karmaşıklık:
+function fib(n) {
+  if (n <= 1) return n;
+  return fib(n - 1) + fib(n - 2);
+}
+
+const hizliFib = memoize(fib);
+console.log(hizliFib(42)); // Hesaplar (~1ms)
+console.log(hizliFib(42)); // Önbellekten (~0ms)
+
+    </script>
+</body>
+</html>

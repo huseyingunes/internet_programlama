@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body id="kedi">
+    <script>
+        let yas=5;
+        let isim="Ali"
+        const yaz = `Merhaba ${isim}. ${yas} yaşında mısın?`
+        console.log(yaz)
+        const dene = `${3+5}`
+        console.log(dene)
+        const html = `
+            <div class='kart'>
+                <h2>${isim}</h2>
+                <p>Yaş: ${yas}</p>
+            </div>
+            `;
+        const badi = document.getElementById("kedi")
+        badi.innerHTML = html
+            
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Başlığı</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f3f4f6; }
+    #form { margin-bottom: 20px; }
+    #form input { padding: 8px; font-size: 16px; width: 300px; }
+    #form button { padding: 8px 16px; font-size: 16px; cursor: pointer; }
+    #kartlar { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    body.detay-modu { overflow: hidden; }
+    body.detay-modu h1,
+    body.detay-modu #form,
+    body.detay-modu #durum { opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+    .kart { position: relative; overflow: hidden; opacity: 0; cursor: pointer; background: linear-gradient(145deg, #ffffff, #f8fafc); border: 1px solid rgba(255,255,255,.8); border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 14px 28px rgba(15,23,42,.14), 0 4px 10px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.9); animation: belirerekGel .5s ease var(--gecikme, 0s) forwards; transition: opacity .35s ease, background-color .25s ease, box-shadow .25s ease, scale .25s ease, transform .55s ease, top .55s ease, left .55s ease, width .55s ease; }
+    .kart::before { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, rgba(255,255,255,.7), transparent 35%, rgba(255,255,255,.25)); pointer-events: none; }
+    .kart:hover { scale: 1.04; background: linear-gradient(145deg, var(--tip-rengi, #f9fafb), #ffffff); box-shadow: 0 24px 48px rgba(15,23,42,.24), 0 10px 20px rgba(15,23,42,.14), 0 0 0 4px rgba(255,255,255,.75); }
+    .kart.gizlen { animation: none; opacity: 0; scale: .8; visibility: hidden; pointer-events: none; }
+    .kart.secili { position: fixed; z-index: 10; opacity: 1; scale: 1; animation: none; background: linear-gradient(145deg, var(--tip-rengi, white), #ffffff); box-shadow: 0 32px 80px rgba(15,23,42,.32), 0 14px 28px rgba(15,23,42,.18), 0 0 0 6px rgba(255,255,255,.65); }
+    .kart.secili:hover { scale: 1; }
+    .kart.siliniyor { animation: sagaKayarakSil .45s ease forwards; }
+    .kapat { position: absolute; top: 8px; right: 8px; border: none; background: #fee2e2; color: #991b1b; width: 28px; height: 28px; border-radius: 50%; font-size: 20px; line-height: 28px; cursor: pointer; }
+    .kapat:hover { background: #fecaca; }
+    .kart img { width: 140px; height: 140px; }
+    .kart h3 { margin: 8px 0; text-transform: capitalize; }
+    .yukleniyor { color: #6b7280; font-style: italic; }
+    .hata { color: #dc2626; background: #fef2f2; padding: 12px; border-radius: 8px; }
+    @keyframes belirerekGel {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes sagaKayarakSil {
+        from {
+            opacity: 1;
+            transform: translateX(0) rotate(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(120vw) rotate(8deg);
+        }
+    }
+
+    </style>
+</head>
+<body>
+    <h1>Pokemon Kartları</h1>
+    <div id="form">
+        <input id="isimler" type="text">
+        <button id="getir">Getir</button>
+    </div>
+    <div id="durum"></div>
+    <div id="kartlar"></div>
+
+    <script>
+        async function pokemonGetir(isim) {
+            const url = 'https://pokeapi.co/api/v2/pokemon/' + isim.toLowerCase().trim();
+            const yanit = await fetch(url);
+
+            if (!yanit.ok) {
+                throw new Error(`'${isim}' bulunamadı (HTTP ${yanit.status})`);
+            } 
+            const veri = await yanit.json();
+            return {
+                id:    veri.id,
+                isim:  veri.name,
+                resim: veri.sprites.other['official-artwork'].front_default,
+                tipler: veri.types.map(t => t.type.name),
+                hp:     veri.stats[0].base_stat,
+                saldiri: veri.stats[1].base_stat,
+            };
+
+        }    
+
+        let sesContext;
+
+        function tikSesiCal() {
+            sesContext = sesContext || new (window.AudioContext || window.webkitAudioContext)();
+
+            const oscillator = sesContext.createOscillator();
+            const gain = sesContext.createGain();
+            const simdi = sesContext.currentTime;
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(650, simdi);
+            gain.gain.setValueAtTime(0.08, simdi);
+            gain.gain.exponentialRampToValueAtTime(0.001, simdi + 0.08);
+
+            oscillator.connect(gain);
+            gain.connect(sesContext.destination);
+            oscillator.start(simdi);
+            oscillator.stop(simdi + 0.08);
+        }
+
+        const tipRenkleri = {
+            normal: '#f5f5dc',
+            fire: '#fee2e2',
+            water: '#dbeafe',
+            electric: '#fef3c7',
+            grass: '#dcfce7',
+            ice: '#e0f2fe',
+            fighting: '#fed7aa',
+            poison: '#f3e8ff',
+            ground: '#fef9c3',
+            flying: '#e0e7ff',
+            psychic: '#fce7f3',
+            bug: '#ecfccb',
+            rock: '#e7e5e4',
+            ghost: '#ede9fe',
+            dragon: '#ddd6fe',
+            dark: '#d6d3d1',
+            steel: '#e5e7eb',
+            fairy: '#fae8ff'
+        };
+
+        function kartStilleriniTemizle(kart) {
+            kart.style.removeProperty('top');
+            kart.style.removeProperty('left');
+            kart.style.removeProperty('width');
+            kart.style.removeProperty('transform');
+        }
+
+        function kartBuyut(kart) {
+            if (kart.classList.contains('secili')) return;
+
+            const konum = kart.getBoundingClientRect();
+            kart.dataset.eskiTop = konum.top;
+            kart.dataset.eskiLeft = konum.left;
+            kart.dataset.eskiWidth = konum.width;
+
+            document.body.classList.add('detay-modu');
+
+            document.querySelectorAll('.kart').forEach(digerKart => {
+                if (digerKart !== kart) {
+                    digerKart.classList.add('gizlen');
+                }
+            });
+
+            kart.classList.add('secili');
+            kart.style.top = `${konum.top}px`;
+            kart.style.left = `${konum.left}px`;
+            kart.style.width = `${konum.width}px`;
+            kart.style.transform = 'translate(0, 0) scale(1)';
+            kart.offsetWidth;
+
+            requestAnimationFrame(() => {
+                kart.style.top = '50%';
+                kart.style.left = '50%';
+                kart.style.width = 'min(420px, 85vw)';
+                kart.style.transform = 'translate(-50%, -50%) scale(1.25)';
+            });
+        }
+
+        function kartKucult(kart) {
+            kart.style.top = `${kart.dataset.eskiTop}px`;
+            kart.style.left = `${kart.dataset.eskiLeft}px`;
+            kart.style.width = `${kart.dataset.eskiWidth}px`;
+            kart.style.transform = 'translate(0, 0) scale(1)';
+
+            setTimeout(() => {
+                kart.classList.remove('secili');
+                kartStilleriniTemizle(kart);
+                document.body.classList.remove('detay-modu');
+                document.querySelectorAll('.kart.gizlen').forEach(digerKart => {
+                    digerKart.classList.remove('gizlen');
+                });
+            }, 550);
+        }
+
+        function kartOlustur(pokemon, sira) {
+            const kart = document.createElement('div');
+            kart.className = 'kart';
+            kart.style.setProperty('--gecikme', `${sira * 0.2}s`);
+            kart.style.setProperty('--tip-rengi', tipRenkleri[pokemon.tipler[0]] || '#f9fafb');
+            kart.innerHTML = `
+                <button class="kapat" type="button" title="Kapat">&times;</button>
+                <img src="${pokemon.resim}" alt="${pokemon.isim}">
+                <h3>#${pokemon.id} ${pokemon.isim}</h3>
+                <p>${pokemon.tipler.join(', ')}</p>
+                <p>HP: ${pokemon.hp} | Atak: ${pokemon.saldiri}</p>
+            `;
+            kart.querySelector('.kapat').addEventListener('click', (event) => {
+                event.stopPropagation();
+
+                if (kart.classList.contains('secili')) {
+                    kartKucult(kart);
+                    return;
+                }
+
+                kart.classList.add('siliniyor');
+                kart.addEventListener('animationend', () => {
+                    kart.remove();
+                    document.body.classList.remove('detay-modu');
+                    document.querySelectorAll('.kart.gizlen').forEach(digerKart => {
+                        digerKart.classList.remove('gizlen');
+                    });
+                }, { once: true });
+            });
+            kart.addEventListener('mouseenter', tikSesiCal);
+            kart.addEventListener('click', () => {
+                kartBuyut(kart);
+            });
+            return kart;
+        }
+
+        const getirBtn = document.getElementById('getir');
+        const isimlerInput = document.getElementById('isimler');
+        const kartlarDiv = document.getElementById('kartlar');
+        const durumDiv = document.getElementById('durum');
+
+        getirBtn.addEventListener('click', async () => {
+            // İsimleri parse et
+            const isimler = isimlerInput.value.split(',').map(s => s.trim()).filter(Boolean);
+            if (isimler.length === 0) return;
+            console.log(isimler);
+
+            // Önceki kartları temizle
+            kartlarDiv.innerHTML = '';
+            durumDiv.innerHTML = '<p class="yukleniyor">Yükleniyor...</p>';
+            
+            const sonuclar = await Promise.all(isimler.map(isim => {
+                return pokemonGetir(isim)
+                    .then(pokemon => ({ pokemon }))
+                    .catch(err => ({ err }));
+            }));
+
+            sonuclar.forEach((sonuc, sira) => {
+                if (sonuc.pokemon) {
+                    const kart = kartOlustur(sonuc.pokemon, sira);
+                    kartlarDiv.appendChild(kart);
+                    return;
+                }
+
+                console.error(sonuc.err);
+                const hataDiv = document.createElement('div');
+                hataDiv.className = 'hata';
+                hataDiv.textContent = `Hata: ${sonuc.err.message}`;
+                kartlarDiv.appendChild(hataDiv);
+            });
+
+            durumDiv.innerHTML = '';
+            
+        });
+
+        pokemonGetir("pikachu").then(p => console.log(p));
+    </script>
+</body>
+</html>
