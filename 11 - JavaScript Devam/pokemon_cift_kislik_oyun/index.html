@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Pokemon TCG Arena - Multiplayer ⚡</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;700&display=swap');
+
+        :root {
+            --player1: #FF6B6B;
+            --player2: #4ECDC4;
+            --bg-dark: #0F1419;
+            --bg-card: #1A2332;
+            --accent-gold: #FFD700;
+            --accent-purple: #A78BFA;
+            --accent-lime: #84E167;
+            --text-light: #F0F0F0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1419 0%, #1a2a4a 50%, #0F1419 100%);
+            color: var(--text-light);
+            font-family: 'Fredoka', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            background-attachment: fixed;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== LOGIN SCREEN ==================== */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .login-screen {
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.5rem;
+            background: linear-gradient(120deg, var(--accent-gold), var(--accent-purple), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+            animation: slideDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-form {
+            background: var(--bg-card);
+            border: 3px solid var(--accent-gold);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.2);
+            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--accent-purple);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-light);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(240, 240, 240, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--player1), #FF8E8E);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--player2), #6EE7DE);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0px);
+        }
+
+        .info-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--accent-lime);
+        }
+
+        /* ==================== DECK BUILDING SCREEN ==================== */
+        .deck-screen {
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .deck-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: slideDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .deck-subtitle {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            color: var(--accent-lime);
+            letter-spacing: 1px;
+        }
+
+        .waiting-text {
+            font-size: 1rem;
+            color: var(--accent-purple);
+            margin-top: 10px;
+        }
+
+        .deck-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .search-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow: hidden;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--accent-gold);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-light);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .pokemon-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .pokemon-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .pokemon-grid::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .pokemon-grid::-webkit-scrollbar-thumb {
+            background: var(--accent-purple);
+            border-radius: 4px;
+        }
+
+        .pokemon-card-small {
+            background: var(--bg-card);
+            border: 2px solid var(--accent-gold);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pokemon-card-small:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+            border-color: var(--accent-lime);
+        }
+
+        .pokemon-card-small img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        .pokemon-card-small-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+        }
+
+        .pokemon-card-small-type {
+            font-size: 0.7rem;
+            background: var(--accent-purple);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .deck-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .deck-info {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--accent-purple);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .deck-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-lime);
+            margin: 10px 0;
+        }
+
+        .deck-list {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--accent-purple);
+            border-radius: 10px;
+            padding: 15px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .deck-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .deck-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .deck-list::-webkit-scrollbar-thumb {
+            background: var(--accent-purple);
+        }
+
+        .deck-item {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-gold);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .deck-item-name {
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        .deck-item-type {
+            color: var(--accent-lime);
+            font-size: 0.8rem;
+            margin: 0 8px;
+        }
+
+        .deck-item-remove {
+            background: var(--player1);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .deck-item-remove:hover {
+            background: #FF8E8E;
+            transform: scale(1.1);
+        }
+
+        .deck-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .deck-actions .btn {
+            flex: 1;
+        }
+
+        /* ==================== BATTLE SCREEN ==================== */
+        .battle-screen {
+            flex-direction: row;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .battle-player {
+            flex: 1;
+            border: 3px solid;
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 100%);
+        }
+
+        .battle-player.player1 {
+            border-color: var(--player1);
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.2);
+        }
+
+        .battle-player.player2 {
+            border-color: var(--player2);
+            box-shadow: 0 0 40px rgba(78, 205, 196, 0.2);
+        }
+
+        .player-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .player1 .player-header {
+            color: var(--player1);
+        }
+
+        .player2 .player-header {
+            color: var(--player2);
+        }
+
+        .health-bar {
+            width: 100%;
+            height: 35px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid currentColor;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00FF00, #FFFF00, #FF6600);
+            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .health-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .health-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 700;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            z-index: 2;
+        }
+
+        .pokemon-display {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .pokemon-image-large {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .pokemon-name-large {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+        }
+
+        .pokemon-type-badge {
+            display: inline-block;
+            background: var(--accent-purple);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .battle-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .battle-controls .btn {
+            flex: 1;
+        }
+
+        .battle-log-section {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--accent-gold);
+            border-radius: 10px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            color: var(--accent-lime);
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            animation: slideInLog 0.3s ease;
+        }
+
+        @keyframes slideInLog {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .battle-log-section::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .battle-log-section::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .battle-log-section::-webkit-scrollbar-thumb {
+            background: var(--accent-purple);
+        }
+
+        /* ==================== MODAL ==================== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a2a4a, #0F1419);
+            border: 3px solid var(--accent-gold);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            background: linear-gradient(120deg, var(--accent-gold), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-text {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            gap: 20px;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 215, 0, 0.2);
+            border-top: 4px solid var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--accent-lime);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .error-message {
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid var(--player1);
+            border-radius: 8px;
+            padding: 15px;
+            color: #FF8E8E;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .damage-popup {
+            position: absolute;
+            font-weight: 700;
+            font-size: 3rem;
+            color: #FF6B6B;
+            pointer-events: none;
+            animation: popupFloat 1s ease-out forwards;
+            z-index: 100;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        @keyframes popupFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.5);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .deck-content {
+                grid-template-columns: 1fr;
+            }
+
+            .battle-screen {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="starsContainer"></div>
+
+    <div class="container">
+        <!-- LOGIN SCREEN -->
+        <div class="screen login-screen active">
+            <div class="title">⚡ POKÉMON TCG ⚡</div>
+            <div class="login-form">
+                <div class="form-group">
+                    <label>Oyuncu Adı</label>
+                    <input type="text" id="playerName" placeholder="Örn: Ash" maxlength="20">
+                </div>
+
+                <div class="form-group">
+                    <label>Oyun Modu</label>
+                    <select id="gameMode">
+                        <option value="create">Yeni Oda Oluştur</option>
+                        <option value="join">Odaya Katıl</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="roomIdGroup" style="display: none;">
+                    <label>Oda ID</label>
+                    <input type="text" id="roomId" placeholder="Oda ID'sini girin">
+                </div>
+
+                <div class="error-message" id="loginError"></div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="handleGameMode()">Devam Et</button>
+                </div>
+
+                <div class="info-text">
+                    🎮 İki kişi multiplayer Pokemon oyunu<br>
+                    Deste oluşturup savaşın!
+                </div>
+            </div>
+        </div>
+
+        <!-- DECK BUILDING SCREEN -->
+        <div class="screen deck-screen">
+            <div class="deck-header">
+                <div class="title">Deste Oluştur</div>
+                <div class="deck-subtitle">Pokémon Seçimi</div>
+                <div class="waiting-text" id="waitingText">Oyuncu 2 bekleniyor...</div>
+            </div>
+
+            <div class="deck-content">
+                <div class="search-section">
+                    <h3 style="color: var(--accent-gold); text-transform: uppercase; letter-spacing: 1px;">Pokémon Arama</h3>
+                    <input type="number" class="search-input" id="pokemonSearch" min="1" max="1000" placeholder="Pokemon ID girin (1-1000)">
+                    <button class="btn btn-secondary" onclick="searchPokemon()" style="width: 100%;">🔍 Ara</button>
+                    <div class="pokemon-grid" id="pokemonGrid"></div>
+                </div>
+
+                <div class="deck-section">
+                    <h3 style="color: var(--accent-gold); text-transform: uppercase; letter-spacing: 1px;">Senin Destesin</h3>
+                    <div class="deck-info">
+                        <div>Seçilen Pokémon</div>
+                        <div class="deck-count" id="deckCount">0 / 6</div>
+                        <div style="font-size: 0.9rem; color: var(--accent-lime);">En az 1, en fazla 6</div>
+                    </div>
+                    <div class="deck-list" id="deckList"></div>
+                    <div class="deck-actions">
+                        <button class="btn btn-primary" onclick="startGame()" id="startBtn" disabled>
+                            Oyuna Başla
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BATTLE SCREEN -->
+        <div class="screen battle-screen">
+            <div class="battle-player player1">
+                <div class="player-header">🔴 <span id="player1Name">Oyuncu 1</span></div>
+                <div class="health-bar player1">
+                    <div class="health-fill" id="healthBar1"></div>
+                    <div class="health-text" id="healthText1">100 / 100</div>
+                </div>
+
+                <div class="pokemon-display">
+                    <img class="pokemon-image-large" id="pokemonImg1" src="" alt="Pokemon">
+                    <div class="pokemon-name-large" id="pokemonName1">Pokemon</div>
+                    <div class="pokemon-type-badge" id="pokemonType1">Type</div>
+                </div>
+
+                <div class="battle-controls">
+                    <button class="btn btn-primary" onclick="attackEnemy()">⚡ Saldır</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="battle-log-section" id="battleLogSection">
+                    <div class="log-entry">⚔️ Oyun başlamaya hazır...</div>
+                </div>
+            </div>
+
+            <div class="battle-player player2">
+                <div class="player-header">🔵 <span id="player2Name">Oyuncu 2</span></div>
+                <div class="health-bar player2">
+                    <div class="health-fill" id="healthBar2"></div>
+                    <div class="health-text" id="healthText2">100 / 100</div>
+                </div>
+
+                <div class="pokemon-display">
+                    <img class="pokemon-image-large" id="pokemonImg2" src="" alt="Pokemon">
+                    <div class="pokemon-name-large" id="pokemonName2">Pokemon</div>
+                    <div class="pokemon-type-badge" id="pokemonType2">Type</div>
+                </div>
+
+                <div class="battle-controls">
+                    <button class="btn btn-secondary" onclick="attackEnemy()" id="player2AttackBtn">⚡ Saldır</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME END MODAL -->
+    <div class="modal" id="gameEndModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">OYUN BİTTİ!</div>
+            <div class="modal-text" id="modalText">Kazanan belirlenecek...</div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="location.reload()">🔄 Yeni Oyun</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== SOCKET.IO BAĞLANTISI ====================
+        const socket = io('http://localhost:3000', {
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            reconnectionAttempts: 5
+        });
+
+        // ==================== OYUN DURUM ====================
+        const gameState = {
+            playerName: '',
+            roomId: null,
+            isHost: false,
+            gameMode: 'create',
+            myDeck: [],
+            isMyTurn: false,
+            currentPokemonIndex: 0,
+            gameActive: false
+        };
+
+        // ==================== SAYFAYI BAŞLAT ====================
+        window.addEventListener('load', () => {
+            initStars();
+            setupGameModeListener();
+        });
+
+        // ==================== YARDIMCI FONKSİYONLAR ====================
+
+        /**
+         * Yıldızları oluştur
+         */
+        function initStars() {
+            const starsContainer = document.getElementById('starsContainer');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        /**
+         * Ekran değiştir
+         */
+        function switchScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelector(`.${screenName}`).classList.add('active');
+        }
+
+        /**
+         * Oyun modu seçimini dinle
+         */
+        function setupGameModeListener() {
+            document.getElementById('gameMode').addEventListener('change', (e) => {
+                gameState.gameMode = e.target.value;
+                if (e.target.value === 'join') {
+                    document.getElementById('roomIdGroup').style.display = 'block';
+                } else {
+                    document.getElementById('roomIdGroup').style.display = 'none';
+                }
+            });
+        }
+
+        /**
+         * Oyun modunu kontrol et (Oda oluştur / Katıl)
+         */
+        function handleGameMode() {
+            const playerName = document.getElementById('playerName').value.trim();
+            const errorEl = document.getElementById('loginError');
+
+            if (!playerName) {
+                showError('Lütfen oyuncu adı girin!', errorEl);
+                return;
+            }
+
+            gameState.playerName = playerName;
+
+            if (gameState.gameMode === 'create') {
+                socket.emit('create-room', { playerName }, (response) => {
+                    if (response.success) {
+                        gameState.roomId = response.roomId;
+                        gameState.isHost = true;
+                        switchScreen('deck-screen');
+                        updateDeckScreen();
+                        document.getElementById('waitingText').textContent = `Oyuncu 2 bekleniyor... Oda ID: ${response.roomId}`;
+                    } else {
+                        showError(response.message, errorEl);
+                    }
+                });
+            } else {
+                const roomId = document.getElementById('roomId').value.trim();
+                if (!roomId) {
+                    showError('Lütfen oda ID\'sini girin!', errorEl);
+                    return;
+                }
+
+                socket.emit('join-room', { roomId, playerName }, (response) => {
+                    if (response.success) {
+                        gameState.roomId = roomId;
+                        gameState.isHost = false;
+                        switchScreen('deck-screen');
+                        updateDeckScreen();
+                    } else {
+                        showError(response.message, errorEl);
+                    }
+                });
+            }
+        }
+
+        /**
+         * Hata göster
+         */
+        function showError(message, element) {
+            element.textContent = message;
+            element.classList.add('active');
+            setTimeout(() => element.classList.remove('active'), 5000);
+        }
+
+        /**
+         * Deste ekranını güncelle
+         */
+        function updateDeckScreen() {
+            document.getElementById('player1Name').textContent = gameState.playerName;
+            updateDeckDisplay();
+        }
+
+        /**
+         * Pokemon ara
+         */
+        async function searchPokemon() {
+            const pokemonId = document.getElementById('pokemonSearch').value.trim();
+            if (!pokemonId) {
+                alert('Lütfen Pokemon ID girin (1-1000)');
+                return;
+            }
+
+            const grid = document.getElementById('pokemonGrid');
+            grid.innerHTML = '<div class="loading"><div class="loader"></div><p>Yükleniyor...</p></div>';
+
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+                if (!response.ok) throw new Error('Pokemon bulunamadı');
+
+                const data = await response.json();
+                displayPokemon(data);
+            } catch (error) {
+                grid.innerHTML = `<div style="color: #FF6B6B; grid-column: 1/-1;">❌ Pokemon bulunamadı!</div>`;
+            }
+        }
+
+        /**
+         * Pokemon göster
+         */
+        function displayPokemon(data) {
+            const grid = document.getElementById('pokemonGrid');
+            grid.innerHTML = '';
+
+            const card = document.createElement('div');
+            card.className = 'pokemon-card-small';
+            card.onclick = () => addToDeck(data);
+            card.innerHTML = `
+                <img src="${data.sprites.other['official-artwork'].front_default || data.sprites.front_default}" alt="${data.name}">
+                <div class="pokemon-card-small-name">${data.name}</div>
+                <div class="pokemon-card-small-type">${data.types[0].type.name}</div>
+            `;
+            grid.appendChild(card);
+        }
+
+        /**
+         * Destesine Pokemon ekle
+         */
+        function addToDeck(pokemonData) {
+            socket.emit('add-to-deck', {
+                pokemonId: pokemonData.id
+            }, (response) => {
+                if (response.success) {
+                    gameState.myDeck.push({
+                        id: pokemonData.id,
+                        name: pokemonData.name,
+                        type: pokemonData.types[0].type.name,
+                        image: pokemonData.sprites.other['official-artwork'].front_default
+                    });
+                    updateDeckDisplay();
+                } else {
+                    alert('❌ ' + response.message);
+                }
+            });
+        }
+
+        /**
+         * Deste ekranını güncelle
+         */
+        function updateDeckDisplay() {
+            const count = gameState.myDeck.length;
+            document.getElementById('deckCount').textContent = `${count} / 6`;
+
+            const list = document.getElementById('deckList');
+            list.innerHTML = gameState.myDeck.map((pokemon, idx) => `
+                <div class="deck-item">
+                    <span class="deck-item-name">${pokemon.name}</span>
+                    <span class="deck-item-type">${pokemon.type.toUpperCase()}</span>
+                    <button class="deck-item-remove" onclick="removeFromDeck(${idx})">✕</button>
+                </div>
+            `).join('');
+
+            document.getElementById('startBtn').disabled = count < 1;
+        }
+
+        /**
+         * Desteden çıkar
+         */
+        function removeFromDeck(index) {
+            socket.emit('remove-from-deck', { index }, (response) => {
+                if (response.success) {
+                    gameState.myDeck.splice(index, 1);
+                    updateDeckDisplay();
+                }
+            });
+        }
+
+        /**
+         * Oyunu başlat
+         */
+        function startGame() {
+            socket.emit('start-game', {}, (response) => {
+                if (!response.success) {
+                    alert('❌ ' + response.message);
+                }
+            });
+        }
+
+        /**
+         * Saldır
+         */
+        function attackEnemy() {
+            socket.emit('attack', {}, (response) => {
+                if (!response.success) {
+                    alert('❌ ' + response.message);
+                }
+            });
+        }
+
+        /**
+         * Battle Log'a mesaj ekle
+         */
+        function addToBattleLog(message) {
+            const logSection = document.getElementById('battleLogSection');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = message;
+            logSection.appendChild(entry);
+            logSection.scrollTop = logSection.scrollHeight;
+        }
+
+        // ==================== SOCKET.IO EVENTS ====================
+
+        socket.on('connect', () => {
+            console.log('✅ Sunucuya bağlandı');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('❌ Sunucudan bağlantısı kesildi');
+        });
+
+        socket.on('room-updated', (data) => {
+            console.log('Oda güncellendi:', data);
+            if (data.guest.id) {
+                document.getElementById('waitingText').textContent = '✅ Her iki oyuncu da hazır!';
+            }
+        });
+
+        socket.on('deck-updated', (data) => {
+            console.log('Deste güncellendi:', data);
+            document.getElementById('player1Name').textContent = data.host.name;
+            document.getElementById('player2Name').textContent = data.guest.name;
+            addToBattleLog(data.message);
+        });
+
+        socket.on('game-started', (data) => {
+            console.log('Oyun başladı!');
+            gameState.gameActive = true;
+
+            // Oyuncu 1 bilgilerini göster
+            document.getElementById('player1Name').textContent = data.host.name;
+            document.getElementById('pokemonName1').textContent = data.host.pokemon.name;
+            document.getElementById('pokemonType1').textContent = data.host.pokemon.type.toUpperCase();
+            document.getElementById('pokemonImg1').src = data.host.pokemon.image;
+            updateHealthBar(1, data.host.health, data.host.maxHealth);
+
+            // Oyuncu 2 bilgilerini göster
+            document.getElementById('player2Name').textContent = data.guest.name;
+            document.getElementById('pokemonName2').textContent = data.guest.pokemon.name;
+            document.getElementById('pokemonType2').textContent = data.guest.pokemon.type.toUpperCase();
+            document.getElementById('pokemonImg2').src = data.guest.pokemon.image;
+            updateHealthBar(2, data.guest.health, data.guest.maxHealth);
+
+            switchScreen('battle-screen');
+            addToBattleLog('⚔️ Savaş başladı!');
+        });
+
+        socket.on('attack-result', (data) => {
+            console.log('Saldırı sonucu:', data);
+            addToBattleLog(
+                `⚡ ${data.attacker.pokemon} (${data.attacker.name}) → ${data.defender.pokemon} (${data.defender.name}): ${data.attacker.damage} hasar!`
+            );
+
+            updateHealthBar(data.defender.name === document.getElementById('player1Name').textContent ? 1 : 2, 
+                          data.defender.health, 
+                          data.defender.maxHealth);
+
+            if (data.defender.isDead) {
+                addToBattleLog(`💥 ${data.defender.pokemon} düştü!`);
+            }
+        });
+
+        socket.on('pokemon-switched', (data) => {
+            console.log('Pokemon değiştirildi:', data);
+            const playerNum = data.defenderName === document.getElementById('player1Name').textContent ? 1 : 2;
+            document.getElementById(`pokemonName${playerNum}`).textContent = data.newPokemon.name;
+            document.getElementById(`pokemonType${playerNum}`).textContent = data.newPokemon.type.toUpperCase();
+            document.getElementById(`pokemonImg${playerNum}`).src = data.newPokemon.image;
+            updateHealthBar(playerNum, data.health, 100);
+            addToBattleLog(`🔄 ${data.defenderName} ${data.newPokemon.name} ile değiştirdi!`);
+        });
+
+        socket.on('game-ended', (data) => {
+            console.log('Oyun bitti!', data);
+            gameState.gameActive = false;
+            document.getElementById('modalTitle').textContent = `🏆 ${data.winner} KAZANDI! 🏆`;
+            document.getElementById('modalText').textContent = `${data.loser} başarısız oldu!`;
+            document.getElementById('gameEndModal').classList.add('active');
+        });
+
+        socket.on('player-disconnected', (data) => {
+            addToBattleLog('🚪 ' + data.message);
+            setTimeout(() => {
+                document.getElementById('gameEndModal').classList.add('active');
+            }, 2000);
+        });
+
+        // ==================== YARDIMCI FUNCTION ====================
+
+        function updateHealthBar(playerNum, health, maxHealth) {
+            const percent = (health / maxHealth) * 100;
+            document.getElementById(`healthBar${playerNum}`).style.width = percent + '%';
+            document.getElementById(`healthText${playerNum}`).textContent = `${Math.max(0, health)} / ${maxHealth}`;
+        }
+    </script>
+</body>
+</html>
