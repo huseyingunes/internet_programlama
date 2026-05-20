@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>React API Proje Ödevleri</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f4f7f6;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 40px;
+        }
+        .assignment-container {
+            display: grid;
+            gap: 30px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-left: 5px solid #3498db;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #2980b9;
+            font-size: 1.5rem;
+        }
+        .api-link {
+            display: inline-block;
+            background: #eef7fd;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #0077cc;
+            text-decoration: none;
+            margin: 10px 0;
+        }
+        .api-link:hover {
+            text-decoration: underline;
+        }
+        .badge {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .description {
+            font-style: italic;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .tasks-title {
+            font-weight: bold;
+            margin-top: 15px;
+            display: block;
+            color: #333;
+        }
+        ul {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .tech-stack {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .tech-stack b {
+            color: #d35400;
+        }
+        @media print {
+            body { background: white; }
+            .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <h1>React & API Entegrasyonu Ödev Listesi</h1>
+    <div class="assignment-container">
+
+        <div class="card">
+            <span class="badge">Ödev #1</span>
+            <h2>İnsan Kaynakları (HR) Dashboard</h2>
+            <div class="description">Büyük bir teknoloji şirketi için çalışan yönetim paneli tasarlayın. API'den gelen verileri kullanarak sanal bir şirket kadrosu oluşturun.</div>
+            <strong>Kullanılacak API:</strong><br>
+            <a href="https://api-ninjas.com/api/randomuser" class="api-link" target="_blank">API Ninjas (Random User API)</a>
+            
+            <span class="tasks-title">Ödev Gereksinimleri:</span>
+            <ul>
+                <li>API'den 10-15 arası rastgele kullanıcı çekin.</li><li>Her kullanıcı için şık bir 'Personel Kartı' (Card UI) tasarlayın.</li><li>İsim ile anlık arama (search) yapılabilecek bir filtreleme sistemi kurun.</li><li>Kullanıcı kartlarına 'Sil' butonu ekleyerek state üzerinden listeden çıkarma işlemi yapın.</li>
+            </ul>
+            
+            <div class="tech-stack">
+                <strong>Odaklanılacak Konular:</strong> <b>useState, useEffect, Filter/Map methods</b>
+            </div>
+        </div>
+    
+        <div class="card">
+            <span class="badge">Ödev #2</span>
+            <h2>Kişiselleştirilmiş Haber Bülteni</h2>
+            <div class="description">Kullanıcının ilgi alanlarına göre kategorize edilmiş haberleri okuyabileceği modern bir haber portalı geliştirin.</div>
+            <strong>Kullanılacak API:</strong><br>
+            <a href="https://newsapi.org/" class="api-link" target="_blank">NewsAPI</a>
+            
+            <span class="tasks-title">Ödev Gereksinimleri:</span>
+            <ul>
+                <li>Kategori sekmeleri oluşturun (Teknoloji, Bilim, Sağlık vb.).</li><li>Seçilen kategori değiştikçe API'ye yeni istek atılmasını sağlayın.</li><li>Haberleri görsel, başlık ve kısa açıklama ile listeleyin.</li><li>Haberin orijinal sitesine gitmek için 'Devamını Oku' linki ekleyin.</li>
+            </ul>
+            
+            <div class="tech-stack">
+                <strong>Odaklanılacak Konular:</strong> <b>Dynamic API Fetching, Dependency Array</b>
+            </div>
+        </div>
+    
+        <div class="card">
+            <span class="badge">Ödev #3</span>
+            <h2>Geliştirici API Portalı</h2>
+            <div class="description">Geliştiricilerin proje fikirleri bulabileceği bir API kataloğu uygulaması hazırlayın.</div>
+            <strong>Kullanılacak API:</strong><br>
+            <a href="https://publicapi.dev/" class="api-link" target="_blank">PublicAPI.dev</a>
+            
+            <span class="tasks-title">Ödev Gereksinimleri:</span>
+            <ul>
+                <li>Tüm API listesini çekin ve tablo veya grid yapısında sunun.</li><li>API'leri 'Auth (Var/Yok)' ve 'HTTPS' durumuna göre filtreleyin.</li><li>Rastgele bir API getiren bir 'İlham Ver' butonu tasarlayın.</li><li>Boş arama sonuçları için 'API Bulunamadı' mesajı gösterin.</li>
+            </ul>
+            
+            <div class="tech-stack">
+                <strong>Odaklanılacak Konular:</strong> <b>Object destructuring, Conditional Rendering</b>
+            </div>
+        </div>
+    
+        <div class="card">
+            <span class="badge">Ödev #4</span>
+            <h2>Moodify: Moduna Göre Müzik</h2>
+            <div class="description">Kullanıcının o anki ruh haline göre (Enerjik, Melankolik, Odaklanmış) çalma listeleri öneren bir uygulama.</div>
+            <strong>Kullanılacak API:</strong><br>
+            <a href="https://developer.spotify.com/" class="api-link" target="_blank">Spotify API</a>
+            
+            <span class="tasks-title">Ödev Gereksinimleri:</span>
+            <ul>
+                <li>Mod seçim butonları tasarlayın.</li><li>Seçilen moda uygun türdeki (genre) şarkıları listeleyin.</li><li>Şarkı albüm kapaklarını ve sürelerini düzgün bir formatta gösterin.</li><li>Basit bir 'Beğen' butonu ile seçilen şarkıları favori listesine ekleyin.</li>
+            </ul>
+            
+            <div class="tech-stack">
+                <strong>Odaklanılacak Konular:</strong> <b>Props Management, Array Operations</b>
+            </div>
+        </div>
+    
+        <div class="card">
+            <span class="badge">Ödev #5</span>
+            <h2>DevBreak: Yazılımcı Şakaları</h2>
+            <div class="description">Yazılımcıların mola anlarında stres atabileceği, etkileşimli bir şaka uygulaması.</div>
+            <strong>Kullanılacak API:</strong><br>
+            <a href="https://github.com/15dkatz/official_joke_api" class="api-link" target="_blank">Official Joke API</a>
+            
+            <span class="tasks-title">Ödev Gereksinimleri:</span>
+            <ul>
+                <li>Bir şaka sorusu (setup) gösterin.</li><li>'Cevabı Gör' butonuna basılınca cevabı (punchline) animasyonla açın.</li><li>'Yeni Şaka Getir' butonu ile asenkron veri akışını yönetin.</li><li>Şakalara 1-5 arası puan verebileceğiniz bir oylama sistemi ekleyin.</li>
+            </ul>
+            
+            <div class="tech-stack">
+                <strong>Odaklanılacak Konular:</strong> <b>Async/Await, UI State Management</b>
+            </div>
+        </div>
+    
+        <div class="card">
+            <span class="badge">Ödev #6</span>
+            <h2>VocabUp: Kelime Kartları</h2>
+            <div class="description">İngilizce öğrenenler için kapsamlı bir sözlük ve kelime çalışma aracı.</div>
+            <strong>Kullanılacak API:</strong><br>
+            <a href="https://developer.wordnik.com/" class="api-link" target="_blank">Wordnik API</a>
+            
+            <span class="tasks-title">Ödev Gereksinimleri:</span>
+            <ul>
+                <li>Kelime araması yapılabilecek bir form oluşturun.</li><li>API'den kelimenin tanımı, telaffuzu ve örnek cümlelerini çekin.</li><li>Eş anlamlı kelimeleri (synonyms) tıklanabilir linkler olarak sunun.</li><li>Aranan kelimeleri 'Son Arananlar' listesinde tutun.</li>
+            </ul>
+            
+            <div class="tech-stack">
+                <strong>Odaklanılacak Konular:</strong> <b>Controlled Inputs, Multi-fetch handling</b>
+            </div>
+        </div>
+    
+        <div class="card">
+            <span class="badge">Ödev #7</span>
+            <h2>Chef's Table: Tarif Rehberi</h2>
+            <div class="description">Mutfaktaki malzemelere göre yemek tarifleri sunan bir şef asistanı.</div>
+            <strong>Kullanılacak API:</strong><br>
+            <a href="https://www.themealdb.com/api.php" class="api-link" target="_blank">TheMealDB API</a>
+            
+            <span class="tasks-title">Ödev Gereksinimleri:</span>
+            <ul>
+                <li>Malzeme bazlı veya kategori bazlı arama özelliği ekleyin.</li><li>Yemek tarifini modal (açılır pencere) içerisinde gösterin.</li><li>Tarifin içindeki malzeme listesini 'checkbox' listesi olarak sunun.</li><li>Tarif videosu varsa bir embed video alanı ekleyin.</li>
+            </ul>
+            
+            <div class="tech-stack">
+                <strong>Odaklanılacak Konular:</strong> <b>Complex JSON parsing, Modals/Portals</b>
+            </div>
+        </div>
+    
+        <div class="card">
+            <span class="badge">Ödev #8</span>
+            <h2>Cosmos Explorer: NASA Günü</h2>
+            <div class="description">NASA'nın her gün yayınladığı eşsiz uzay fotoğraflarını keşfeden bir takvim uygulaması.</div>
+            <strong>Kullanılacak API:</strong><br>
+            <a href="https://api.nasa.gov/" class="api-link" target="_blank">NASA APOD API</a>
+            
+            <span class="tasks-title">Ödev Gereksinimleri:</span>
+            <ul>
+                <li>Uygulama açılışında 'Günün Astronomi Fotoğrafı'nı gösterin.</li><li>Tarih seçici (Date Input) ile geçmiş tarihlerdeki fotoğraflara gidin.</li><li>Fotoğraf yüksek çözünürlükte yüklenirken bir 'Loading' animasyonu gösterin.</li><li>Fotoğrafın açıklama metnini okunabilir bir tipografi ile sunun.</li>
+            </ul>
+            
+            <div class="tech-stack">
+                <strong>Odaklanılacak Konular:</strong> <b>Date formatting, Loading states</b>
+            </div>
+        </div>
+    
+    </div>
+    <footer style="text-align:center; margin-top:50px; color:#888; font-size:0.8rem;">
+        &copy; 2024 React Programlama Dersi - Ödev Dökümanı
+    </footer>
+</body>
+</html>
